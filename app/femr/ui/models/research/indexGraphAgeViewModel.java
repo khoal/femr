@@ -1,10 +1,8 @@
 package femr.ui.models.research;
 
 import femr.common.models.AgeGraphItem;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 public class IndexGraphAgeViewModel {
 

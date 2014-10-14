@@ -7,6 +7,7 @@
     }
     @additionalScripts = {
         <script type="text/javascript" src="@routes.Assets.at("js/research/d3.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/saveSvgAsPng.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/research.js")"></script>
     }
 
@@ -30,8 +31,9 @@
             <p>Median Age: @viewModel.getMedian()</p>
             <p>Age Range: @viewModel.getRangeLow - @viewModel.getRangeHigh()</p>
 
+            <button id="save">Save as image&hellip;</button>
             <div class="chart-container">
-                <svg class="chart"></svg>
+                <svg id="graph" class="chart"></svg>
             </div>
             <script type="text/javascript">
                 @Html("var data = [")
@@ -42,6 +44,9 @@
                         }
                 @Html("];")
             </script>
-
-
+            <div id="svgdataurl"></div>
+            <div id="pngdataurl"></div>
+            <canvas style="display:none" height="500" width="960"></canvas>
+        </div>
+    </div>
 }

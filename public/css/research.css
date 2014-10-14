@@ -83,6 +83,11 @@ table th{
     box-shadow: 1px 2px 8px #333;
 }
 
+.chart{
+
+    background-color: #ffffff;
+}
+
 .bar {
     fill: steelblue;
 }
@@ -102,9 +107,5 @@ table th{
     shape-rendering: crispEdges;
 }
 
-/*
-.x.axis path {
-    display: none;
-}
-*/
-
+#svgdataurl{ display: none; }
+#pngdataurl{ display: none; }
