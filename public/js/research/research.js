@@ -16,6 +16,47 @@ jQuery(document ).ready(function(){
 
     }).trigger("resize");
 
+    d3.select("#save").on("click", function(){
+
+        saveSvgAsPng(document.getElementById("graph"), "diagram.png", 1);
+
+    });
+
+    /* Save to PNG Testing * /
+    d3.select("#save").on("click", function(){
+        var html = d3.select("svg")
+            .attr("version", 1.1)
+            .attr("xmlns", "http://www.w3.org/2000/svg")
+            .node().parentNode.innerHTML;
+
+    //console.log(html);
+        var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
+        var img = '<img src="'+imgsrc+'">';
+        d3.select("#svgdataurl").html(img);
+
+
+        var canvas = document.querySelector("canvas"),
+            context = canvas.getContext("2d");
+
+        var image = new Image;
+        image.src = imgsrc;
+        image.onload = function() {
+            context.drawImage(image, 0, 0);
+
+            var canvasdata = canvas.toDataURL("image/png");
+
+            var pngimg = '<img src="'+canvasdata+'">';
+            d3.select("#pngdataurl").html(pngimg);
+
+            var a = document.createElement("a");
+            a.download = "sample.png";
+            a.href = canvasdata;
+            a.click();
+        };
+
+    });
+    */
+
 });
 
 function drawBarGraph(){
@@ -72,6 +113,7 @@ function drawBarGraph(){
     chart.selectAll(".bar")
         .data(data)
         .enter().append("rect")
+        .style('fill', 'steelblue')
         .attr("class", "bar")
         .attr("x", function(d) { return x(d.name); })
         .attr("y", function(d) { return y(d.value); })
@@ -85,13 +127,9 @@ function drawBarGraph(){
         .attr("transform", "rotate(-90)")
         .attr("y", 0)
         .attr("dy", "-5em")
-        .style("text-anchor", "end")
+        .style('font', '10px sans-serif')
         .text("Frequency");
 
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left")
-        .ticks(10, "%");
 }
 
 
