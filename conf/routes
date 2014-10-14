@@ -49,6 +49,7 @@ GET         /medical                         @femr.ui.controllers.MedicalControl
 POST        /medical                         @femr.ui.controllers.MedicalController.indexPost()
 #Research
 GET         /research                        @femr.ui.controllers.ResearchController.indexGet()
+GET         /research/age        @femr.ui.controllers.ResearchController.graphAgeGet()
 #Sessions
 GET         /logout                          @femr.ui.controllers.SessionsController.delete()
 POST        /login/reset                     @femr.ui.controllers.SessionsController.editPasswordPost()
