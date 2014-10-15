@@ -1,4 +1,3 @@
-
 (function() {
     var out$ = typeof exports != 'undefined' && exports || this;
 
@@ -88,7 +87,6 @@
             outer.appendChild(clone);
 
             clone.insertBefore(styles(clone), clone.firstChild);
-
             var svg = doctype + outer.innerHTML;
             var uri = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svg)));
             if (cb) {
@@ -99,6 +97,7 @@
 
     out$.saveSvgAsPng = function(el, name, scaleFactor) {
         out$.svgAsDataUri(el, scaleFactor, function(uri) {
+
             var image = new Image();
             image.src = uri;
             image.onload = function() {
@@ -114,6 +113,8 @@
                 document.body.appendChild(a);
                 a.click();
             }
+
+
         });
     }
 })();

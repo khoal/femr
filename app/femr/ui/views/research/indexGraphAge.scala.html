@@ -31,7 +31,7 @@
             <p>Median Age: @viewModel.getMedian()</p>
             <p>Age Range: @viewModel.getRangeLow - @viewModel.getRangeHigh()</p>
 
-            <button id="save">Save as image&hellip;</button>
+            <button id="save">Save as Image</button>
             <div class="chart-container">
                 <svg id="graph" class="chart"></svg>
             </div>
@@ -44,9 +44,6 @@
                         }
                 @Html("];")
             </script>
-            <div id="svgdataurl"></div>
-            <div id="pngdataurl"></div>
-            <canvas style="display:none" height="500" width="960"></canvas>
         </div>
     </div>
 }

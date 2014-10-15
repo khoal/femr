@@ -7,6 +7,12 @@
     }
     @additionalScripts = {
         <script type="text/javascript" src="@routes.Assets.at("js/research/d3.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/saveSvgAsPng.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/bar-graph.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/pie-graph.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/line-graph.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/scatter-plot.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/stacked-bar.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/research.js")"></script>
     }
 
@@ -15,10 +21,12 @@
         <div class="row dropdown">
             <div class="col-sm-3 col-md-2 sidebar">
                 <ul class="nav nav-sidebar">
-                    <li class="active"><a href="#">Item 1</a></li>
-                    <li><a href="#" data-toggle="dropdown" >Item 2</a></li>
-                    <li><a href="#">Item 3</a></li>
-                    <li><a href="#">Item 4</a></li>
+                    <li class="active"><a class="load-graph-link" data-gtype="bar" href="#">Bar Graph</a></li>
+                    <li><a class="load-graph-link" data-gtype="pie" href="#">Pie Graph</a></li>
+                    <li><a class="load-graph-link" data-gtype="line" href="#">Line Graph</a></li>
+                    <li><a class="load-graph-link" data-gtype="scatter" href="#">Scatterplot</a></li>
+                    <li><a class="load-graph-link" data-gtype="stacked-bar" href="#">Stacked Bar Graph</a></li>
+                    @* <li><a class="load-graph-link" data-gtype="table" href="#">Table</a></li> *@
                 </ul>
 
             </div>
@@ -26,30 +34,20 @@
 
                 <h1 class="page-header">Research</h1>
 
-                <div id="graph" class="chart-container">
-                    <svg class="chart"></svg>
+                <div class="graph-header">
+                    <p id="average" class="stat"><strong>Average Age:</strong> <span class="val"></span></p>
+                    <p id="median" class="stat"><strong>Median Age:</strong> <span class="val"></span></p>
+                    <p id="range" class="stat"><strong>Age Range:</strong> <span class="val"></span></p>
+
+                    <button id="save">Save Graph as Image</button>
                 </div>
-                <script type="text/javascript">
+                <div class="chart-container">
+                    <input type="hidden" id="graph-type" value="bar" />
+                    <svg id="graph" class="chart"></svg>
+                    <img class="loading" src="@routes.Assets.at("img/graph-loader.gif")" alt="loading&hellip;" />
+                </div>
 
-                    var data = [
-                        {name: "1",    value:  4},
-                        {name: "2",    value:  8},
-                        {name: "3",     value: 15},
-                        {name: "4",   value: 16},
-                        {name: "5", value: 23},
-                        {name: "6",     value: 42},
-                        {name: "7",    value:  4},
-                        {name: "8",    value:  8},
-                        {name: "9",     value: 15},
-                        {name: "10",   value: 16},
-                        {name: "11", value: 23},
-                        {name: "12",     value: 42}
-                    ];
-
-                </script>
-
-
-                <h2 class="sub-header">Sample Table</h2>
+                @*
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
@@ -176,6 +174,8 @@
                             </tr>
                         </tbody>
                     </table>
+                    *@
+
                 </div>
             </div>
         </div>

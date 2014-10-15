@@ -49,7 +49,11 @@ GET         /medical                         @femr.ui.controllers.MedicalControl
 POST        /medical                         @femr.ui.controllers.MedicalController.indexPost()
 #Research
 GET         /research                        @femr.ui.controllers.ResearchController.indexGet()
-GET         /research/age        @femr.ui.controllers.ResearchController.graphAgeGet()
+GET         /research/age/bar                @femr.ui.controllers.ResearchController.ageBarGraphJSONGet()
+GET         /research/age/line               @femr.ui.controllers.ResearchController.ageLineGraphJSONGet()
+GET         /research/age/scatter            @femr.ui.controllers.ResearchController.ageScatterGraphJSONGet()
+GET         /research/age/pie                @femr.ui.controllers.ResearchController.agePieGraphJSONGet()
+GET         /research/age/stacked            @femr.ui.controllers.ResearchController.ageStackedBarGraphJSONGet()
 #Sessions
 GET         /logout                          @femr.ui.controllers.SessionsController.delete()
 POST        /login/reset                     @femr.ui.controllers.SessionsController.editPasswordPost()
