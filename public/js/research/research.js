@@ -1,139 +1,117 @@
+// I do not like that this is global, but need to make it work quickly
+var graphData = [];
+
 jQuery(document ).ready(function(){
 
-    drawBarGraph();
+    var graphType = $("#graph-type").val();
+
+    loadGraph(graphType);
+
+    /* Button Clicks */
+    $(".load-graph-link").click(function(){
+
+        var newGraphType = $(this).data("gtype");
+
+        // only load new graph on a change
+        if( newGraphType != graphType ) {
+
+            graphType = newGraphType;
+
+            // remove any previous graph
+            d3.selectAll("svg > *").remove();
+            //showGraphLoadingIcon();
+
+            $(".nav-sidebar li").removeClass("active");
+            $(this).parent("li").addClass("active");
+
+            //console.log(graphType);
+            loadGraph(graphType);
+        }
+        return false;
+    });
+
 
     // Detect changes in main container width, redraw chart
     // -- How will this perform with lots of data and on mobile devices
     var lastChartWidth = $(".main").width();
     $(window).on("resize", function() {
         var currChartWidth = $(".main").width();
-        if( lastChartWidth != currChartWidth ){
+        if( lastChartWidth != currChartWidth ) {
 
-            drawBarGraph();
+            reloadGraph(graphType);
             lastChartWidth = currChartWidth;
         }
-
-
     }).trigger("resize");
 
     d3.select("#save").on("click", function(){
-
-        saveSvgAsPng(document.getElementById("graph"), "diagram.png", 1);
-
+        saveSvgAsPng(document.getElementById("graph"), "diagram2.png", 1);
     });
-
-    /* Save to PNG Testing * /
-    d3.select("#save").on("click", function(){
-        var html = d3.select("svg")
-            .attr("version", 1.1)
-            .attr("xmlns", "http://www.w3.org/2000/svg")
-            .node().parentNode.innerHTML;
-
-    //console.log(html);
-        var imgsrc = 'data:image/svg+xml;base64,'+ btoa(html);
-        var img = '<img src="'+imgsrc+'">';
-        d3.select("#svgdataurl").html(img);
-
-
-        var canvas = document.querySelector("canvas"),
-            context = canvas.getContext("2d");
-
-        var image = new Image;
-        image.src = imgsrc;
-        image.onload = function() {
-            context.drawImage(image, 0, 0);
-
-            var canvasdata = canvas.toDataURL("image/png");
-
-            var pngimg = '<img src="'+canvasdata+'">';
-            d3.select("#pngdataurl").html(pngimg);
-
-            var a = document.createElement("a");
-            a.download = "sample.png";
-            a.href = canvasdata;
-            a.click();
-        };
-
-    });
-    */
 
 });
 
-function drawBarGraph(){
+function loadGraph(graphType){
 
-    // remove any previous graph
-    d3.selectAll("svg > *").remove();
+    //graphData = [];
 
-    var margin = {top: 20, right: 30, bottom: 50, left: 80};
+    switch(graphType){
 
-    // keep 3/2 width/height ratio
-    var aspectRatio = 5/3;
-    var width = $(".main").width();
-    var height = width / aspectRatio;
+        case 'line':
+            getLineGraphData();
+            break;
 
-    // Calculate height/width taking margin into account
-    width = width - margin.right - margin.left;
-    height = height - margin.top - margin.bottom;
+        case 'scatter':
+            getScatterGraphData();
+            break;
 
-    var x = d3.scale.ordinal()
-        .rangeRoundBands([0, width], .2);
+        case 'pie':
+            getPieGraphData();
+            break;
 
-    var y = d3.scale.linear()
-        .range([height, 0]);
+        case 'stacked-bar':
+            getStackedBarGraphData();
+            break;
 
-    var xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom");
+        case 'bar':
+        default:
+            getBarGraphData();
+    }
 
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left");
-
-    var chartWidth = width + margin.left + margin.right;
-    var chartHeight = height + margin.top + margin.bottom;
-
-    var chart = d3.select(".chart")
-        .attr("width", chartWidth)
-        .attr("height", chartHeight)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    x.domain(data.map(function(d) { return d.name; }));
-    y.domain([0, d3.max(data, function(d) { return d.value; })]);
-
-    chart.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-    chart.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-
-    chart.selectAll(".bar")
-        .data(data)
-        .enter().append("rect")
-        .style('fill', 'steelblue')
-        .attr("class", "bar")
-        .attr("x", function(d) { return x(d.name); })
-        .attr("y", function(d) { return y(d.value); })
-        .attr("height", function(d) { return height - y(d.value); })
-        .attr("width", x.rangeBand());
-
-    chart.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0)
-        .attr("dy", "-5em")
-        .style('font', '10px sans-serif')
-        .text("Frequency");
-
+    //console.log(graphData);
+    //return graphData;
 }
 
+function reloadGraph(graphType){
 
-function type(d) {
-    d.value = +d.value; // coerce to number
-    return d;
+    switch(graphType){
+
+        case 'line':
+            drawLineGraph(graphData);
+            break;
+
+        case 'scatter':
+            drawScatterGraph(graphData);
+            break;
+
+        case 'pie':
+            drawPieGraph(graphData);
+            break;
+
+        case 'stacked-bar':
+            drawStackedBar(graphData);
+            break;
+
+        case 'bar':
+        default:
+            drawBarGraph(graphData);
+    }
+}
+
+function showGraphLoadingIcon(){
+
+    $(".chart-container").find(".loading").show();
+}
+
+function hideGraphLoadingIcon(){
+
+    $(".chart-container").find(".loading").hide();
 }
