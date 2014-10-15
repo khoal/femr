@@ -16,6 +16,7 @@ jQuery(document ).ready(function(){
         if( newGraphType != graphType ) {
 
             graphType = newGraphType;
+            $("#graph-type").val(graphType);
 
             // remove any previous graph
             d3.selectAll("svg > *").remove();
@@ -44,7 +45,10 @@ jQuery(document ).ready(function(){
     }).trigger("resize");
 
     d3.select("#save").on("click", function(){
-        saveSvgAsPng(document.getElementById("graph"), "diagram2.png", 1);
+
+        var graphType = $("#graph-type").val();
+
+        saveSvgAsPng(document.getElementById("graph"), graphType + "-chart.png", 1);
     });
 
 });

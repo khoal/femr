@@ -92,13 +92,12 @@ public class ResearchController extends Controller {
 
 
         Integer[] ages = new Integer[sampleSize];
-
         Map<String, Integer> ageRanges = new HashMap<String, Integer>();
         for( int i = 0; i < sampleSize; i++){
 
             ages[i] = rand.nextInt(105);
 
-            // get range
+            // check range
             if( ages[i] > rangeHigh ){
                 rangeHigh = ages[i];
             }
