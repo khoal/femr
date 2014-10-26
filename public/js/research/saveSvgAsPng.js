@@ -113,10 +113,6 @@
                 a.download = name;
                 a.href = canvas.toDataURL('image/png');
                 document.body.appendChild(a);
-
-
-                console.log(uri);
-
                 a.click();
             }
 
