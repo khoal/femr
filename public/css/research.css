@@ -102,13 +102,14 @@
     padding-bottom: 0.5em;
 }
 
-.nav-sidebar li.menu-item > a:hover,
-.nav-sidebar li.menu-item:hover > a{
+
+.nav-sidebar li.menu-item > a:hover{
 
     cursor: pointer;
     background-color: #000;
     color: #ccc;
 }
+
 
 .nav-sidebar > li.active > a,
 .nav-sidebar > li.active > a:hover,
@@ -247,7 +248,7 @@ table th{
 }
 
 .bar:hover {
-    fill: red;
+
 }
 
 /* Line Chart */

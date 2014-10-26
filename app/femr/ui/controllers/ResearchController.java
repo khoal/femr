@@ -14,6 +14,7 @@ import femr.ui.helpers.security.AllowedRoles;
 import femr.ui.helpers.security.FEMRAuthenticated;
 import femr.ui.models.research.IndexGraphAgeViewModel;
 import femr.ui.views.html.research.index;
+import femr.ui.views.html.research.generate;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -52,6 +53,10 @@ public class ResearchController extends Controller {
 
     public Result graphGet(){
 
+        // call age graph by default until real data is present
+        return ageBarGraphJSONGet();
+
+        /*
         JsonObject jsonObject = new JsonObject();
 
         // Get Post Values
@@ -62,6 +67,7 @@ public class ResearchController extends Controller {
 
         // output json object
         return ok(jsonObject.toString());
+        */
     }
 
 

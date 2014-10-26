@@ -141,8 +141,7 @@ var filterMenuModule = (function(){
         if( activeSubMenu == null ) return;
 
         // reset any previously shown menu
-        $(".menu-item").find("ul.submenu").hide();
-        $(".menu-item").removeClass("active");
+        $(".menu-item").removeClass("active").find("ul.submenu").hide();
 
         $(activeSubMenu).addClass("active");
         $(activeSubMenu).children("ul.submenu").show();
@@ -154,7 +153,13 @@ var filterMenuModule = (function(){
         $(filterMenus.dataset2).find(".val").text("");
         $(filterMenus.graphType).find(".val").text("");
         $(filterMenus.filter).find(".val").text("");
-    }
+    };
+
+    var saveAsImage = function(){
+
+        var graphType = $(filterFields.graphType).val();
+        saveSvgAsPng(document.getElementById("graph"), graphType + "-chart.png", 1);
+    };
 
     var chooseDataSet1 = function(){
 
@@ -231,44 +236,155 @@ var filterMenuModule = (function(){
         $(filterMenus.graphType).find(".submenu").find("a").click(chooseGraphType);
 
         $("#clear-button").click(clearGraphOptions);
+        $("#save").click(saveAsImage);
+
     };
 
     return publicObject;
 
 })();
 
-jQuery(document ).ready(function(){
+
+
+var graphLoaderModule = (function(){
+
+    var graphType = 'bar';
+
+    var showGraphLoadingIcon = function(){
+
+        $(".chart-container").find(".loading").show();
+    };
+
+    var hideGraphLoadingIcon = function(){
+
+        $(".chart-container").find(".loading").hide();
+    };
+
+    var publicObject = {};
+    publicObject.loadGraph = function(){
+
+        showGraphLoadingIcon();
+        var postData = {};
+
+        graphType = $("#graph-type").val();
+
+        // post graph
+        $.post("/research/graph", postData, function (rawData) {
+
+            jsonData = jQuery.parseJSON(rawData);
+            //console.log(jsonData);
+
+            switch(graphType){
+
+                case 'line':
+                    //getLineGraphData();
+                    break;
+
+                case 'scatter':
+                    //getScatterGraphData();
+                    break;
+
+                case 'pie':
+                    //getPieGraphData();
+                    break;
+
+                case 'stacked-bar':
+                    //getStackedBarGraphData();
+                    break;
+
+                case 'bar':
+                default:
+                    barGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    barGraphModule.buildGraph();
+            }
+
+            // Grab Statistics
+            if( "median" in jsonData ) {
+                $("#median").find(".val").text(jsonData.median);
+            }
+            else{
+                $("#median").find(".val").text("n/a");
+            }
+
+            if( "average" in jsonData ) {
+                $("#average").find(".val").text(jsonData.average);
+            }
+            else{
+                $("#average").find(".val").text("n/a");
+            }
+
+            if( ("rangeLow" in jsonData) && ("rangeHigh" in jsonData) ) {
+                $("#range").find(".val").text(jsonData.rangeLow + " - " + jsonData.rangeHigh);
+            }
+            else{
+                $("#range").find(".val").text("n/a");
+            }
+            hideGraphLoadingIcon();
+        });
+
+    };
+
+    publicObject.reloadGraph = function(graphType){
+
+        /*
+        switch(graphType){
+
+            case 'line':
+                drawLineGraph(graphData);
+                break;
+
+            case 'scatter':
+                drawScatterGraph(graphData);
+                break;
+
+            case 'pie':
+                drawPieGraph(graphData);
+                break;
+
+            case 'stacked-bar':
+                drawStackedBarGraph(graphData);
+                break;
+
+            case 'bar':
+            default:
+                drawBarGraph(graphData);
+        }
+        */
+    };
+
+    return publicObject;
+})();
+
+
+jQuery(document).ready(function(){
 
     filterMenuModule.init();
 
-
-    var graphType = $("#graph-type").val();
-
-    loadGraph(graphType);
+    graphLoaderModule.loadGraph();
 
     /* Button Clicks
-    $(".load-graph-link").click(function(){
+     $(".load-graph-link").click(function(){
 
-        var newGraphType = $(this).data("gtype");
+     var newGraphType = $(this).data("gtype");
 
-        // only load new graph on a change
-        if( newGraphType != graphType ) {
+     // only load new graph on a change
+     if( newGraphType != graphType ) {
 
-            graphType = newGraphType;
-            $("#graph-type").val(graphType);
+     graphType = newGraphType;
+     $("#graph-type").val(graphType);
 
-            // remove any previous graph
-            d3.selectAll("svg > *").remove();
-            //showGraphLoadingIcon();
+     // remove any previous graph
+     d3.selectAll("svg > *").remove();
+     //showGraphLoadingIcon();
 
-            $(".nav-sidebar li").removeClass("active");
-            $(this).parent("li").addClass("active");
+     $(".nav-sidebar li").removeClass("active");
+     $(this).parent("li").addClass("active");
 
-            //console.log(graphType);
-            loadGraph(graphType);
-        }
-        return false;
-    });
+     //console.log(graphType);
+     loadGraph(graphType);
+     }
+     return false;
+     });
      */
 
     // Detect changes in main container width, redraw chart
@@ -283,78 +399,4 @@ jQuery(document ).ready(function(){
         }
     }).trigger("resize");
 
-    d3.select("#save").on("click", function(){
-
-        var graphType = $("#graph-type").val();
-
-        saveSvgAsPng(document.getElementById("graph"), graphType + "-chart.png", 1);
-    });
-
 });
-
-function loadGraph(graphType){
-
-    //graphData = [];
-
-    switch(graphType){
-
-        case 'line':
-            getLineGraphData();
-            break;
-
-        case 'scatter':
-            getScatterGraphData();
-            break;
-
-        case 'pie':
-            getPieGraphData();
-            break;
-
-        case 'stacked-bar':
-            getStackedBarGraphData();
-            break;
-
-        case 'bar':
-        default:
-            getBarGraphData();
-    }
-
-    //console.log(graphData);
-    //return graphData;
-}
-
-function reloadGraph(graphType){
-
-    switch(graphType){
-
-        case 'line':
-            drawLineGraph(graphData);
-            break;
-
-        case 'scatter':
-            drawScatterGraph(graphData);
-            break;
-
-        case 'pie':
-            drawPieGraph(graphData);
-            break;
-
-        case 'stacked-bar':
-            drawStackedBarGraph(graphData);
-            break;
-
-        case 'bar':
-        default:
-            drawBarGraph(graphData);
-    }
-}
-
-function showGraphLoadingIcon(){
-
-    $(".chart-container").find(".loading").show();
-}
-
-function hideGraphLoadingIcon(){
-
-    $(".chart-container").find(".loading").hide();
-}
