@@ -89,6 +89,8 @@
             clone.insertBefore(styles(clone), clone.firstChild);
             var svg = doctype + outer.innerHTML;
             var uri = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(svg)));
+
+
             if (cb) {
                 cb(uri);
             }
@@ -111,9 +113,12 @@
                 a.download = name;
                 a.href = canvas.toDataURL('image/png');
                 document.body.appendChild(a);
+
+
+                console.log(uri);
+
                 a.click();
             }
-
 
         });
     }

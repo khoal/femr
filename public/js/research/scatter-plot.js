@@ -135,21 +135,5 @@ function drawScatterGraph(graphData){
         .attr("r", 3.5)
         .attr("cx", function(d){ return xScale(d.name)})
         .attr("cy", function(d){ return yScale(d.value)});
-        //.style("fill", function(d) { return color(cValue(d));})
-        /*
-        .on("mouseover", function(d) {
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", .9);
-            tooltip.html(d["Cereal Name"] + "<br/> (" + xValue(d)
-                + ", " + yValue(d) + ")")
-                .style("left", (d3.event.pageX + 5) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-        })
-        .on("mouseout", function(d) {
-            tooltip.transition()
-                .duration(500)
-                .style("opacity", 0);
-        });
-        */
+
 }

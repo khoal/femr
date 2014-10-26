@@ -13,6 +13,8 @@ function getLineGraphData(){
     // on page load, grab default data and load graph type
     $.getJSON("/research/age/line", function (jsonData) {
 
+        console.log(jsonData);
+
         // Grab Statistics
         if( "median" in jsonData ) {
             $("#median").find(".val").text(jsonData.median);

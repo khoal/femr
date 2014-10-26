@@ -11,6 +11,8 @@ function getStackedBarGraphData(){
     // on page load, grab default data and load graph type
     $.getJSON("/research/age/stacked", function (jsonData) {
 
+        console.log(jsonData);
+
         // Grab Statistics
         if( "median" in jsonData ) {
             $("#median").find(".val").text(jsonData.median);
@@ -38,7 +40,7 @@ function getStackedBarGraphData(){
 
             var jsonGraphData = jQuery.parseJSON(jsonData.graphData);
 
-            //console.log(jsonGraphData);
+            console.log(jsonGraphData);
 
             for( i = 0; i < jsonGraphData.length; i++ )
             {
@@ -186,77 +188,4 @@ function drawStackedBarGraph(graphData){
         .attr("dy", "1.25em")
         .style("text-anchor", "middle")
         .text("Number of Patients");
-
-
-    /*
-    //Set up scales
-    var xScale = d3.scale.ordinal()
-        .domain(d3.range(stackedData[0].length))
-        //.map(function(d) { return d.name; })
-        //.domain(stackedData.map(function(d, i) { return d.name; }))
-        .rangeRoundBands([0, graphWidth], 0.15);
-
-    var yScale = d3.scale.linear()
-        .domain([0,
-            d3.max(stackedData, function(d) {
-                return d3.max(d, function(d) {
-                    return d.y0 + d.y;
-                });
-            })
-        ])
-        .range([graphHeight, 0]);
-
-
-
-    var chart = d3.select(".chart")
-        .attr("width", containerWidth)
-        .attr("height", containerHeight)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-
-    // Add a group for each row of data
-    var groups = chart.selectAll("g")
-        .data(stackedData)
-        .enter()
-        .append("g")
-        .style("fill", function(d, i) {
-            return colors(i);
-        });
-
-    // Add a rect for each data value
-    var rects = groups.selectAll("rect")
-        .data(function(d) { return d; })
-        .enter()
-        .append("rect")
-        .attr("x", function(d, i) {
-            return xScale(i);
-        })
-        .attr("y", function(d,i) {
-            return yScale(d.y0);
-        })
-        .attr("height", function(d) {
-            return yScale(d.y);
-        })
-        .attr("width", xScale.rangeBand());
-    */
-    /*
-    var bar = chart.selectAll(".bar")
-        .data(stack(graphData))
-        .enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", function(d) { return xScale(d.name); })
-        .attr("y", function(d) { return yScale(d.value); })
-        .attr("height", function(d) { return graphHeight - yScale(d.value); })
-        .attr("width", xScale.rangeBand());
-
-    bar.selectAll("rect")
-        .data(function(d) { return d.value; })
-        .enter().append("rect")
-        .attr("width", x.rangeBand())
-        .attr("y", function(d) { return y(d.y1); })
-        .attr("height", function(d) { return y(d.y0) - y(d.y1); })
-        .style("fill", function(d) { return color(d.name); });
-       */
 }
