@@ -11,6 +11,8 @@ function getPieGraphData(){
     // on page load, grab default data and load graph type
     $.getJSON("/research/age/pie", function (jsonData) {
 
+        console.log(jsonData);
+
         // Grab Statistics
         if( "median" in jsonData ) {
             $("#median").find(".val").text(jsonData.median);
@@ -47,7 +49,7 @@ function getPieGraphData(){
             });
         }
 
-        console.log(graphData);
+        //console.log(graphData);
 
         hideGraphLoadingIcon();
 

@@ -14,7 +14,6 @@ import femr.ui.helpers.security.AllowedRoles;
 import femr.ui.helpers.security.FEMRAuthenticated;
 import femr.ui.models.research.IndexGraphAgeViewModel;
 import femr.ui.views.html.research.index;
-import femr.ui.views.html.research.indexGraphAge;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -48,28 +47,23 @@ public class ResearchController extends Controller {
     public Result indexGet() {
 
         CurrentUser currentUserSession = sessionService.getCurrentUserSession();
-
-
         return ok(index.render(currentUserSession));
     }
 
-    /*
-    public Result graphAgeGet(){
+    public Result graphGet(){
 
-        CurrentUser currentUserSession = sessionService.getCurrentUserSession();
+        JsonObject jsonObject = new JsonObject();
 
-        IndexGraphAgeViewModel graphAgeViewModel = new IndexGraphAgeViewModel();
+        // Get Post Values
 
+        // Call Service with type values
 
-        graphAgeViewModel.setAverage(average);
-        graphAgeViewModel.setMedian(median);
-        graphAgeViewModel.setRangeHigh(high);
-        graphAgeViewModel.setRangeLow(low);
-        graphAgeViewModel.setGraphValues(graphValues);
+        // Build JSON Object for type
 
-        return ok(indexGraphAge.render(currentUserSession, graphAgeViewModel));
+        // output json object
+        return ok(jsonObject.toString());
     }
-    */
+
 
     /**
      * Used for creating Patient Age Bar Graph

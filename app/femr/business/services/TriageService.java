@@ -163,7 +163,6 @@ public class TriageService implements ITriageService {
 
             IUser user = userRepository.findOne(nurseQuery);
 
-
             IPatientEncounter newPatientEncounter = domainMapper.createPatientEncounter(patientEncounterItem, user.getId());
             newPatientEncounter = patientEncounterRepository.create(newPatientEncounter);
 
