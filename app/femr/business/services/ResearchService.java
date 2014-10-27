@@ -34,6 +34,7 @@ import femr.common.models.VitalItem;
 import femr.util.calculations.dateUtils;
 import femr.util.stringhelpers.StringUtils;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +94,36 @@ public class ResearchService implements IResearchService{
         } catch (Exception ex) {
             response.addError("exception", ex.getMessage());
         }
-        System.out.println(response.getResponseObject().toString());
+        /*
+        for (PatientItem v : response.getResponseObject())
+        {
+            System.out.println(v.getId());
+            System.out.println(v.getBirth());
+        }
+        */
+        return response;
+    }
+
+    public ServiceResponse<List<Date>> getAllPatientAges() {
+        ServiceResponse<List<Date>> response = new ServiceResponse<>();
+
+        try {
+            List<? extends IPatient> patients = patientRepository.findAll(Patient.class);
+            List<Date> patientAges = new ArrayList<>();
+            for (IPatient patientAge : patients) {
+                patientAges.add(patientAge.getAge());
+            }
+            response.setResponseObject(patientAges);
+        } catch (Exception ex) {
+            response.addError("exception", ex.getMessage());
+        }
+
+        /*
+        for (Date age : response.getResponseObject())
+        {
+            System.out.println(age);
+        }
+        */
         return response;
     }
 
