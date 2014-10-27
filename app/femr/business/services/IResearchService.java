@@ -23,6 +23,7 @@ import femr.common.models.PatientEncounterItem;
 import femr.common.models.PatientItem;
 import femr.common.models.VitalItem;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,8 @@ public interface IResearchService {
 
     ServiceResponse<List<PatientItem>> getAllPatientItems();
 
-
+    ServiceResponse<List<Date>> getAllPatientAges();
+    //ServiceResponse<List<PatientItem>> getData();
 
 
 }
