@@ -1,6 +1,7 @@
-@(currentUser: femr.common.dto.CurrentUser)
+@(currentUser: femr.common.dto.CurrentUser, viewModel:femr.ui.models.research.FilterViewModel)
 
 @import femr.ui.views.html.layouts.main
+@import femr.ui.controllers.routes.ResearchController
 
     @additionalStyles = {
         <link rel="stylesheet" href="@routes.Assets.at("css/research.css")">
@@ -13,6 +14,7 @@
         <script type="text/javascript" src="@routes.Assets.at("js/research/line-graph.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/scatter-plot.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/stacked-bar.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/grouped-bar.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/research.js")"></script>
     }
 
@@ -20,10 +22,14 @@
 
         <div class="row dropdown">
             <div class="col-sm-3 col-md-2 sidebar">
-                <form id="graph-options">
+
+                @helper.form(action = ResearchController.getGraphPost(), 'id -> "graph-options") {
+                    <div id="filter-errors">
+
+                    </div>
                     <ul class="nav nav-sidebar">
                         <li id="gdata1-menu" class="menu-item">
-                            <a class="opt-link">Dataset 1</a>
+                            <a class="opt-link">Primary Dataset</a>
                             <span class="val"></span>
                             <span class="glyphicon glyphicon-chevron-right"></span>
                             <ul class="submenu">
@@ -45,10 +51,11 @@
                                 <li><a data-dtype1="preg" href="#">Pregnancy Status</a></li>
                                 <li><a data-dtype1="oxy_sat" href="#">Oxygen Saturation</a></li>
                                 <li><a data-dtype1="glucose" href="#">Glucose</a></li>
+                                <li><a class="clear" data-dtype2="clear" href="#">Clear <span class="glyphicon glyphicon-remove"></span></a></li>
                             </ul>
                         </li>
                         <li id="gdata2-menu" class="menu-item">
-                            <a class="opt-link">Dataset 2</a>
+                            <a class="opt-link">Secondary Dataset</a>
                             <span class="val"></span>
                             <span class="glyphicon glyphicon-chevron-right"></span>
                             <ul class="submenu">
@@ -71,6 +78,7 @@
                                 <li><a data-dtype2="oxy_sat" href="#">Oxygen Saturation</a></li>
                                 <li><a data-dtype2="glucose" href="#">Glucose</a></li>
                                 *@
+                                <li><a class="clear" data-dtype2="clear" href="#">Clear <span class="glyphicon glyphicon-remove"></span></a></li>
                             </ul>
                         </li>
                         <li id="gtype-menu" class="menu-item">
@@ -85,15 +93,20 @@
                                 <li><a data-gtype="stacked-bar" href="#">Stacked Bar Graph</a></li>
                                 <li><a data-gtype="grouped-bar" href="#">Grouped Bar Graph</a></li>
                                 <li><a data-gtype="table" href="#">Table</a></li>
+                                <li><a class="clear" data-dtype2="clear" href="#">Clear <span class="glyphicon glyphicon-remove"></span></a></li>
                             </ul>
                         </li>
                         <li id="gfilter-menu" class="menu-item">
                             <a class="opt-link">Filter Date</a>
-                            <span class="val">10/1/14 - 10/31/14</span>
+                            <span class="val">
+                                <span class="date">
+                                   <span class="start">@viewModel.getStartDate()</span> - <span class="end">@viewModel.getEndDate()</span>
+                                </span>
+                            </span>
                             <span class="glyphicon glyphicon-chevron-right"></span>
                             <ul class="submenu">
-                                <li>Start Date <input type="text" class="datepicker" id="gEndDate" name="gEndDate" val="" /></li>
-                                <li>End Date <input type="text" class="datepicker" id="gEndDate" name="gEndDate" val="" /></li>
+                                <li>Start Date <input type="date" id="startDate" name="startDate" value="@viewModel.getRFCStartDate()" max="@viewModel.getRFCEndDate()" /></li>
+                                <li>End Date <input type="date" id="endDate" name="endDate" value="@viewModel.getRFCEndDate()" max="@viewModel.getRFCEndDate()" /></li>
                             </ul>
                         </li>
                         <li id="goptions-menu" class="menu-item">
@@ -101,21 +114,23 @@
                             <span class="glyphicon glyphicon-chevron-right"></span>
                             <ul class="submenu">
                                 <li><a href="#">Show Legend</a></li>
-                                <li><a href="#">Save As Image</a></li>
+                                <li><a id="save" href="#">Save As Image</a></li>
                             </ul>
                         </li>
                         <li class="controls">
-                            <input type="hidden" id="gDataset1" name="gDataset1" value="" />
-                            <input type="hidden" id="gDataset2" name="gDataset2" value="" />
-                            <input type="hidden" id="gType" name="gType" value="" />
 
-                            <input id="clear-button" class="clear" type="button" value="Clear" />
-                            <input id="submit-button" class="submit" type="submit" value="Apply" />
+                            <input type="hidden" id="primaryDataset" name="primaryDataset" value="" />
+                            <input type="hidden" id="secondaryDataset" name="secondaryDataset" value="" />
+                            <input type="hidden" id="graphType" name="graphType" value="" />
 
-                            <button id="save">Save as Image</button>
+                            <input id="clear-button" class="clear fButton pull-left" type="button" value="Clear" />
+                            <input id="submit-button" class="submit fButton pull-right" type="submit" value="Apply" />
+
+                            @* <button id="save">Save as Image</button> *@
                         </li>
-                     </ul>
-                </form>
+                    </ul>
+                }
+
             </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 
@@ -129,7 +144,6 @@
                         <p id="range" class="stat"><strong>Age Range:</strong> <span class="val"></span></p>
                     </div>
 
-                    <input type="hidden" id="graph-type" value="bar" />
                     <svg id="graph" class="chart"></svg>
                     <img class="loading" src="@routes.Assets.at("img/graph-loader.gif")" alt="loading&hellip;" />
                 </div>

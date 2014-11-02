@@ -1,139 +1,99 @@
-
-
 /*
  *
- *  Scatter Graph
+ *  Scatterplot Graph
  *
  */
 
-function getScatterGraphData(){
+var scatterGraphModule = (function(){
 
-    graphData = [];
+    var graph_data = [];
 
-    // on page load, grab default data and load graph type
-    $.getJSON("/research/age/scatter", function (jsonData) {
+    var publicObject = {};
+    publicObject.setGraphData = function(jsonData){
 
-        // Grab Statistics
-        if( "median" in jsonData ) {
-            $("#median").find(".val").text(jsonData.median);
-        }
-        else{
-            $("#median").find(".val").text("n/a");
-        }
+        for( var i = 0; i < jsonData.length; i++ ){
 
-        if( "average" in jsonData ) {
-            $("#average").find(".val").text(jsonData.average);
-        }
-        else{
-            $("#average").find(".val").text("n/a");
+            graph_data[i] = {
+                name: i,
+                value: jsonData[i]
+            };
         }
 
-        if( ("rangeLow" in jsonData) && ("rangeHigh" in jsonData) ) {
-            $("#range").find(".val").text(jsonData.rangeLow + " - " + jsonData.rangeHigh);
-        }
-        else{
-            $("#range").find(".val").text("n/a");
-        }
+    };
 
-        // Grab graph data
-        if( "graphData" in jsonData ) {
+    publicObject.buildGraph = function(){
 
-            jsonGraphData = jQuery.parseJSON(jsonData.graphData);
-            //console.log(jsonGraphData);
+        // remove any previous graph
+        d3.selectAll("svg > *").remove();
 
-            //var i = 0;
-            //$.each(jsonData.graphData, function (key, obj) {
-            for( i = 0; i < jsonGraphData.length; i++ ){
+        var margin = {top: 20, right: 30, bottom: 50, left: 60};
 
-                graphData[i] = {
-                    name: i,
-                    value: jsonGraphData[i]
-                }
-                //i++;
-            }
+        // keep 3/2 width/height ratio
+        var aspectRatio = 5/2.5;
+        var containerWidth = $(".main").width();
+        var containerHeight = containerWidth / aspectRatio;
 
-            //console.log(graphData);
-        }
-
-        hideGraphLoadingIcon();
-
-        // trigger draw graph
-        drawScatterGraph(graphData);
-    });
-
-    //return graphData;
-}
+        // Calculate height/width taking margin into account
+        var graphWidth = containerWidth - margin.right - margin.left;
+        var graphHeight = containerHeight - margin.top - margin.bottom;
 
 
-function drawScatterGraph(graphData){
+        var xScale = d3.scale.linear()
+            .domain([d3.min(graph_data, function(d) { return d.name; })-1, d3.max(graph_data, function(d) { return d.name; })+1])
+            .range([0, graphWidth]);
 
-    // remove any previous graph
-    d3.selectAll("svg > *").remove();
+        var yScale = d3.scale.linear()
+            .domain([d3.min(graph_data, function(d) { return d.value; }), d3.max(graph_data, function(d) { return d.value; })+1])
+            .range([graphHeight, 0]);
 
-    var margin = {top: 20, right: 30, bottom: 50, left: 60};
+        var xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom");
 
-    // keep 3/2 width/height ratio
-    var aspectRatio = 5/2.5;
-    var containerWidth = $(".main").width();
-    var containerHeight = containerWidth / aspectRatio;
+        var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left");
 
-    // Calculate height/width taking margin into account
-    var graphWidth = containerWidth - margin.right - margin.left;
-    var graphHeight = containerHeight - margin.top - margin.bottom;
+        var chart = d3.select(".chart")
+            .attr("width", containerWidth)
+            .attr("height", containerHeight)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+        chart.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + graphHeight + ")")
+            .call(xAxis)
+            .append("text")
+            .attr("class", "title")
+            .attr("x", graphWidth / 2 )
+            .attr("y",  0 + margin.bottom)
+            .style("text-anchor", "middle")
+            .attr("dy", "-5px")
+            .text("Ages");
 
-    var xScale = d3.scale.linear()
-        .domain([d3.min(graphData, function(d) { return d.name; })-1, d3.max(graphData, function(d) { return d.name; })+1])
-        .range([0, graphWidth]);
+        chart.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("class", "title")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x", 0 - (graphHeight / 2))
+            .attr("dy", "1.25em")
+            .style("text-anchor", "middle")
+            .text("Number of Patients");
 
-    var yScale = d3.scale.linear()
-        .domain([d3.min(graphData, function(d) { return d.value; }), d3.max(graphData, function(d) { return d.value; })+1])
-        .range([graphHeight, 0]);
+        chart.selectAll(".dot")
+            .data(graph_data)
+            .enter().append("circle")
+            .attr("class", "dot")
+            .attr("r", 3.5)
+            .attr("cx", function(d){ return xScale(d.name)})
+            .attr("cy", function(d){ return yScale(d.value)});
 
-    var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient("bottom");
+    };
 
-    var yAxis = d3.svg.axis()
-        .scale(yScale)
-        .orient("left");
+    return publicObject;
 
-    var chart = d3.select(".chart")
-        .attr("width", containerWidth)
-        .attr("height", containerHeight)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    chart.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + graphHeight + ")")
-        .call(xAxis)
-        .append("text")
-        .attr("class", "title")
-        .attr("x", graphWidth / 2 )
-        .attr("y",  0 + margin.bottom)
-        .style("text-anchor", "middle")
-        .attr("dy", "-5px")
-        .text("Ages");
-
-    chart.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-        .append("text")
-        .attr("class", "title")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - (graphHeight / 2))
-        .attr("dy", "1.25em")
-        .style("text-anchor", "middle")
-        .text("Number of Patients");
-
-    chart.selectAll(".dot")
-        .data(graphData)
-        .enter().append("circle")
-        .attr("class", "dot")
-        .attr("r", 3.5)
-        .attr("cx", function(d){ return xScale(d.name)})
-        .attr("cy", function(d){ return yScale(d.value)});
-
-}
+})();

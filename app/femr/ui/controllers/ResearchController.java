@@ -8,18 +8,22 @@ import femr.common.dto.CurrentUser;
 import femr.business.services.IResearchService;
 import femr.business.services.ISessionService;
 
-import femr.common.models.AgeGraphItem;
+import femr.common.dto.ServiceResponse;
 import femr.data.models.Roles;
 import femr.ui.helpers.security.AllowedRoles;
 import femr.ui.helpers.security.FEMRAuthenticated;
-import femr.ui.models.research.IndexGraphAgeViewModel;
+import femr.ui.models.triage.IndexViewModelPost;
 import femr.ui.views.html.research.index;
-import femr.ui.views.html.research.generate;
-import play.libs.Json;
+import femr.ui.models.research.FilterViewModel;
+import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
 
+
+import femr.common.models.AgeGraphItem;
+
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -30,6 +34,9 @@ import java.util.*;
 @Security.Authenticated(FEMRAuthenticated.class)
 @AllowedRoles({Roles.RESEARCHER})
 public class ResearchController extends Controller {
+
+    private final Form<FilterViewModel> FilterViewModelForm = Form.form(FilterViewModel.class);
+
     private IResearchService researchService;
     private ISessionService sessionService;
 
@@ -47,14 +54,66 @@ public class ResearchController extends Controller {
 
     public Result indexGet() {
 
+        // There isn't really a request here, should this be different?
+        FilterViewModel viewModel = FilterViewModelForm.bindFromRequest().get();
+
+        // Set Default Start (30 Days Ago) and End Date (Today)
+        Calendar today = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        viewModel.setEndDate(dateFormat.format(today.getTime()));
+        today.add(Calendar.DAY_OF_MONTH, -30);
+        viewModel.setStartDate(dateFormat.format(today.getTime()));
+
         CurrentUser currentUserSession = sessionService.getCurrentUserSession();
-        return ok(index.render(currentUserSession));
+        return ok(index.render(currentUserSession, viewModel));
     }
 
-    public Result graphGet(){
+    public Result getGraphPost(){
 
-        // call age graph by default until real data is present
-        return ageBarGraphJSONGet();
+        FilterViewModel viewModel = FilterViewModelForm.bindFromRequest().get();
+
+        // Ages are a list of Dates
+        // ServiceResponse<List<Date>> getAllPatientAges()
+        ServiceResponse<List<Date>> response = researchService.getAllPatientAges();
+        //*
+        for (Date age : response.getResponseObject())
+        {
+
+            System.out.println(age);
+        }
+        //* /
+
+
+        String graphType = viewModel.getGraphType();
+        System.out.println(graphType);
+        switch( graphType ){
+
+            case "line":
+                return ageLineGraphJSONGet();
+                //break;
+
+            case "pie":
+                return agePieGraphJSONGet();
+                //break;
+
+            case "scatter":
+                return ageScatterGraphJSONGet();
+                //break;
+
+            case "stacked-bar":
+                return ageStackedBarGraphJSONGet();
+                //break;
+
+            case "grouped-bar":
+                return ageStackedBarGraphJSONGet();
+                //break;
+
+            case "bar":
+            default:
+                return ageBarGraphJSONGet();
+        }
+
+
 
         /*
         JsonObject jsonObject = new JsonObject();
@@ -332,7 +391,7 @@ public class ResearchController extends Controller {
 
         // generate some sample ages
         int maxAge = 105;
-        int sampleSize = 500;
+        int sampleSize = 10000;
         int total = 0;
         int rangeHigh = 0;
         int rangeLow = 10000;

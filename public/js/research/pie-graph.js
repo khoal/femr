@@ -1,130 +1,97 @@
 /*
  *
- *  Pie Graph
+ *
+  *  Pie Graph
  *
  */
 
-function getPieGraphData(){
+var pieGraphModule = (function(){
 
-    graphData = [];
+    var graph_data = [];
 
-    // on page load, grab default data and load graph type
-    $.getJSON("/research/age/pie", function (jsonData) {
+    var publicObject = {};
+    publicObject.setGraphData = function(jsonData){
 
-        console.log(jsonData);
+        var i = 0;
+        $.each(jsonData, function (key, obj) {
+            graph_data[i] = {
+                name: obj.key,
+                value: obj.value
+            };
+            i++;
+        });
 
-        // Grab Statistics
-        if( "median" in jsonData ) {
-            $("#median").find(".val").text(jsonData.median);
-        }
-        else{
-            $("#median").find(".val").text("n/a");
-        }
+    };
 
-        if( "average" in jsonData ) {
-            $("#average").find(".val").text(jsonData.average);
-        }
-        else{
-            $("#average").find(".val").text("n/a");
-        }
+    publicObject.buildGraph = function(){
 
-        if( ("rangeLow" in jsonData) && ("rangeHigh" in jsonData) ) {
-            $("#range").find(".val").text(jsonData.rangeLow + " - " + jsonData.rangeHigh);
-        }
-        else{
-            $("#range").find(".val").text("n/a");
-        }
+        // remove any previous graph
+        d3.selectAll("svg > *").remove();
 
-        // Grab graph data
-        if( "graphData" in jsonData ) {
+        var margin = {top: 20, right: 30, bottom: 50, left: 60};
 
-            var jsonGraphData = jQuery.parseJSON(jsonData.graphData);
-            var i = 0;
-            $.each(jsonGraphData, function (key, obj) {
-                graphData[i] = {
-                    name: obj.key,
-                    value: obj.value
-                };
-                i++;
-            });
-        }
+        // keep 3/2 width/height ratio on container
+        var aspectRatio = 5/2.5;
+        var containerWidth = $(".main").width();
+        var containerHeight = containerWidth / aspectRatio;
 
-        //console.log(graphData);
+        // Calculate height/width taking margin into account
+        var graphWidth = containerWidth - margin.right - margin.left;
+        var graphHeight = containerHeight - margin.top - margin.bottom;
 
-        hideGraphLoadingIcon();
+        var pieWidth = graphHeight;
+        var pieHeight = graphHeight;
+        var outerRadius = pieWidth / 2; var innerRadius = 0;
+        var arc = d3.svg.arc()
+            .innerRadius(innerRadius)
+            .outerRadius(outerRadius);
 
-        // trigger draw graph
-        drawPieGraph(graphData);
-    });
+        var pie = d3.layout.pie()
+            .value(function(d){ return d.value; } );
+        var color = d3.scale.category20();
 
-    //return graphData;
-}
+        var chart = d3.select(".chart")
+            .attr("width", containerWidth)
+            .attr("height", containerHeight)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-function drawPieGraph(graphData){
+        //Set up groups
+        var arcs = chart.selectAll("g.arc")
+            .data(pie(graph_data))
+            .enter()
+            .append("g")
+            .attr("class", "arc")
+            .attr("transform", "translate(" + outerRadius + ", " + outerRadius + ")");
 
-    // remove any previous graph
-    d3.selectAll("svg > *").remove();
+        arcs.append("path")
+            .attr("fill", function(d, i) { return color(i); })
+            .attr("data-legend", function(d, i){ return graph_data[i].name; })
+            .attr("d", arc);
 
-    var margin = {top: 20, right: 30, bottom: 50, left: 60};
+        var legendLeft = pieWidth + margin.left;
+        var legend = chart.append("g")
+            .attr("class", "legend")
+            .attr("width", outerRadius * 2)
+            .attr("height", outerRadius * 2)
+            .selectAll("g")
+            .data(color.domain().slice().reverse())
+            .enter().append("g")
+            .attr("transform", function(d, i) { return "translate(" + legendLeft + "," + i * 20 + ")"; });
 
-    // keep 3/2 width/height ratio on container
-    var aspectRatio = 5/2.5;
-    var containerWidth = $(".main").width();
-    var containerHeight = containerWidth / aspectRatio;
+        legend.append("rect")
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", color);
 
-    // Calculate height/width taking margin into account
-    var graphWidth = containerWidth - margin.right - margin.left;
-    var graphHeight = containerHeight - margin.top - margin.bottom;
+        legend.append("text")
+            .attr("x", 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .text(function(d,i) { return graph_data[i].name; });
 
-    var pieWidth = graphHeight;
-    var pieHeight = graphHeight;
-    var outerRadius = pieWidth / 2; var innerRadius = 0;
-    var arc = d3.svg.arc()
-        .innerRadius(innerRadius)
-        .outerRadius(outerRadius);
+    };
 
-    var pie = d3.layout.pie()
-        .value(function(d){ return d.value; } );
-    var color = d3.scale.category20();
+    return publicObject;
 
-    var chart = d3.select(".chart")
-        .attr("width", containerWidth)
-        .attr("height", containerHeight)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    //Set up groups
-    var arcs = chart.selectAll("g.arc")
-        .data(pie(graphData))
-        .enter()
-        .append("g")
-        .attr("class", "arc")
-        .attr("transform", "translate(" + outerRadius + ", " + outerRadius + ")");
-
-    arcs.append("path")
-        .attr("fill", function(d, i) { return color(i); })
-        .attr("data-legend", function(d, i){ return graphData[i].name; })
-        .attr("d", arc);
-
-    var legendLeft = pieWidth + margin.left;
-    var legend = chart.append("g")
-        .attr("class", "legend")
-        .attr("width", outerRadius * 2)
-        .attr("height", outerRadius * 2)
-        .selectAll("g")
-        .data(color.domain().slice().reverse())
-        .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(" + legendLeft + "," + i * 20 + ")"; });
-
-    legend.append("rect")
-        .attr("width", 18)
-        .attr("height", 18)
-        .style("fill", color);
-
-    legend.append("text")
-        .attr("x", 24)
-        .attr("y", 9)
-        .attr("dy", ".35em")
-        .text(function(d,i) { return graphData[i].name; });
-
-}
+})();
