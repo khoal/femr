@@ -1,10 +1,10 @@
 /*
  *
- *  Stacked Bar Graph
+ *  Grouped Bar Graph
  *
  */
 
-var stackedBarGraphModule = (function(){
+var groupedBarGraphModule = (function(){
 
     var graph_data = [];
 
@@ -35,6 +35,7 @@ var stackedBarGraphModule = (function(){
 
         var margin = {top: 20, right: 30, bottom: 50, left: 60};
 
+
         // keep 3/2 width/height ratio
         var aspectRatio = 5/2.5;
         var containerWidth = $(".main").width();
@@ -44,7 +45,22 @@ var stackedBarGraphModule = (function(){
         var graphWidth = containerWidth - margin.right - margin.left;
         var graphHeight = containerHeight - margin.top - margin.bottom;
 
-        /*
+        $(".graph-header").hide();
+        //var chart = $(".chart-container").prepend('<p style="text-align: center; margin-top: 1em;">Coming Soon</p>');
+        var chart = d3.select(".chart")
+            .attr("width", containerWidth)
+            .attr("height", containerHeight)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");;
+
+        chart.append("text")
+            .attr("x", containerWidth / 2)
+            .attr("y", containerHeight / 2)
+            .style("text-anchor", "middle")
+            .text("Coming Soon...");
+
+/*
+        / *
          var xScale = d3.scale.ordinal()
          .domain(graphData.map(function(d) { return d.name; }))
          .rangeRoundBands([0, graphWidth], .15);
@@ -52,7 +68,7 @@ var stackedBarGraphModule = (function(){
          var yScale = d3.scale.linear()
          .domain([0, d3.max(graphData, function(d) { return d.value; })])
          .rangeRound([graphHeight, 0]);
-         */
+         * /
 
         var stack = d3.layout.stack(); //.values( function(d){ return d.value; });
         var stackedData = stack(graph_data);
@@ -64,6 +80,9 @@ var stackedBarGraphModule = (function(){
             .domain(d3.range(stackedData[0].length))
             //.domain(stackedData[0].map(function(d) { return d.name; }))
             .rangeRoundBands([0, graphWidth], 0.15);
+
+        var x1 = d3.scale.ordinal()
+                .domain();
 
         var yScale = d3.scale.linear()
             .domain([0,
@@ -121,7 +140,8 @@ var stackedBarGraphModule = (function(){
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
-            .orient("left");
+            .orient("left")
+            .tickFormat(d3.format(".2s"));
 
         chart.append("g")
             .attr("class", "x axis")
@@ -146,8 +166,10 @@ var stackedBarGraphModule = (function(){
             .attr("dy", "1.25em")
             .style("text-anchor", "middle")
             .text("Number of Patients");
+        */
     };
 
     return publicObject;
 
 })();
+
