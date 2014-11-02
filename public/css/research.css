@@ -42,9 +42,6 @@
 
     background-color: #ccc;
     color: #333;
-    border: none;
-    border-radius: 5px;
-    float: left;
     padding: 3px 8px;
     font-size: 1.1em;
 }
@@ -56,17 +53,10 @@
 
     background-color: rgb(44, 158, 255);
     color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    float: right;
     padding: 3px 8px;
     font-size: 1.1em;
 }
-.nav-sidebar li.controls #save{
 
-    clear: both;
-    margin-top: 2em;
-}
 .nav-sidebar li.controls input.submit:hover{
 
     background-color: rgb(17, 106, 181);
@@ -166,15 +156,55 @@
     background-color: transparent;
     color: #333333;
 }
+.nav-sidebar .submenu li a.clear{
+
+    border-top: 1px solid #4f4f4f;
+    border-bottom: 1px solid #4f4f4f;
+    position: relative;
+    color: #ffffff;
+}
+.nav-sidebar .submenu li a.clear .glyphicon{
+
+    color: #BB1D1D;
+}
 .nav-sidebar .submenu li.title{
 
-    background-color: #4f4f4f;
+    background-color: #1f1f1f;
+    border-top: 1px solid #4f4f4f;
+    border-bottom: 1px solid #4f4f4f;
     padding: 5px 10px;
 }
 
-#gfilter .submenu li{
+#gfilter-menu .submenu{
 
-    padding: 10px;
+    padding-bottom: 10px;
+}
+
+#gfilter-menu .submenu li{
+
+    padding: 10px 30px;
+}
+
+#filter-errors{
+
+    margin-right: -10px;
+    margin-bottom: 10px;
+    margin-left: -10px;
+
+}
+
+#filter-errors ul{
+
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#filter-errors ul li {
+
+    list-style: none;
+    font-size: 0.9em;
+    color: #BB1D1D;
 }
 
 /*
@@ -211,6 +241,7 @@ table th{
 
 .chart-container .loading{
 
+    display: none;
     position: absolute;
     top: 50%;
     left: 50%;

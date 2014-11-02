@@ -1,4 +1,4 @@
-var allowedGraphValues = (function(){
+var allowedFilterValues = (function(){
 
     var allowedValues = {
 
@@ -58,11 +58,19 @@ var allowedGraphValues = (function(){
             graphTypes: ['bar','line','scatter','chart'],
             secondaryData: []
         }
-
-
     };
 
+    var combinableGraphs = ["stacked-bar", "grouped-bar"];
+
     var publicObject = {};
+    publicObject.isPrimaryDataValid = function(dataset){
+
+        if( allowedValues[dataset] != undefined ){
+
+            return true;
+        }
+        else return false;
+    };
     publicObject.isGraphTypeAllowed = function(dataset, graphType){
 
         if( allowedValues[dataset] != undefined ){
@@ -92,6 +100,19 @@ var allowedGraphValues = (function(){
             return found;
         }
     };
+    publicObject.isCombinableGraph = function(graphType){
+
+        var found = false;
+        combinableGraphs.forEach(function(val){
+
+            if( val == graphType ){
+
+                found = true;
+                return;
+            }
+        });
+        return found;
+    };
     return publicObject;
 
 })();
@@ -110,15 +131,15 @@ var filterMenuModule = (function(){
 
     var filterFields = {
 
-        dataset1: $("#gDataset1"),
-        dataset2: $("#gDataset2"),
-        graphType: $("#gType"),
-        startDate: $("#gStartDate"),
-        endDate: $("#gEndDate")
+        dataset1: $("#primaryDataset"),
+        dataset2: $("#secondaryDataset"),
+        graphType: $("#graphType"),
+        startDate: $("#startDate"),
+        endDate: $("#endDate")
     };
 
     var filterMenus = {
-
+        errors: $("#filter-errors"),
         dataset1: $("#gdata1-menu"),
         dataset2: $("#gdata2-menu"),
         graphType: $("#gtype-menu"),
@@ -149,44 +170,145 @@ var filterMenuModule = (function(){
 
     var clearGraphOptions = function(){
 
+        // Clear Values
+        filterValues.dataset1 = null;
+        filterValues.dataset2 = null;
+        filterValues.graphType = null;
+        filterValues.startDate = null;
+        filterValues.endDate = null;
+
+        // Clear Form Fields
+        $(filterFields.dataset1).val('');
+        $(filterFields.dataset2).val('');
+        $(filterFields.graphType).val('');
+
+        // Set Date to previous month
+        $(filterFields.startDate).val('');
+        $(filterFields.endDate).val('');
+
+        // Clear Visual Fields
         $(filterMenus.dataset1).find(".val").text("");
         $(filterMenus.dataset2).find(".val").text("");
         $(filterMenus.graphType).find(".val").text("");
-        $(filterMenus.filter).find(".val").text("");
+        $(filterMenus.filter).find(".val").find(".date").find(".start").text('');
+        $(filterMenus.filter).find(".val").find(".date").find(".end").text('');
+
     };
 
     var saveAsImage = function(){
 
         var graphType = $(filterFields.graphType).val();
         saveSvgAsPng(document.getElementById("graph"), graphType + "-chart.png", 1);
+
+        closeSubMenu();
+        return false;
     };
+
+    var updateAvailableFilterChoices = function(){
+
+        // run after any filter change
+        // make sure what is selected is still valid
+        // enable/disable invalid choices
+
+        // Check currently selected dataset2 validity
+        // -- clear if not valid
+        if( filterValues.dataset2 != null &&
+            !allowedFilterValues.isSecondaryDataAllowed(filterValues.dataset1, filterValues.dataset2) ){
+
+            // clear Dataset2
+            filterValues.dataset2 = null;
+            $(filterMenus.dataset2).find(".val").text("");
+            $(filterFields.dataset2).val("");
+        }
+
+        // Check currently selected graphType validity
+        // - clear if not valid
+        // -- is set
+        // -- allowed for dataset1
+        // -- dataset1 and dataset2 are set and graph is for combinable
+        if( filterValues.graphType != null ){
+
+            if( filterValues.dataset1 != null && filterValues.dataset2 != null &&
+                !allowedFilterValues.isCombinableGraph(filterValues.graphType) ){
+
+                // clear Graph Type
+                filterValues.graphType = null;
+                $(filterMenus.graphType).find(".val").text("");
+                $(filterFields.graphType).val("");
+
+            }
+            else if( filterValues.dataset2 == null &&
+                !allowedFilterValues.isGraphTypeAllowed(filterValues.dataset1, filterValues.graphType) ){
+
+                // clear Graph Type
+                filterValues.graphType = null;
+                $(filterMenus.graphType).find(".val").text("");
+                $(filterFields.graphType).val("");
+            }
+        }
+
+
+        // Disable Secondary Data as needed
+        $(filterMenus.dataset2).find(".submenu").find("a").not(".clear").each(function () {
+            if (!allowedFilterValues.isSecondaryDataAllowed(filterValues.dataset1, $(this).data("dtype2"))) {
+                $(this).addClass('disabled');
+            }
+            else {
+                $(this).removeClass('disabled');
+            }
+        });
+
+
+        // Disable Graph Types as needed
+        if( filterValues.dataset2 == null ) {
+
+            $(filterMenus.graphType).find(".submenu").find("a").not(".clear").each(function () {
+                if (!allowedFilterValues.isGraphTypeAllowed(filterValues.dataset1, $(this).data("gtype"))) {
+                    $(this).addClass('disabled');
+                }
+                else {
+                    $(this).removeClass('disabled');
+                }
+            });
+        }
+        else{
+
+            // Disable All Types but Combined
+            $(filterMenus.graphType).find(".submenu").find("a").not(".clear").each(function () {
+                if( !allowedFilterValues.isCombinableGraph($(this).data("gtype")) ){
+                    $(this).addClass('disabled');
+                }
+                else {
+                    $(this).removeClass('disabled');
+                }
+            });
+
+        }
+
+    }
 
     var chooseDataSet1 = function(){
 
-        filterValues.dataset1 = $(this).data("dtype1");
-        $(filterMenus.dataset1).find(".val").text($(this).text());
-        $(filterFields.dataset1).val(filterValues.dataset1);
+        if( $(this).hasClass('clear') ){
 
-        // Disable Secondary Data as needed
-        $(filterMenus.dataset2).find(".submenu").find("a").each(function(){
-            if( !allowedGraphValues.isSecondaryDataAllowed(filterValues.dataset1, $(this).data("dtype2")) ){
-                 $(this).addClass('disabled');
-            }
-            else{
-                $(this).removeClass('disabled');
-            }
-        });
+            // clear Dataset2
+            filterValues.dataset1 = null;
+            $(filterMenus.dataset1).find(".val").text("");
+            $(filterFields.dataset1).val("");
+        }
+        else {
 
-        // Disable Graph Types as needed
-        $(filterMenus.graphType).find(".submenu").find("a").each(function(){
-            if( !allowedGraphValues.isGraphTypeAllowed(filterValues.dataset1, $(this).data("gtype")) ){
-                $(this).addClass('disabled');
-            }
-            else{
-                $(this).removeClass('disabled');
-            }
-        });
+            var newVal = $(this).data("dtype1");
+            if (newVal != filterValues.dataset1) {
 
+                // Set New Dataset 1 value
+                filterValues.dataset1 = newVal;
+                $(filterMenus.dataset1).find(".val").text($(this).text());
+                $(filterFields.dataset1).val(filterValues.dataset1);
+            }
+        }
+
+        updateAvailableFilterChoices();
         closeSubMenu();
         return false;
     };
@@ -196,27 +318,106 @@ var filterMenuModule = (function(){
         // do nothing for disabled secondary types
         if( $(this).hasClass('disabled') ) return false;
 
-        filterValues.dataset2 = $(this).data("dtype1");
-        $(filterMenus.dataset2).find(".val").text($(this).text());
-        $(filterFields.dataset2).val(filterValues.dataset2);
+        if( $(this).hasClass('clear') ){
 
+            // clear Dataset2
+            filterValues.dataset2 = null;
+            $(filterMenus.dataset2).find(".val").text("");
+            $(filterFields.dataset2).val("");
+        }
+        else {
+            var newVal = $(this).data("dtype2");
+            if (newVal != filterValues.dataset2) {
+
+                filterValues.dataset2 = newVal;
+                $(filterMenus.dataset2).find(".val").text($(this).text());
+                $(filterFields.dataset2).val(filterValues.dataset2);
+            }
+        }
+
+        updateAvailableFilterChoices();
         closeSubMenu();
         return false;
+    };
+
+    var chooseStartDate = function(){
+
+        var dateString = $(filterFields.startDate).val();
+        // date field is in format yyyy-MM-dd --> convert to Date object and build string like mm/dd/yyyy
+        var startDate = new Date(dateString);
+        if( Object.prototype.toString.call(startDate) === "[object Date]" && !isNaN(startDate.getTime()) ) {
+
+            var monthNum = startDate.getUTCMonth() + 1;
+            var dayNum = startDate.getUTCDate();
+            if (dayNum < 10 && dayNum >= 0) dayNum = '0' + dayNum.toString();
+            var yearNum = startDate.getUTCFullYear();
+            var startDateString = monthNum + '/' + dayNum + '/' + yearNum;
+            $(filterMenus.filter).find(".val").find(".date").find(".start").text(startDateString);
+            filterValues.startDate = startDateString;
+        }
+        else{
+
+            $(filterMenus.filter).find(".val").find(".date").find(".start").text("");
+        }
+
+    };
+
+    var chooseEndDate = function(){
+
+        var dateString = $(filterFields.endDate).val();
+        // date field is in format yyyy-MM-dd --> convert to Date object and build string like mm/dd/yyyy
+        var endDate = new Date(dateString);
+        if( Object.prototype.toString.call(endDate) === "[object Date]" && !isNaN(endDate.getTime()) ) {
+
+            var monthNum = endDate.getUTCMonth() + 1;
+            var dayNum = endDate.getUTCDate();
+            if (dayNum < 10 && dayNum >= 0) dayNum = '0' + dayNum.toString();
+            var yearNum = endDate.getUTCFullYear();
+            var endDateString = monthNum + '/' + dayNum + '/' + yearNum;
+            $(filterMenus.filter).find(".val").find(".date").find(".end").text(endDateString);
+            filterValues.endDate = endDateString;
+        }
+        else{
+            $(filterMenus.filter).find(".val").find(".date").find(".end").text("");
+        }
     };
 
     var chooseGraphType = function(){
 
-        filterValues.graphType = $(this).data("gtype");
-        $(filterMenus.graphType).find(".val").text($(this).text());
-        $(filterFields.graphType).val(filterValues.graphType);
+        // do nothing for disabled secondary types
+        if( $(this).hasClass('disabled') ) return false;
 
+        if( $(this).hasClass('clear') ){
+
+            // clear Graph Type
+            filterValues.graphType = null;
+            $(filterMenus.graphType).find(".val").text("");
+            $(filterFields.graphType).val("");
+        }
+        else {
+
+            var newVal = $(this).data("gtype");
+            if (newVal != filterValues.graphType) {
+
+                filterValues.graphType = newVal;
+                $(filterMenus.graphType).find(".val").text($(this).text());
+                $(filterFields.graphType).val(filterValues.graphType);
+            }
+        }
+
+        updateAvailableFilterChoices();
         closeSubMenu();
         return false;
     };
 
-    var optionLinkClick = function(){
+    var optionLinkClick = function(evt){
 
-        activeSubMenu = $(this).parent(".menu-item");
+        // do nothing is tab is within submenu
+        if($(evt.target).parents('ul.submenu').length) {
+            return;
+        }
+
+        activeSubMenu = $(this);
         if( $(activeSubMenu).hasClass("active") ) {
             closeSubMenu();
         }
@@ -226,18 +427,144 @@ var filterMenuModule = (function(){
         return false;
     };
 
+    var checkFilterValid = function(){
+
+        var errors = [];
+        var filtersAreValid = true;
+
+        // Dataset 1 has valid value
+        if( !allowedFilterValues.isPrimaryDataValid(filterValues.dataset1) ){
+
+            filtersAreValid = false;
+            errors.push("Choose valid Primary Dataset");
+        }
+
+        // Dataset 2 has valid value - based on dataset1
+        if( filterValues.dataset2 != null ){
+            if( !allowedFilterValues.isSecondaryDataAllowed(filterValues.dataset1, filterValues.dataset2) ) {
+                filtersAreValid = false;
+                errors.push("Choose valid Secondary Dataset");
+            }
+        }
+
+        // Graph Type has valid value
+        if( filterValues.dataset2 != null &&
+            !allowedFilterValues.isCombinableGraph(filterValues.graphType) ){
+
+            filtersAreValid = false;
+            errors.push("Choose valid Graph Type");
+        }
+        else if(filterValues.dataset2 == null &&
+                !allowedFilterValues.isGraphTypeAllowed(filterValues.dataset1, filterValues.graphType) ){
+
+            filtersAreValid = false;
+            errors.push("Choose valid Graph Type");
+        }
+
+        // Start Date has value
+        // Start Date is before or equal to today
+        if( filterValues.startDate != null ){
+
+            var startDate = new Date(filterValues.startDate);
+            if( Object.prototype.toString.call(startDate) === "[object Date]" && !isNaN(startDate.getTime()) ) {
+
+                var today = new Date();
+                if( startDate.getTime() > today.getTime() ){
+
+                    errors.push("Start Date cannot be in the future")
+                }
+            }
+            else{
+                errors.push("Invalid Start Date");
+            }
+        }
+
+        // End Date is after Start Date
+        // End Date is 30 days or less from Start Date
+        if( filterValues.endDate != null ){
+
+            var endDate = new Date(filterValues.endDate);
+            if( Object.prototype.toString.call(endDate) === "[object Date]" && !isNaN(endDate.getTime()) ) {
+
+                var today = new Date();
+                var startDate = new Date(filterValues.startDate);
+                if( endDate.getTime() > today.getTime() ){
+
+                    errors.push("End Date cannot be in the future");
+                }
+                else if( Object.prototype.toString.call(startDate) === "[object Date]" && !isNaN(startDate.getTime()) ){
+                    if( endDate.getTime() < startDate.getTime() ){
+                        errors.push("End Date is before Start Date");
+                    }
+                    // if StartDate is more than 30 days before end date
+                    else if( (startDate.getTime() + (30 * 24 * 60 * 60 * 1000)) < endDate.getTime() ){
+                        errors.push("Date Range max is 30 days");
+                    }
+                }
+            }
+            else{
+                errors.push("Invalid End Date");
+            }
+        }
+
+        // clear errors
+        $(filterMenus.errors).html("");
+        // show error list on page
+        if( !filtersAreValid ){
+
+            var errorList = "<ul>";
+            for (i = 0; i < errors.length; ++i) {
+
+                errorList += "<li>" + errors[i] + "</li>";
+            }
+            errorList += "</ul>";
+            $(filterMenus.errors).append(errorList);
+        }
+
+        return (filtersAreValid);
+    };
+
+    var getGraph = function(){
+
+        closeSubMenu();
+
+        // Validate before submitting
+        var filtersAreValid = checkFilterValid();
+        if( filtersAreValid ) {
+            // Get Filter values from form hidden fields
+            var graphType = $(filterValues.graphType).val();
+            var postData = $("#graph-options").serialize();
+            //console.log(postData);
+            graphLoaderModule.loadGraph(filterValues.graphType, postData);
+        }
+
+        // stop html form post
+        return false;
+    };
+
     var publicObject = {};
     publicObject.init = function() {
 
         // Register Actions
-        $(".menu-item").find("a.opt-link").click(optionLinkClick);
+        //$(".menu-item").find("a.opt-link").click(optionLinkClick);
+        $(".menu-item").click(optionLinkClick);
         $(filterMenus.dataset1).find(".submenu").find("a").click(chooseDataSet1);
         $(filterMenus.dataset2).find(".submenu").find("a").click(chooseDataSet2);
         $(filterMenus.graphType).find(".submenu").find("a").click(chooseGraphType);
 
+        $(filterFields.startDate).change(chooseStartDate);
+        $(filterFields.endDate).change(chooseEndDate);
+        $(filterFields.startDate).trigger("change");
+        $(filterFields.endDate).trigger("change");
+
         $("#clear-button").click(clearGraphOptions);
+        $("#submit-button").click(getGraph);
         $("#save").click(saveAsImage);
 
+        // stop form submission
+        $("#graph-options").attr("onsubmit", "return false;");
+
+        updateAvailableFilterChoices();
     };
 
     return publicObject;
@@ -261,12 +588,13 @@ var graphLoaderModule = (function(){
     };
 
     var publicObject = {};
-    publicObject.loadGraph = function(){
+    publicObject.loadGraph = function(newGraphType, postData){
 
         showGraphLoadingIcon();
-        var postData = {};
+        $(".graph-header").show();
+        graphType = newGraphType;
 
-        graphType = $("#graph-type").val();
+        //console.log(postData);
 
         // post graph
         $.post("/research/graph", postData, function (rawData) {
@@ -277,19 +605,28 @@ var graphLoaderModule = (function(){
             switch(graphType){
 
                 case 'line':
-                    //getLineGraphData();
+                    lineGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    lineGraphModule.buildGraph();
                     break;
 
                 case 'scatter':
-                    //getScatterGraphData();
+                    scatterGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    scatterGraphModule.buildGraph();
                     break;
 
                 case 'pie':
-                    //getPieGraphData();
+                    pieGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    pieGraphModule.buildGraph();
                     break;
 
                 case 'stacked-bar':
-                    //getStackedBarGraphData();
+                    stackedBarGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    stackedBarGraphModule.buildGraph();
+                    break;
+
+                case 'grouped-bar':
+                    groupedBarGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    groupedBarGraphModule.buildGraph();
                     break;
 
                 case 'bar':
@@ -352,6 +689,11 @@ var graphLoaderModule = (function(){
         */
     };
 
+    publicObject.init = function(){
+
+        // do any initialization that might be needed
+    };
+
     return publicObject;
 })();
 
@@ -359,42 +701,15 @@ var graphLoaderModule = (function(){
 jQuery(document).ready(function(){
 
     filterMenuModule.init();
-
-    graphLoaderModule.loadGraph();
-
-    /* Button Clicks
-     $(".load-graph-link").click(function(){
-
-     var newGraphType = $(this).data("gtype");
-
-     // only load new graph on a change
-     if( newGraphType != graphType ) {
-
-     graphType = newGraphType;
-     $("#graph-type").val(graphType);
-
-     // remove any previous graph
-     d3.selectAll("svg > *").remove();
-     //showGraphLoadingIcon();
-
-     $(".nav-sidebar li").removeClass("active");
-     $(this).parent("li").addClass("active");
-
-     //console.log(graphType);
-     loadGraph(graphType);
-     }
-     return false;
-     });
-     */
+    graphLoaderModule.init();
 
     // Detect changes in main container width, redraw chart
-    // -- How will this perform with lots of data and on mobile devices
     var lastChartWidth = $(".main").width();
     $(window).on("resize", function() {
         var currChartWidth = $(".main").width();
         if( lastChartWidth != currChartWidth ) {
 
-            reloadGraph(graphType);
+            //reloadGraph(graphType);
             lastChartWidth = currChartWidth;
         }
     }).trigger("resize");
