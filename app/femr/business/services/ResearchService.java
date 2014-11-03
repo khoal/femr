@@ -131,7 +131,7 @@ public class ResearchService implements IResearchService{
     /**
      * {@inheritDoc}
      */
-    public ServiceResponse<Map<Integer,VitalItem>> getPatientVitals(String vitalName, String startDate, String endDate) {
+    public ServiceResponse<Map<Integer,VitalItem>> getPatientVitals(String vitalName, String startDateString, String endDateString) {
 
         ServiceResponse<Map<Integer,VitalItem>> response = new ServiceResponse<>();
 
@@ -141,11 +141,13 @@ public class ResearchService implements IResearchService{
             IVital v = vitalRepository.findOne(vitalQuery);
 
             SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            //SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             // Set Start Date to start of day
-            Date startDateObj = format.parse(startDate+" 00:00:00");
+            String startParseDate = startDateString+" 00:00:00";
+            Date startDateObj = sqlFormat.parse(startParseDate);
             // Set End Date to end of day
-            Date endDateObj = format.parse(endDate+" 23:59:59");
+            String parseEndDate = endDateString+" 23:59:59";
+            Date endDateObj = sqlFormat.parse(parseEndDate);
 
             Query q = QueryProvider.getPatientEncounterVitalQuery();
             q.where()

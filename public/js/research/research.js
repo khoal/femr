@@ -4,19 +4,19 @@ var allowedFilterValues = (function(){
 
         age: {
             graphTypes: ['bar','line','pie','scatter','table'],
-            secondaryData: ['gender', 'pregnancy_status']
+            secondaryData: ['gender', 'pregnancyStatus']
         },
         gender: {
             graphTypes: ['bar','pie', 'table'],
             secondaryData: []
         },
-        pregnancy_status: {
+        pregnancyStatus: {
             graphTypes: ['bar','line','pie','scatter','table'],
-                secondaryData: ['gender', 'pregnancy']
+                secondaryData: ['gender', 'pregnancyStatus']
         },
-        pregnancy_time: {
+        pregnancyTime: {
             graphTypes: ['bar','line','pie','scatter','table'],
-            secondaryData: ['gender', 'pregnancy']
+            secondaryData: ['gender', 'pregnancyStatus']
         },
         height: {
             graphTypes: ['bar','line','scatter','table'],
@@ -26,31 +26,31 @@ var allowedFilterValues = (function(){
             graphTypes: ['bar','line','pie', 'scatter','table'],
             secondaryData: ['gender']
         },
-        dispensed_meds: {
+        dispensedMeds: {
             graphTypes: ['bar','pie','table'],
             secondaryData: []
         },
-        prescribed_meds: {
+        prescribedMeds: {
             graphTypes: ['bar','pie','table'],
             secondaryData: []
         },
-        blood_pressure: {
+        bloodPressure: {
             graphTypes: ['line','scatter','chart'],
             secondaryData: []
         },
-        temp: {
+        temperature: {
             graphTypes: ['bar','line','scatter','chart'],
             secondaryData: ['age','gender']
         },
-        oxy_sat: {
+        oxygenSaturation: {
             graphTypes: ['bar','line','scatter','chart'],
             secondaryData: []
         },
-        heart_rate: {
+        heartRate: {
             graphTypes: ['bar','line','scatter','chart'],
             secondaryData: []
         },
-        resp: {
+        respiratoryRate: {
             graphTypes: ['bar','line','scatter','chart'],
             secondaryData: []
         },
@@ -250,7 +250,7 @@ var filterMenuModule = (function(){
 
         // Disable Secondary Data as needed
         $(filterMenus.dataset2).find(".submenu").find("a").not(".clear").each(function () {
-            if (!allowedFilterValues.isSecondaryDataAllowed(filterValues.dataset1, $(this).data("dtype2"))) {
+            if (!allowedFilterValues.isSecondaryDataAllowed(filterValues.dataset1, $(this).data("dname2"))) {
                 $(this).addClass('disabled');
             }
             else {
@@ -298,7 +298,7 @@ var filterMenuModule = (function(){
         }
         else {
 
-            var newVal = $(this).data("dtype1");
+            var newVal = $(this).data("dname1");
             if (newVal != filterValues.dataset1) {
 
                 // Set New Dataset 1 value
@@ -326,7 +326,7 @@ var filterMenuModule = (function(){
             $(filterFields.dataset2).val("");
         }
         else {
-            var newVal = $(this).data("dtype2");
+            var newVal = $(this).data("dname2");
             if (newVal != filterValues.dataset2) {
 
                 filterValues.dataset2 = newVal;
@@ -600,7 +600,7 @@ var graphLoaderModule = (function(){
         $.post("/research/graph", postData, function (rawData) {
 
             jsonData = jQuery.parseJSON(rawData);
-            //console.log(jsonData);
+            console.log(jsonData);
 
             switch(graphType){
 
@@ -631,7 +631,8 @@ var graphLoaderModule = (function(){
 
                 case 'bar':
                 default:
-                    barGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    barGraphModule.setGraphData(jsonData.graphValues);
+                    //barGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
                     barGraphModule.buildGraph();
             }
 
