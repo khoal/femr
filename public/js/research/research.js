@@ -716,45 +716,45 @@ jQuery(document).ready(function(){
     }).trigger("resize");
 
 
-//*** Loop Start
-/*
-    // Generate new vitals/demographics every time - maybe change patient name
-    var postData = {
 
-        firstName: (randomString()),
-        lastName: (randomString()),
-        address: (randomInt(100,2000))+ ' address' ,
-        city: 'anywhere',
-        age: (randomInt(1950,2000))+ '-' +(randomInt(1,12))+ '-' +(randomInt(1,12)),
-        sex: (randomGender()),
+    //*** Loop Start
+    /*
+    for (var i=0; i<50; i++) {
+        // Generate new vitals/demographics every time - maybe change patient name
+        var postData = {
 
-        bloodPressureSystolic: (randomInt(110,150)),
-        bloodPressureDiastolic: (randomInt(60,100)),
-        heartRate: (randomInt(60,10)),
-        temperature: (randomInt(92,101)),
-        respiratoryRate: (randomInt(10,22)),
-        oxygenSaturation: (randomInt(80,100)),
-        heightFeet: (randomInt(0,7)),
-        heightInches: (randomInt(0,12)),
-        weight: (randomInt(92,101)),
-        glucose: null,
-        chiefComplaint: '',
-        weeksPregnant: null
+            firstName: (randomString()),
+            lastName: (randomString()),
+            address: (randomInt(100, 2000)) + ' address',
+            city: 'anywhere',
+            age: (randomInt(1950, 2000)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
+            sex: (randomGender()),
 
-        // Add the rest of the form fields here
-    };
+            bloodPressureSystolic: (randomInt(110, 150)),
+            bloodPressureDiastolic: (randomInt(60, 100)),
+            heartRate: (randomInt(10, 60)),
+            temperature: (randomInt(92, 101)),
+            respiratoryRate: (randomInt(10, 22)),
+            oxygenSaturation: (randomInt(80, 100)),
+            heightFeet: (randomInt(0, 7)),
+            heightInches: (randomInt(0, 12)),
+            weight: (randomInt(92, 101)),
+            glucose: null,
+            chiefComplaint: null,
+            weeksPregnant: null
 
-    console.log(postData);
+            // Add the rest of the form fields here
+        };
 
-    $.post("/triage?id=0", postData, function (responseData) {
+        $.post("/triage?id=0", postData, function (responseData) {
 
+            console.log(postData);
 
-    });
-
+        });
+    }
+    */
     //*** Loop End
-*/
 });
-
 
 function randomString() {
     var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
