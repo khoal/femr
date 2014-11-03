@@ -83,20 +83,6 @@ public class ResearchController extends Controller {
 
         FilterViewModel viewModel = FilterViewModelForm.bindFromRequest().get();
 
-        // Ages are a list of Dates
-        // ServiceResponse<List<Date>> getAllPatientAges()
-        ServiceResponse<Map<Integer,VitalItem>> response = researchService.getPatientVitals(viewModel.getPrimaryDataset(), viewModel.getStartDate(), viewModel.getEndDate());
-        //*
-        Map<Integer,VitalItem> patients = response.getResponseObject();
-        Iterator it = patients.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            System.out.println(pairs.getKey() + " = " + pairs.getValue());
-            it.remove(); // avoids a ConcurrentModificationException
-        }
-        //* /
-
-
         String graphType = viewModel.getGraphType();
         System.out.println(graphType);
         switch( graphType ){
