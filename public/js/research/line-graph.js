@@ -12,6 +12,8 @@ var lineGraphModule = (function(){
     var publicObject = {};
     publicObject.setGraphData = function(jsonData){
 
+        graph_data = [];
+
         for( var i = 0; i < jsonData.length; i++ ){
 
             graph_data[i] = {
