@@ -12,6 +12,8 @@ var pieGraphModule = (function(){
     var publicObject = {};
     publicObject.setGraphData = function(jsonData){
 
+        graph_data = [];
+
         var i = 0;
         $.each(jsonData, function (key, obj) {
             graph_data[i] = {

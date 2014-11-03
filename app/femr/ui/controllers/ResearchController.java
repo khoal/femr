@@ -13,6 +13,7 @@ import femr.common.models.VitalItem;
 import femr.data.models.Roles;
 import femr.ui.helpers.security.AllowedRoles;
 import femr.ui.helpers.security.FEMRAuthenticated;
+import femr.ui.models.research.BarGraphViewModel;
 import femr.ui.models.research.PatientGraphItem;
 import femr.ui.views.html.research.index;
 import femr.ui.models.research.FilterViewModel;
@@ -63,28 +64,39 @@ public class ResearchController extends Controller {
         today.add(Calendar.DAY_OF_MONTH, -30);
         viewModel.setStartDate(dateFormat.format(today.getTime()));
 
-        ServiceResponse<Map<Integer,VitalItem>> response = researchService.getPatientVitals("temperature", viewModel.getStartDate(), viewModel.getEndDate());
-        System.out.println(response.getResponseObject().size());
-        /*
-        Map<Integer,VitalItem> patients = response.getResponseObject();
-        Iterator it = patients.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            System.out.println(pairs.getKey() + " = " + pairs.getValue());
-            it.remove(); // avoids a ConcurrentModificationException
-        }
-        */
-
         CurrentUser currentUserSession = sessionService.getCurrentUserSession();
         return ok(index.render(currentUserSession, viewModel));
     }
 
     public Result getGraphPost(){
 
-        FilterViewModel viewModel = FilterViewModelForm.bindFromRequest().get();
+        FilterViewModel filterViewModel = FilterViewModelForm.bindFromRequest().get();
 
-        String graphType = viewModel.getGraphType();
-        System.out.println(graphType);
+        // height, blood pressure - two fields to get
+        String datasetName = filterViewModel.getPrimaryDataset();
+        if( datasetName.equals("respiratoryRate") ||
+            datasetName.equals("heartRate") ||
+            datasetName.equals("temperature")  ||
+            datasetName.equals("oxygenSaturation")  ||
+            datasetName.equals("weight") ||
+            datasetName.equals("glucose") ){
+
+            ServiceResponse<Map<Integer,VitalItem>> response = researchService.getPatientVitals(filterViewModel.getPrimaryDataset(), filterViewModel.getStartDate(), filterViewModel.getEndDate());
+
+            Map<Integer,VitalItem> patientInfo = response.getResponseObject();
+
+            BarGraphViewModel barGraphViewModel = new BarGraphViewModel();
+            barGraphViewModel.buildGraphValues(patientInfo);
+
+            Gson gson = new Gson();
+            return ok(gson.toJson(barGraphViewModel));
+
+            //return ok(barGraphViewModel.toJson());
+        }
+
+
+        // Handle other requests as Random Age data until finished
+        String graphType = filterViewModel.getGraphType();
         switch( graphType ){
 
             case "line":
@@ -309,15 +321,15 @@ public class ResearchController extends Controller {
         graphValues.add(10, new PatientGraphItem("100+", ageRanges.get("100+")));
         //*/
 
+        BarGraphViewModel barGraphViewModel = new BarGraphViewModel();
+        barGraphViewModel.setMedian(median);
+        barGraphViewModel.setAverage(average);
+        barGraphViewModel.setRangeLow(rangeLow);
+        barGraphViewModel.setRangeHigh(rangeHigh);
+        barGraphViewModel.setGraphValues(graphValues);
+
         Gson gson = new Gson();
-
-        jsonObject.addProperty("median", median);
-        jsonObject.addProperty("average", average);
-        jsonObject.addProperty("rangeLow", rangeLow);
-        jsonObject.addProperty("rangeHigh", rangeHigh);
-        jsonObject.addProperty("graphData", gson.toJson(graphValues));
-
-        return ok(jsonObject.toString());
+        return ok(gson.toJson(barGraphViewModel));
     }
 
 

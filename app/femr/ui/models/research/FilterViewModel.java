@@ -12,6 +12,8 @@ public class FilterViewModel {
 
     private String primaryDataset;
     private String secondaryDataset;
+    private String primaryDatatype;
+    private String secondaryDatatype;
     private String graphType;
     private String startDate;
     private String endDate;
@@ -30,6 +32,22 @@ public class FilterViewModel {
 
     public void setSecondaryDataset(String secondaryDataset) {
         this.secondaryDataset = secondaryDataset;
+    }
+
+    public String getPrimaryDatatype() {
+        return primaryDatatype;
+    }
+
+    public void setPrimaryDatatype(String primaryDatatype) {
+        this.primaryDatatype = primaryDatatype;
+    }
+
+    public String getSecondaryDatatype() {
+        return secondaryDatatype;
+    }
+
+    public void setSecondaryDatatype(String secondaryDatatype) {
+        this.secondaryDatatype = secondaryDatatype;
     }
 
     public String getGraphType() {
