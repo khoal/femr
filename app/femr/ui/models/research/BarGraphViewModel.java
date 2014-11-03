@@ -1,22 +1,21 @@
 package femr.ui.models.research;
 
-import femr.common.models.AgeGraphItem;
 import java.util.List;
 
 
 public class BarGraphViewModel {
 
-    List<AgeGraphItem> graphValues;
+    List<PatientGraphItem> graphValues;
     double average;
     int median;
     int rangeLow;
     int rangeHigh;
 
-    public List<AgeGraphItem> getGraphValues() {
+    public List<PatientGraphItem> getGraphValues() {
         return graphValues;
     }
 
-    public void setGraphValues(List<AgeGraphItem> graphValues) {
+    public void setGraphValues(List<PatientGraphItem> graphValues) {
         this.graphValues = graphValues;
     }
 

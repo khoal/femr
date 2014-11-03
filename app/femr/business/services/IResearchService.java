@@ -37,5 +37,15 @@ public interface IResearchService {
     ServiceResponse<List<Date>> getAllPatientAges();
     //ServiceResponse<List<PatientItem>> getData();
 
+    /**
+     * Retrieve patient and update the patients sex. Used when a user submits a sex for
+     * a patient with a previously unidentified sex.
+     *
+     * @param vitalType the string name of the vital to lookup
+     * @param startDate starting range of vital taken range
+     * @param endDate ending range of vital taken range
+     * @return a map of unique readings of vitalType indexed by encounterID
+     */
+    public ServiceResponse<Map<Integer,VitalItem>> getPatientVitals(String vitalType, String startDate, String endDate);
 
 }

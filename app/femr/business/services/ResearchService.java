@@ -19,7 +19,9 @@
 package femr.business.services;
 
 
+import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.Query;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import femr.business.helpers.DomainMapper;
@@ -33,10 +35,9 @@ import femr.common.models.PatientItem;
 import femr.common.models.VitalItem;
 import femr.util.calculations.dateUtils;
 import femr.util.stringhelpers.StringUtils;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ResearchService implements IResearchService{
 
@@ -126,6 +127,86 @@ public class ResearchService implements IResearchService{
         */
         return response;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ServiceResponse<Map<Integer,VitalItem>> getPatientVitals(String vitalName, String startDate, String endDate) {
+
+        ServiceResponse<Map<Integer,VitalItem>> response = new ServiceResponse<>();
+
+        try {
+
+            ExpressionList<Vital> vitalQuery = QueryProvider.getVitalQuery().where().eq("name", vitalName);
+            IVital v = vitalRepository.findOne(vitalQuery);
+
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            // Set Start Date to start of day
+            Date startDateObj = format.parse(startDate+" 00:00:00");
+            // Set End Date to end of day
+            Date endDateObj = format.parse(endDate+" 23:59:59");
+
+            Query q = QueryProvider.getPatientEncounterVitalQuery();
+            q.where()
+             .gt("dateTaken", sqlFormat.format(startDateObj))
+             .lt("dateTaken", sqlFormat.format(endDateObj))
+             .eq("vital", v)
+             .orderBy("dateTaken")
+             .findList();
+
+            // Map indexed by patientEncounterId ensures only the last reading of the encounter will be counted
+            Map<Integer,VitalItem> vitals = new HashMap<>();
+            List<? extends IPatientEncounterVital> patientEncounters = patientEncounterVitalRepository.find(q);
+            for( IPatientEncounterVital eVital : patientEncounters){
+
+                VitalItem vital = new VitalItem();
+                vital.setName(vitalName);
+                vital.setValue(eVital.getVitalValue());
+
+                vitals.put(eVital.getPatientEncounterId(), vital);
+            }
+            response.setResponseObject(vitals);
+
+        } catch (Exception ex) {
+
+            response.addError("exception", ex.getMessage());
+        }
+
+        return response;
+    }
+
+    /*
+
+    ReturnData
+    - patient ID
+    -
+
+    Demographics
+    ** data from patients table
+    ** date from patient_encouters
+    - Age
+    - Gender
+
+    ** data and date from patient_encounters table
+    - Pregnancy Status (Weeks > 0 || weeks != null => yes)
+    - Weeks Pregnant
+
+    Vitals
+    ** id from vitals table
+    ** data from patient_encounter_vitals table
+    ** date from patient_encounters table
+    - Temperature
+    - Blood Pressure (Systolic, Diastolic)
+    - Heart Rate
+    - Respirations
+    - Pregnancy Status
+    - Oxygen Saturation
+    - Glucose
+    - Height (feet, inches)
+    - Weight
+
+     */
 
 
 }
