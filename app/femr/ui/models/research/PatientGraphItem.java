@@ -1,14 +1,23 @@
-package femr.common.models;
+package femr.ui.models.research;
 
-public class AgeGraphItem {
+public class PatientGraphItem {
 
+    private int Id;
     private String key;
     private Integer value;
 
-    public AgeGraphItem(String key, Integer value){
+    public PatientGraphItem(String key, Integer value){
 
         this.key = key;
         this.value = value;
+    }
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
     }
 
     public String getKey() {
