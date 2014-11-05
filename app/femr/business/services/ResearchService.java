@@ -220,6 +220,18 @@ public class ResearchService implements IResearchService {
                                 )
                         );
                         break;
+                    case "gender":
+                        int gender = 0;
+                        if (patient.getSex() == "male") {gender = 1;}
+                        else if (patient.getSex() == "female") {gender = 2;}
+                        researchItems.add(
+                                new ResearchItem(
+                                        patient.getId(),
+                                        "gender",
+                                        (float) gender
+                                )
+                        );
+                        break;
                 }
             }
 
