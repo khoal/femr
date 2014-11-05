@@ -164,7 +164,7 @@ public class ResearchService implements IResearchService {
                 VitalItem vital = new VitalItem();
                 vital.setName(vitalName);
                 vital.setValue(eVital.getVitalValue());
-
+                System.out.println(eVital);
                 vitals.put(eVital.getPatientEncounterId(), vital);
             }
             response.setResponseObject(vitals);
@@ -172,6 +172,15 @@ public class ResearchService implements IResearchService {
         } catch (Exception ex) {
 
             response.addError("exception", ex.getMessage());
+        }
+
+
+        Iterator it = response.getResponseObject().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry)it.next();
+            VitalItem hello = (VitalItem) pairs.getValue();
+            System.out.println(pairs.getKey() + " = " + hello.getValue());
+            it.remove(); // avoids a ConcurrentModificationException
         }
 
 
@@ -198,9 +207,6 @@ public class ResearchService implements IResearchService {
 
             Query q = QueryProvider.getPatientQuery();
             q.where()
-                    //.gt("dateTaken", sqlFormat.format(startDateObj))
-                    //.lt("dateTaken", sqlFormat.format(endDateObj))
-                    //.eq("vital", v)
                     .orderBy("id")
                     .findList();
 
@@ -221,20 +227,20 @@ public class ResearchService implements IResearchService {
                         );
                         break;
                     case "gender":
-                        int gender = 0;
-                        if (patient.getSex() == "male") {gender = 1;}
-                        else if (patient.getSex() == "female") {gender = 2;}
+                        int gender = -1;
+                        if (patient.getSex() == "male") {gender = 0;}
+                        else if (patient.getSex() == "female") {gender = 1;}
                         researchItems.add(
                                 new ResearchItem(
                                         patient.getId(),
                                         "gender",
-                                        (float) gender
+                                        ((float) gender)
                                 )
                         );
                         break;
                 }
             }
-
+            response.setResponseObject(researchItems);
         } catch (Exception ex) {
             response.addError("exception", ex.getMessage());
         }
