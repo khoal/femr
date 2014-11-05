@@ -3,7 +3,7 @@ package femr.ui.models.research;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import femr.common.models.VitalItem;
-
+import femr.common.models.ResearchItem;
 import java.util.*;
 
 
@@ -56,6 +56,20 @@ public class BarGraphViewModel {
         }
 
     }
+
+
+    /*
+    public void buildGraphValues(List<ResearchItem> input){
+
+
+        graphValues = new ArrayList<PatientGraphItem>();
+        for (ResearchItem r : input) {
+            graphValues.add(0, new PatientGraphItem(r.getDataType1(), (int) r.getDataSet1()));
+
+        }
+
+    }
+    */
 
     public double getAverage() {
         return average;
