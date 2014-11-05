@@ -32,8 +32,8 @@ public class ResearchItem {
     public ResearchItem( ){
         //default empty values
         this.patientId = 0;
-        this.dataSet1 = 0;
-        this.dataSet2 = 0;
+        this.dataSet1 = -1;
+        this.dataSet2 = -1;
         this.dataType1 = "";
         this.dataType2 = "";
     }
@@ -43,7 +43,7 @@ public class ResearchItem {
     public ResearchItem( int id, String type1, float set1){
         this.patientId = id;
         this.dataSet1 = set1;
-        this.dataSet2 = 0;
+        this.dataSet2 = -1;
         this.dataType1 = type1;
         this.dataType2 = "";
     }
