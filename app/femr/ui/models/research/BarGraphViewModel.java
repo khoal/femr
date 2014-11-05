@@ -10,7 +10,7 @@ import java.util.*;
 public class BarGraphViewModel {
 
     List<PatientGraphItem> graphValues;
-    double average;
+    double average = 0;
     int median;
     int rangeLow;
     int rangeHigh;
@@ -58,18 +58,29 @@ public class BarGraphViewModel {
     }
 
 
-    /*
+
     public void buildGraphValues(List<ResearchItem> input){
+        boolean first = true;
 
-
+        double sum = 0;
         graphValues = new ArrayList<PatientGraphItem>();
         for (ResearchItem r : input) {
+            if (first)
+            {
+                rangeHigh = (int) r.getDataSet1();
+                rangeLow = (int) r.getDataSet1();
+                first = false;
+            }
+            if (r.getDataSet1() > rangeHigh) {rangeHigh = (int) r.getDataSet1();}
+            if (r.getDataSet1() < rangeLow) {rangeLow = (int) r.getDataSet1();}
+            sum += r.getDataSet1();
             graphValues.add(0, new PatientGraphItem(r.getDataType1(), (int) r.getDataSet1()));
 
         }
-
+        median = graphValues.get(graphValues.size()/2).getValue();
+        average = sum/graphValues.size();
     }
-    */
+
 
     public double getAverage() {
         return average;
