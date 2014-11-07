@@ -9,6 +9,7 @@ import femr.business.services.IResearchService;
 import femr.business.services.ISessionService;
 
 import femr.common.dto.ServiceResponse;
+import femr.common.models.ResearchItem;
 import femr.common.models.VitalItem;
 import femr.data.models.Roles;
 import femr.ui.helpers.security.AllowedRoles;
@@ -76,12 +77,14 @@ public class ResearchController extends Controller {
 
         // height, blood pressure - two fields to get
         String datasetName = filterViewModel.getPrimaryDataset();
+        //researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());//this is just meant to call the getPatientAttribute method for testing. Can be removed.
+
         if( datasetName.equals("respiratoryRate") ||
-            datasetName.equals("heartRate") ||
-            datasetName.equals("temperature")  ||
-            datasetName.equals("oxygenSaturation")  ||
-            datasetName.equals("weight") ||
-            datasetName.equals("glucose") ){
+                datasetName.equals("heartRate") ||
+                datasetName.equals("temperature")  ||
+                datasetName.equals("oxygenSaturation")  ||
+                datasetName.equals("weight") ||
+                datasetName.equals("glucose") ){
 
             ServiceResponse<Map<Integer,VitalItem>> response = researchService.getPatientVitals(filterViewModel.getPrimaryDataset(), filterViewModel.getStartDate(), filterViewModel.getEndDate());
 
@@ -95,7 +98,22 @@ public class ResearchController extends Controller {
 
             //return ok(barGraphViewModel.toJson());
         }
+/*
+        if( datasetName.equals("age") )
+        {
 
+            ServiceResponse<List<ResearchItem>> response = researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
+            List<ResearchItem> patientInfo = response.getResponseObject();
+
+            BarGraphViewModel barGraphViewModel = new BarGraphViewModel();
+            barGraphViewModel.buildGraphValues(patientInfo);
+
+            Gson gson = new Gson();
+            return ok(gson.toJson(barGraphViewModel));
+
+            //return ok(barGraphViewModel.toJson());
+        }
+*/
 
         // Handle other requests as Random Age data until finished
         String graphType = filterViewModel.getGraphType();
@@ -651,6 +669,9 @@ public class ResearchController extends Controller {
 
     public Result ageStackedBarGraphJSONGet() {
 
+
+
+        researchService.getAllPatientAges();
         JsonObject jsonObject = new JsonObject();
 
 

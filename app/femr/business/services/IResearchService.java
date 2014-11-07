@@ -22,6 +22,7 @@ import femr.common.dto.ServiceResponse;
 import femr.common.models.PatientEncounterItem;
 import femr.common.models.PatientItem;
 import femr.common.models.VitalItem;
+import femr.common.models.ResearchItem;
 
 import java.util.Date;
 import java.util.List;
@@ -47,5 +48,5 @@ public interface IResearchService {
      * @return a map of unique readings of vitalType indexed by encounterID
      */
     public ServiceResponse<Map<Integer,VitalItem>> getPatientVitals(String vitalType, String startDate, String endDate);
-
+    public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString);
 }

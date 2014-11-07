@@ -33,13 +33,14 @@ import femr.data.models.*;
 import femr.common.models.PatientEncounterItem;
 import femr.common.models.PatientItem;
 import femr.common.models.VitalItem;
+import femr.common.models.ResearchItem;
 import femr.util.calculations.dateUtils;
 import femr.util.stringhelpers.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class ResearchService implements IResearchService{
+public class ResearchService implements IResearchService {
 
 
     //repositories
@@ -57,15 +58,15 @@ public class ResearchService implements IResearchService{
      * Initializes the research service and injects the dependence
      */
     @Inject
-    public ResearchService (IRepository<IChiefComplaint> chiefComplaintRepository,
-                         IRepository<IPatient> patientRepository,
-                         IRepository<IPatientEncounter> patientEncounterRepository,
-                         IRepository<IPatientEncounterVital> patientEncounterVitaRepository,
-                         IRepository<IUser> userRepository,
-                         IRepository<IVital> vitalRepository,
-                         Provider<IPatientEncounterVital> patientEncounterVitalProvider,
+    public ResearchService(IRepository<IChiefComplaint> chiefComplaintRepository,
+                           IRepository<IPatient> patientRepository,
+                           IRepository<IPatientEncounter> patientEncounterRepository,
+                           IRepository<IPatientEncounterVital> patientEncounterVitaRepository,
+                           IRepository<IUser> userRepository,
+                           IRepository<IVital> vitalRepository,
+                           Provider<IPatientEncounterVital> patientEncounterVitalProvider,
 
-                         DomainMapper domainMapper) {
+                           DomainMapper domainMapper) {
         this.chiefComplaintRepository = chiefComplaintRepository;
         this.patientRepository = patientRepository;
         this.patientEncounterRepository = patientEncounterRepository;
@@ -77,6 +78,7 @@ public class ResearchService implements IResearchService{
     }
 
     //TODO: Implement research business logic
+
     /**
      * {@inheritDoc}
      */
@@ -89,7 +91,7 @@ public class ResearchService implements IResearchService{
             List<PatientItem> patientItems = new ArrayList<>();
             for (IPatient v : patients) {
                 float temp = 2;
-                patientItems.add(domainMapper.createPatientItem(v ,2,2,2, temp));
+                patientItems.add(domainMapper.createPatientItem(v, 2, 2, 2, temp));
             }
             response.setResponseObject(patientItems);
         } catch (Exception ex) {
@@ -119,21 +121,18 @@ public class ResearchService implements IResearchService{
             response.addError("exception", ex.getMessage());
         }
 
-        /*
-        for (Date age : response.getResponseObject())
-        {
-            System.out.println(age);
-        }
-        */
+
+
+
         return response;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ServiceResponse<Map<Integer,VitalItem>> getPatientVitals(String vitalName, String startDateString, String endDateString) {
+    public ServiceResponse<Map<Integer, VitalItem>> getPatientVitals(String vitalName, String startDateString, String endDateString) {
 
-        ServiceResponse<Map<Integer,VitalItem>> response = new ServiceResponse<>();
+        ServiceResponse<Map<Integer, VitalItem>> response = new ServiceResponse<>();
 
         try {
 
@@ -143,29 +142,29 @@ public class ResearchService implements IResearchService{
             SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             //SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             // Set Start Date to start of day
-            String startParseDate = startDateString+" 00:00:00";
+            String startParseDate = startDateString + " 00:00:00";
             Date startDateObj = sqlFormat.parse(startParseDate);
             // Set End Date to end of day
-            String parseEndDate = endDateString+" 23:59:59";
+            String parseEndDate = endDateString + " 23:59:59";
             Date endDateObj = sqlFormat.parse(parseEndDate);
 
             Query q = QueryProvider.getPatientEncounterVitalQuery();
             q.where()
-             .gt("dateTaken", sqlFormat.format(startDateObj))
-             .lt("dateTaken", sqlFormat.format(endDateObj))
-             .eq("vital", v)
-             .orderBy("dateTaken")
-             .findList();
+                    .gt("dateTaken", sqlFormat.format(startDateObj))
+                    .lt("dateTaken", sqlFormat.format(endDateObj))
+                    .eq("vital", v)
+                    .orderBy("dateTaken")
+                    .findList();
 
             // Map indexed by patientEncounterId ensures only the last reading of the encounter will be counted
-            Map<Integer,VitalItem> vitals = new HashMap<>();
+            Map<Integer, VitalItem> vitals = new HashMap<>();
             List<? extends IPatientEncounterVital> patientEncounters = patientEncounterVitalRepository.find(q);
-            for( IPatientEncounterVital eVital : patientEncounters){
+            for (IPatientEncounterVital eVital : patientEncounters) {
 
                 VitalItem vital = new VitalItem();
                 vital.setName(vitalName);
                 vital.setValue(eVital.getVitalValue());
-
+                System.out.println(eVital);
                 vitals.put(eVital.getPatientEncounterId(), vital);
             }
             response.setResponseObject(vitals);
@@ -175,10 +174,85 @@ public class ResearchService implements IResearchService{
             response.addError("exception", ex.getMessage());
         }
 
+
+        Iterator it = response.getResponseObject().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry)it.next();
+            VitalItem hello = (VitalItem) pairs.getValue();
+            System.out.println(pairs.getKey() + " = " + hello.getValue());
+            it.remove(); // avoids a ConcurrentModificationException
+        }
+
+
+
+
         return response;
     }
 
+
+    public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString) {
+
+        ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
+
+        try {
+
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            //SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            // Set Start Date to start of day
+            String startParseDate = startDateString + " 00:00:00";
+            Date startDateObj = sqlFormat.parse(startParseDate);
+            // Set End Date to end of day
+            String parseEndDate = endDateString + " 23:59:59";
+            Date endDateObj = sqlFormat.parse(parseEndDate);
+
+            Query q = QueryProvider.getPatientQuery();
+            q.where()
+                    .orderBy("id")
+                    .findList();
+
+
+            List<? extends IPatient> p = patientRepository.find(q);
+            List<ResearchItem> researchItems = new ArrayList<>();
+
+            for (IPatient patient : p) {
+
+                switch (attributeName) {
+                    case "age":
+                        researchItems.add(
+                                new ResearchItem(
+                                        patient.getId(),
+                                        "age",
+                                        dateUtils.getAgeFloat(patient.getAge())
+                                )
+                        );
+                        break;
+                    case "gender":
+                        int gender = -1;
+                        if (patient.getSex() == "male") {gender = 0;}
+                        else if (patient.getSex() == "female") {gender = 1;}
+                        researchItems.add(
+                                new ResearchItem(
+                                        patient.getId(),
+                                        "gender",
+                                        ((float) gender)
+                                )
+                        );
+                        break;
+                }
+            }
+            response.setResponseObject(researchItems);
+        } catch (Exception ex) {
+            response.addError("exception", ex.getMessage());
+        }
+
+        return response;
+
+    }
+
     /*
+
+
+
 
     ReturnData
     - patient ID
