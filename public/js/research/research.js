@@ -12,7 +12,7 @@ var allowedFilterValues = (function(){
         },
         pregnancyStatus: {
             graphTypes: ['bar','line','pie','scatter','table'],
-                secondaryData: ['gender', 'pregnancyStatus']
+                secondaryData: ['gender']
         },
         pregnancyTime: {
             graphTypes: ['bar','line','pie','scatter','table'],
@@ -430,19 +430,19 @@ var filterMenuModule = (function(){
     var checkFilterValid = function(){
 
         var errors = [];
-        var filtersAreValid = true;
+        //var filtersAreValid = true;
 
         // Dataset 1 has valid value
         if( !allowedFilterValues.isPrimaryDataValid(filterValues.dataset1) ){
 
-            filtersAreValid = false;
+            //filtersAreValid = false;
             errors.push("Choose valid Primary Dataset");
         }
 
         // Dataset 2 has valid value - based on dataset1
         if( filterValues.dataset2 != null ){
             if( !allowedFilterValues.isSecondaryDataAllowed(filterValues.dataset1, filterValues.dataset2) ) {
-                filtersAreValid = false;
+                //filtersAreValid = false;
                 errors.push("Choose valid Secondary Dataset");
             }
         }
@@ -451,13 +451,13 @@ var filterMenuModule = (function(){
         if( filterValues.dataset2 != null &&
             !allowedFilterValues.isCombinableGraph(filterValues.graphType) ){
 
-            filtersAreValid = false;
+            //filtersAreValid = false;
             errors.push("Choose valid Graph Type");
         }
         else if(filterValues.dataset2 == null &&
                 !allowedFilterValues.isGraphTypeAllowed(filterValues.dataset1, filterValues.graphType) ){
 
-            filtersAreValid = false;
+            //filtersAreValid = false;
             errors.push("Choose valid Graph Type");
         }
 
@@ -493,11 +493,18 @@ var filterMenuModule = (function(){
                     errors.push("End Date cannot be in the future");
                 }
                 else if( Object.prototype.toString.call(startDate) === "[object Date]" && !isNaN(startDate.getTime()) ){
+
+
+                    // if StartDate is more than 30 days before end date
+                    // use 31 because we use the entire 30th day
+                    var startTime = startDate.getTime() + (31 * 24 * 60 * 60 * 1000);
+                    //console.log(startTime+" < "+endDate.getTime());
+
                     if( endDate.getTime() < startDate.getTime() ){
                         errors.push("End Date is before Start Date");
                     }
-                    // if StartDate is more than 30 days before end date
-                    else if( (startDate.getTime() + (30 * 24 * 60 * 60 * 1000)) < endDate.getTime() ){
+                    else if( startTime < endDate.getTime() ){
+
                         errors.push("Date Range max is 30 days");
                     }
                 }
@@ -510,7 +517,7 @@ var filterMenuModule = (function(){
         // clear errors
         $(filterMenus.errors).html("");
         // show error list on page
-        if( !filtersAreValid ){
+        if( errors.length > 0 ){
 
             var errorList = "<ul>";
             for (i = 0; i < errors.length; ++i) {
@@ -519,9 +526,14 @@ var filterMenuModule = (function(){
             }
             errorList += "</ul>";
             $(filterMenus.errors).append(errorList);
+            return (false);
+        }
+        else{
+
+            return (true);
         }
 
-        return (filtersAreValid);
+
     };
 
     var getGraph = function(){
@@ -534,7 +546,7 @@ var filterMenuModule = (function(){
             // Get Filter values from form hidden fields
             var graphType = $(filterValues.graphType).val();
             var postData = $("#graph-options").serialize();
-            //console.log(postData);
+            console.log(postData);
             graphLoaderModule.loadGraph(filterValues.graphType, postData);
         }
 
@@ -600,7 +612,7 @@ var graphLoaderModule = (function(){
         $.post("/research/graph", postData, function (rawData) {
 
             jsonData = jQuery.parseJSON(rawData);
-            console.log(jsonData);
+            //console.log(jsonData);
 
             switch(graphType){
 
@@ -662,7 +674,34 @@ var graphLoaderModule = (function(){
 
     };
 
-    publicObject.reloadGraph = function(graphType){
+    publicObject.reloadGraph = function(){
+
+        switch(graphType){
+
+            case 'line':
+                lineGraphModule.buildGraph();
+                break;
+
+            case 'scatter':
+                scatterGraphModule.buildGraph();
+                break;
+
+            case 'pie':
+                pieGraphModule.buildGraph();
+                break;
+
+            case 'stacked-bar':
+                stackedBarGraphModule.buildGraph();
+                break;
+
+            case 'grouped-bar':
+                groupedBarGraphModule.buildGraph();
+                break;
+
+            case 'bar':
+            default:
+                barGraphModule.buildGraph();
+        }
 
         /*
         switch(graphType){
@@ -704,13 +743,27 @@ jQuery(document).ready(function(){
     filterMenuModule.init();
     graphLoaderModule.init();
 
+    /*
+    var test_post = {
+
+        startDate: '2014-10-07',
+        endDate: '2014-11-06',
+        primaryDataset: 'age',
+        secondaryDataset: '',
+        graphType: 'pie'
+    };
+    graphLoaderModule.loadGraph('pie', test_post);
+    */
+
+
+
     // Detect changes in main container width, redraw chart
     var lastChartWidth = $(".main").width();
     $(window).on("resize", function() {
         var currChartWidth = $(".main").width();
         if( lastChartWidth != currChartWidth ) {
 
-            //reloadGraph(graphType);
+            graphLoaderModule.reloadGraph();
             lastChartWidth = currChartWidth;
         }
     }).trigger("resize");
@@ -719,7 +772,7 @@ jQuery(document).ready(function(){
 
     //*** Loop Start
     /*
-    for (var i=0; i<50; i++) {
+    for (var i=0; i<200; i++) {
         // Generate new vitals/demographics every time - maybe change patient name
         var postData = {
 
@@ -727,9 +780,8 @@ jQuery(document).ready(function(){
             lastName: (randomString()),
             address: (randomInt(100, 2000)) + ' address',
             city: 'anywhere',
-            age: (randomInt(1950, 2000)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
+            age: (randomInt(1930, 2000)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
             sex: (randomGender()),
-
             bloodPressureSystolic: (randomInt(110, 150)),
             bloodPressureDiastolic: (randomInt(60, 100)),
             heartRate: (randomInt(10, 60)),
@@ -739,7 +791,7 @@ jQuery(document).ready(function(){
             heightFeet: (randomInt(0, 7)),
             heightInches: (randomInt(0, 12)),
             weight: (randomInt(92, 101)),
-            glucose: null,
+            glucose: (randomInt(70, 140)),
             chiefComplaint: null,
             weeksPregnant: null
 
@@ -756,6 +808,7 @@ jQuery(document).ready(function(){
     //*** Loop End
 });
 
+///*
 function randomString() {
     var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
     var string_length = 8;
@@ -776,3 +829,12 @@ function randomGender(){
 function randomInt(min, max) {
     return Math.floor(Math.random() * (1 + max - min)) + min;
 };
+//*/
+
+
+function encodeID(s) {
+    if (s==='') return '_';
+    return s.replace(/[^a-zA-Z0-9.-]/g, function(match) {
+        return '_'+match[0].charCodeAt(0).toString(16)+'_';
+    });
+}

@@ -26,6 +26,17 @@ public class BarGraphViewModel {
 
     public void buildGraphValues(Map<Integer,VitalItem> patientInfo){
 
+        /*
+        Arrays.sort(ages, new Comparator<Integer>()
+        {
+            @Override
+            public int compare(Integer x, Integer y)
+            {
+                return x - y;
+            }
+        });
+        */
+
         // Count occurrences of temperature values
         Map<String, Integer> vitalValues = new HashMap<>();
         int index = 0;
@@ -45,16 +56,44 @@ public class BarGraphViewModel {
             it.remove(); // avoids a ConcurrentModificationException
         }
 
+        // Attempting to sort values by key
+        graphValues = new ArrayList<PatientGraphItem>();
+        SortedSet<String> keys = new TreeSet<String>(new Comparator<String>() {
+            /**
+             * Returns a positive value if number1 is larger than number 2, a
+             * negative number if number1 is less than number2, and 0 if they
+             * are equal.
+             */
+            public int compare(String number1, String number2) {
+                return (int)(Double.parseDouble(number1) - Double.parseDouble(number2));
+            }
+        });
+        keys.addAll(vitalValues.keySet());
+
+        int i = 0;
+        for (String key : keys) {
+        //for (int k = keys.size()-1; k >= 0; k-- ){
+
+            //String key = keys.
+            Integer val = vitalValues.get(key);
+
+            //String key = (String)pairs.getKey();
+            graphValues.add(new PatientGraphItem(key, val));
+            i++;
+        }
+
+        /*
         graphValues = new ArrayList<PatientGraphItem>();
         it = vitalValues.entrySet().iterator();
+        int i = 0;
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry) it.next();
 
             String key = (String)pairs.getKey();
-            graphValues.add(0, new PatientGraphItem(key, (Integer)pairs.getValue()));
-
+            graphValues.add(i, new PatientGraphItem(key, (Integer)pairs.getValue()));
+            i++;
         }
-
+        */
     }
 
 
