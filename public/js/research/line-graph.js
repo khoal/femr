@@ -14,6 +14,8 @@ var lineGraphModule = (function(){
 
         graph_data = [];
 
+        console.log(jsonData);
+
         for( var i = 0; i < jsonData.length; i++ ){
 
             graph_data[i] = {

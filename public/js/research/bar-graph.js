@@ -58,6 +58,13 @@ var barGraphModule = (function(){
             .scale(yScale)
             .orient("left");
 
+        var tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function(d) {
+                return '<span class="name">' + d.name + '</span> <span class="val"><strong>Patients: </strong>' + d.value + '</span>';
+            });
+
         var chart = d3.select(".chart")
             .attr("width", containerWidth)
             .attr("height", containerHeight)
@@ -75,6 +82,8 @@ var barGraphModule = (function(){
             .style("text-anchor", "middle")
             .attr("dy", "-5px")
             .text("Age Ranges");
+
+        chart.call(tip);
 
         chart.append("g")
             .attr("class", "y axis")
@@ -95,7 +104,9 @@ var barGraphModule = (function(){
             .attr("x", function(d) { return xScale(d.name); })
             .attr("y", function(d) { return yScale(d.value); })
             .attr("height", function(d) { return graphHeight - yScale(d.value); })
-            .attr("width", xScale.rangeBand());
+            .attr("width", xScale.rangeBand())
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
     };
 
     return publicObject;

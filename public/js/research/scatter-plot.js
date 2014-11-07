@@ -13,6 +13,8 @@ var scatterGraphModule = (function(){
 
         graph_data = [];
 
+        console.log(jsonData);
+
         for( var i = 0; i < jsonData.length; i++ ){
 
             graph_data[i] = {
@@ -56,6 +58,13 @@ var scatterGraphModule = (function(){
             .scale(yScale)
             .orient("left");
 
+        var tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function(d) {
+                return '<span class="name">' + d.name + ' years old</span> <span class="val"><strong>Patients: </strong>' + d.value + '</span>';
+            });
+
         var chart = d3.select(".chart")
             .attr("width", containerWidth)
             .attr("height", containerHeight)
@@ -74,6 +83,8 @@ var scatterGraphModule = (function(){
             .attr("dy", "-5px")
             .text("Ages");
 
+        chart.call(tip);
+
         chart.append("g")
             .attr("class", "y axis")
             .call(yAxis)
@@ -90,9 +101,11 @@ var scatterGraphModule = (function(){
             .data(graph_data)
             .enter().append("circle")
             .attr("class", "dot")
-            .attr("r", 3.5)
+            .attr("r", 4.5)
             .attr("cx", function(d){ return xScale(d.name)})
-            .attr("cy", function(d){ return yScale(d.value)});
+            .attr("cy", function(d){ return yScale(d.value)})
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
 
     };
 

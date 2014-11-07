@@ -50,7 +50,6 @@ var stackedBarGraphModule = (function(){
          var xScale = d3.scale.ordinal()
          .domain(graphData.map(function(d) { return d.name; }))
          .rangeRoundBands([0, graphWidth], .15);
-
          var yScale = d3.scale.linear()
          .domain([0, d3.max(graphData, function(d) { return d.value; })])
          .rangeRound([graphHeight, 0]);
@@ -82,6 +81,23 @@ var stackedBarGraphModule = (function(){
         //var colors = d3.scale.category10();
         var colors = d3.scale.ordinal().range(["#629BF7", "#F49AB5"]);
 
+
+        var xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left");
+
+        var tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function(d) {
+                return "<strong>Patients:</strong> <span>" + d.y + "</span>";
+            });
+
+
         //Create SVG element
         var chart = d3.select(".chart")
             .attr("width", containerWidth)
@@ -89,6 +105,7 @@ var stackedBarGraphModule = (function(){
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+        chart.call(tip);
 
         // Add a group for each row of data
         var groups = chart.selectAll("g")
@@ -115,15 +132,10 @@ var stackedBarGraphModule = (function(){
                 //return graphHeight - yScale(d.y);
                 return graphHeight - yScale(d.y);
             })
-            .attr("width", xScale.rangeBand());
+            .attr("width", xScale.rangeBand())
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
 
-        var xAxis = d3.svg.axis()
-            .scale(xScale)
-            .orient("bottom");
-
-        var yAxis = d3.svg.axis()
-            .scale(yScale)
-            .orient("left");
 
         chart.append("g")
             .attr("class", "x axis")
@@ -148,6 +160,27 @@ var stackedBarGraphModule = (function(){
             .attr("dy", "1.25em")
             .style("text-anchor", "middle")
             .text("Number of Patients");
+
+        /*
+        var legend = svg.selectAll(".legend")
+            .data(ageNames.slice().reverse())
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+        legend.append("rect")
+            .attr("x", graphWidth - 18)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", color);
+
+        legend.append("text")
+            .attr("x", graphWidth - 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) { return d; });
+        */
     };
 
     return publicObject;

@@ -8,6 +8,7 @@
     }
     @additionalScripts = {
         <script type="text/javascript" src="@routes.Assets.at("js/research/d3.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/d3.tip.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/saveSvgAsPng.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/bar-graph.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/pie-graph.js")"></script>
@@ -91,7 +92,7 @@
                                 <li><a data-gtype="scatter" href="#">Scatterplot</a></li>
                                 <li><a data-gtype="stacked-bar" href="#">Stacked Bar Graph</a></li>
                                 <li><a data-gtype="grouped-bar" href="#">Grouped Bar Graph</a></li>
-                                <li><a data-gtype="table" href="#">Table</a></li>
+                                @* <li><a data-gtype="table" href="#">Table</a></li> *@
                                 <li><a class="clear" data-dname2="clear" href="#">Clear <span class="glyphicon glyphicon-remove"></span></a></li>
                             </ul>
                         </li>
@@ -112,7 +113,7 @@
                             <a class="opt-link noval">Graph Options</a>
                             <span class="glyphicon glyphicon-chevron-right"></span>
                             <ul class="submenu">
-                                <li><a href="#">Show Legend</a></li>
+                                @* <li><a href="#">Show Legend</a></li> *@
                                 <li><a id="save" href="#">Save As Image</a></li>
                             </ul>
                         </li>
@@ -143,7 +144,7 @@
                         <p id="range" class="stat"><strong>Age Range:</strong> <span class="val"></span></p>
                     </div>
 
-                    <svg id="graph" class="chart"></svg>
+                    <svg id="graph" class="chart" xmlns:femrdata="http://teamfemr.org"></svg>
                     <img class="loading" src="@routes.Assets.at("img/graph-loader.gif")" alt="loading&hellip;" />
                 </div>
 

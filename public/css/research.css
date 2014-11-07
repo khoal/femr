@@ -165,6 +165,11 @@
 }
 .nav-sidebar .submenu li a.clear .glyphicon{
 
+    position: relative;;
+    float: left;
+    top: auto;
+    right: auto;
+    margin: -1px 5px 0 0;
     color: #BB1D1D;
 }
 .nav-sidebar .submenu li.title{
@@ -272,28 +277,103 @@ table th{
     background-color: #ffffff;
 }
 
+.d3-tip {
+    line-height: 1;
+    font-weight: bold;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #eeeeee;
+    border-radius: 2px;
+}
+
+.d3-tip span{
+
+    color: #ffffff;
+}
+
+.d3-tip span.name{
+
+   display: block;
+   text-align: center;
+   margin-bottom: 8px;
+    font-size: 1.2em;
+}
+
+.d3-tip span.val{
+
+    display: block;
+
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+}
+
+.label-box{
+
+
+}
+.label-text {
+    alignment-baseline: middle;
+    font-size: 12px;
+    fill: #393939;
+}
+.label-line {
+    stroke-width: 1;
+    stroke: #4f4f4f;
+}
+.label-circle {
+    fill: #4f4f4f;
+}
+
+.label_group .label{
+
+    display: none;
+}
+
+.legend .item{
+
+    cursor: pointer;
+}
+
 /* Bar Chart */
 
 .bar {
-    fill: steelblue;
+    fill: #4682B4;
 }
 
 .bar:hover {
-
+    fill: #386284;
 }
 
 /* Line Chart */
 
 .line {
     fill: none;
-    stroke: steelblue;
+    stroke: #4682B4;
     stroke-width: 1.5px;
 }
 
 /*  Scatter Plot */
 
 .dot {
-    fill: steelblue;
+    fill: #4682B4;
     stroke: #000;
 }
 
