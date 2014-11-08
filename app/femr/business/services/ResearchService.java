@@ -22,6 +22,8 @@ package femr.business.services;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import femr.business.helpers.DomainMapper;
@@ -190,14 +192,14 @@ public class ResearchService implements IResearchService {
     }
 
 
-    public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString) {
+    public ServiceResponse<String> getPatientAttribute(String attributeName, String startDateString, String endDateString) {
 
-        ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
+        ServiceResponse<String> response = new ServiceResponse<>();
 
         try {
 
             SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            //SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
             // Set Start Date to start of day
             String startParseDate = startDateString + " 00:00:00";
             Date startDateObj = sqlFormat.parse(startParseDate);
@@ -205,16 +207,22 @@ public class ResearchService implements IResearchService {
             String parseEndDate = endDateString + " 23:59:59";
             Date endDateObj = sqlFormat.parse(parseEndDate);
 
-            Query q = QueryProvider.getPatientQuery();
-            q.where()
-                    .orderBy("id")
+            // Get patients that had an encounter between startDate and endDate
+            // using dateOfTriageVisit for now -- might want to also check dateOfMedicalVisit & dateOfPharmacyVisit
+            Query q = QueryProvider.getPatientEncounterQuery();
+            q.fetch("patient")
+                    .where()
+                    .gt("dateOfTriageVisit", sqlFormat.format(startDateObj))
+                    .lt("dateOfTriageVisit", sqlFormat.format(endDateObj))
+                    .orderBy("dateOfTriageVisit")
                     .findList();
 
-
-            List<? extends IPatient> p = patientRepository.find(q);
+            List<? extends IPatientEncounter> encounters = patientEncounterRepository.find(q);
             List<ResearchItem> researchItems = new ArrayList<>();
 
-            for (IPatient patient : p) {
+            for (IPatientEncounter encounter : encounters) {
+
+                IPatient patient = encounter.getPatient();
 
                 switch (attributeName) {
                     case "age":
@@ -240,7 +248,12 @@ public class ResearchService implements IResearchService {
                         break;
                 }
             }
-            response.setResponseObject(researchItems);
+
+            Gson gson = new Gson();
+            String jsonStr = gson.toJson(researchItems);
+
+            response.setResponseObject(jsonStr);
+
         } catch (Exception ex) {
             response.addError("exception", ex.getMessage());
         }

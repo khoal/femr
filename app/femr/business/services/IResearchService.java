@@ -18,6 +18,7 @@
 */
 package femr.business.services;
 
+import com.google.gson.JsonObject;
 import femr.common.dto.ServiceResponse;
 import femr.common.models.PatientEncounterItem;
 import femr.common.models.PatientItem;
@@ -48,5 +49,5 @@ public interface IResearchService {
      * @return a map of unique readings of vitalType indexed by encounterID
      */
     public ServiceResponse<Map<Integer,VitalItem>> getPatientVitals(String vitalType, String startDate, String endDate);
-    public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString);
+    public ServiceResponse<String> getPatientAttribute(String attributeName, String startDateString, String endDateString);
 }
