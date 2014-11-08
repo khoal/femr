@@ -743,17 +743,17 @@ jQuery(document).ready(function(){
     filterMenuModule.init();
     graphLoaderModule.init();
 
-    /*
+    //*
     var test_post = {
 
         startDate: '2014-10-07',
         endDate: '2014-11-06',
         primaryDataset: 'age',
         secondaryDataset: '',
-        graphType: 'pie'
+        graphType: 'line'
     };
-    graphLoaderModule.loadGraph('pie', test_post);
-    */
+    graphLoaderModule.loadGraph('line', test_post);
+    //*/
 
 
 

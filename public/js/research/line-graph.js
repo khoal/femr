@@ -14,7 +14,7 @@ var lineGraphModule = (function(){
 
         graph_data = [];
 
-        console.log(jsonData);
+        //console.log(jsonData);
 
         for( var i = 0; i < jsonData.length; i++ ){
 
@@ -69,6 +69,10 @@ var lineGraphModule = (function(){
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+        var focus = chart.append("g")
+            .attr("class", "focus")
+            .style("display", "none");
+
         chart.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + graphHeight + ")")
@@ -93,11 +97,39 @@ var lineGraphModule = (function(){
             .style("text-anchor", "middle")
             .text("Number of Patients");
 
-
         chart.append("path")
             .datum(graph_data)
             .attr("class", "line")
             .attr("d", line);
+
+        focus.append("circle")
+            .attr("r", 4.5);
+
+        focus.append("text")
+            .attr("x", 9)
+            .attr("dy", ".35em");
+
+        chart.append("rect")
+            .attr("class", "overlay")
+            .attr("width", graphWidth)
+            .attr("height", graphHeight)
+            .on("mouseover", function() { focus.style("display", null); })
+            .on("mouseout", function() { focus.style("display", "none"); })
+            .on("mousemove", mousemove);
+
+        var bisectValue = d3.bisector(function(d){ return d.name; }).left;
+
+        function mousemove() {
+
+            var x0 = xScale.invert(d3.mouse(this)[0]),
+                i = bisectValue(graph_data, x0, 1),
+                d0 = graph_data[i - 1],
+                d1 = graph_data[i],
+                d = x0 - d0.value > d1.value - x0 ? d1 : d0;
+
+            focus.attr("transform", "translate(" + xScale(d.name) + "," + yScale(d.value) + ")");
+            focus.select("text").text(d.name+"years: "+ d.value+" patients");
+        }
     };
 
     return publicObject;
