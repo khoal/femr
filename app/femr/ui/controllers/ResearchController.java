@@ -79,6 +79,7 @@ public class ResearchController extends Controller {
         String datasetName = filterViewModel.getPrimaryDataset();
         //researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());//this is just meant to call the getPatientAttribute method for testing. Can be removed.
 
+/*
         if( datasetName.equals("respiratoryRate") ||
                 datasetName.equals("heartRate") ||
                 datasetName.equals("temperature")  ||
@@ -98,11 +99,14 @@ public class ResearchController extends Controller {
 
             //return ok(barGraphViewModel.toJson());
         }
-/*
-        if( datasetName.equals("age") )
+        else */ if( datasetName.equals("age") )
         {
 
-            ServiceResponse<List<ResearchItem>> response = researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
+            ServiceResponse<String> response = researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
+            String jsonString = response.getResponseObject();
+            return ok(jsonString);
+/*
+
             List<ResearchItem> patientInfo = response.getResponseObject();
 
             BarGraphViewModel barGraphViewModel = new BarGraphViewModel();
@@ -110,10 +114,9 @@ public class ResearchController extends Controller {
 
             Gson gson = new Gson();
             return ok(gson.toJson(barGraphViewModel));
-
-            //return ok(barGraphViewModel.toJson());
-        }
 */
+        }
+
 
         // Handle other requests as Random Age data until finished
         String graphType = filterViewModel.getGraphType();
