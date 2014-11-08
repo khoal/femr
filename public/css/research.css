@@ -350,6 +350,7 @@ table th{
 .legend .item{
 
     cursor: pointer;
+
 }
 
 /* Bar Chart */
@@ -368,6 +369,16 @@ table th{
     fill: none;
     stroke: #4682B4;
     stroke-width: 1.5px;
+}
+
+.overlay {
+    fill: none;
+    pointer-events: all;
+}
+
+.focus circle {
+    fill: none;
+    stroke: steelblue;
 }
 
 /*  Scatter Plot */
