@@ -269,6 +269,7 @@ table th{
 
     font-size: 1.1em;
     margin: 0 0 5px 0;
+    display: none;
 }
 
 .chart{
@@ -331,7 +332,7 @@ table th{
 }
 .label-text {
     alignment-baseline: middle;
-    font-size: 12px;
+    font-size: 14px;
     fill: #393939;
 }
 .label-line {
@@ -376,9 +377,19 @@ table th{
     pointer-events: all;
 }
 
+.focus {
+    fill: #ffffff;
+}
+
 .focus circle {
-    fill: none;
-    stroke: steelblue;
+    fill: red;
+    stroke: #3f3f3f;
+}
+
+.focus text{
+
+    font-size: 16px;
+    fill: #2f2f2f;
 }
 
 /*  Scatter Plot */
