@@ -26,7 +26,14 @@ var scatterGraphModule = (function(){
         // Group and count the individual patients
         var maxVal = Number.MIN_VALUE;
         var minVal = Number.MAX_VALUE;
-        $.each(jsonData.graphData, function (key, obj) {
+
+        var localGraphData = [];
+        if( jsonData.graphData.length > 0 ){
+
+            //only need primaryDataset
+            localGraphData = jsonData.graphData[0];
+        }
+        $.each(localGraphData, function (key, obj) {
 
             var keyStr = "";
 

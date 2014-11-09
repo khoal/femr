@@ -30,7 +30,9 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
 import java.util.List;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for mapping Domain objects.
@@ -634,7 +636,12 @@ public class DomainMapper {
     }
 
 
-    public static String createResearchGraphItem(List<ResearchItem> primaryItems, List<ResearchItem> secondaryItems) {
+    public static String createResearchGraphItem(Map<Integer, ResearchItem> primaryItems, Map<Integer, ResearchItem> secondaryItems) {
+
+        // Two dimensional for double data sets
+        List<List<ResearchItem>> graphData = new ArrayList<List<ResearchItem>>();
+        List<ResearchItem> primaryDataset = new ArrayList<ResearchItem>();
+        List<ResearchItem> secondaryDataset = new ArrayList<ResearchItem>();
 
         String axisTitle = "";
         String unitOfMeasurement = "";
@@ -645,21 +652,31 @@ public class DomainMapper {
         float rangeLow = 10000;
         float median = 0;
 
-        for (ResearchItem item : primaryItems) {
+        //for (ResearchItem item : primaryItems) {
+        for( Integer key : primaryItems.keySet() ){
+
+            ResearchItem primaryItem = primaryItems.get(key);
+            primaryDataset.add(primaryItem);
+
+            if( secondaryItems.containsKey(key) ){
+
+                ResearchItem secondaryItem = secondaryItems.get(key);
+                secondaryDataset.add(secondaryItem);
+            }
 
             // Grab Datatype Title and Measurement from first item
             // Probably a better way to do this
             if( axisTitle.isEmpty() ){
 
-                axisTitle = WordUtils.capitalize(StringUtils.splitCamelCase(item.getDataType()));
+                axisTitle = WordUtils.capitalize(StringUtils.splitCamelCase(primaryItem.getDataType()));
             }
             if( unitOfMeasurement.isEmpty() ){
 
-                unitOfMeasurement = item.getUnitOfMeasurement();
+                unitOfMeasurement = primaryItem.getUnitOfMeasurement();
             }
 
             // Calculate Stats while building data
-            float value = item.getDataSet();
+            float value = primaryItem.getDataSet();
 
             // check range
             if( value > rangeHigh ){
@@ -673,6 +690,9 @@ public class DomainMapper {
             total += value;
 
         }
+
+        graphData.add(primaryDataset);
+        graphData.add(secondaryDataset);
 
         // calculate average, median, range
         float average = total / sampleSize;
@@ -698,7 +718,8 @@ public class DomainMapper {
         graphModel.setMedian(median);
         graphModel.setRangeLow(rangeLow);
         graphModel.setRangeHigh(rangeHigh);
-        graphModel.setGraphData(primaryItems);
+        graphModel.setGraphData(graphData);
+        //graphModel.setPrimaryGraphData(primaryItems);
 
         graphModel.setxAxisTitle(axisTitle);
         graphModel.setUnitOfMeasurement(unitOfMeasurement);
