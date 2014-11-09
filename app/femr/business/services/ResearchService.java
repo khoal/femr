@@ -240,6 +240,42 @@ public class ResearchService implements IResearchService {
                         );
 
                         break;
+
+                    case "pregnancyStatus":
+
+                        Integer wksPregnant = encounter.getWeeksPregnant();
+                        if( wksPregnant == null ) wksPregnant = 0;
+                        float pregnancyStatus = 0;
+                        if( wksPregnant > 0 ){
+                            pregnancyStatus = 1;
+                        }
+                        researchItems.put(
+                                encounter.getId(),
+                                new ResearchItem(
+                                        encounter.getId(),
+                                        "pregnancyStatus",
+                                        pregnancyStatus,
+                                        ""
+                                )
+                        );
+
+                        break;
+
+                    case "pregnancyTime":
+
+
+                        Integer weeksPregnant = encounter.getWeeksPregnant();
+                        if( weeksPregnant == null ) weeksPregnant = 0;
+                        researchItems.put(
+                                encounter.getId(),
+                                new ResearchItem(
+                                        encounter.getId(),
+                                        "pregnancyTime",
+                                        weeksPregnant,
+                                        "weeks"
+                                )
+                        );
+                        break;
                 }
             }
 

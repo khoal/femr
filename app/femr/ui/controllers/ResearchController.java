@@ -154,14 +154,10 @@ public class ResearchController extends Controller {
             // Patient Specific Items
             case "age":
             case "gender":
-
-                response = researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
-                break;
-
-            // Special Case Patient Specific
             case "pregnancyStatus":
             case "pregnancyTime":
 
+                response = researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 break;
 
             // Medication Items

@@ -11,12 +11,12 @@ var allowedFilterValues = (function(){
             secondaryData: []
         },
         pregnancyStatus: {
-            graphTypes: ['bar','line','pie','scatter','table'],
-                secondaryData: ['gender']
+            graphTypes: ['bar','pie','table'],
+                secondaryData: []
         },
         pregnancyTime: {
             graphTypes: ['bar','line','pie','scatter','table'],
-            secondaryData: ['gender', 'pregnancyStatus']
+            secondaryData: ['age']
         },
         height: {
             graphTypes: ['bar','line','scatter','table'],

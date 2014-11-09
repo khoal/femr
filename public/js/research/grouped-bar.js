@@ -127,6 +127,18 @@ var groupedBarGraphModule = (function(){
                 }
 
             }
+            else if( filterMenuModule.getPrimaryDataset() == "pregnancyStatus" ){
+
+                if( data1Obj.dataSet == 0 ){
+                    data1Key = "No";
+                }
+                else if(data1Obj.dataSet == 1){
+                    data1Key = "Yes";
+                }
+                else{
+                    data1Key = "Unknown";
+                }
+            }
             else {
 
                 // Keep track of min/max to build scale values
@@ -198,6 +210,18 @@ var groupedBarGraphModule = (function(){
                     data2Key = "Unknown";
                 }
 
+            }
+            else if( filterMenuModule.getSecondaryDataset() == "pregnancyStatus" ){
+
+                if( data2Obj.dataSet == 0 ){
+                    data2Key = "No";
+                }
+                else if(data2Obj.dataSet == 1){
+                    data2Key = "Yes";
+                }
+                else{
+                    data2Key = "Unknown";
+                }
             }
             else {
 
