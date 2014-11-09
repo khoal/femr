@@ -46,6 +46,8 @@ var stackedBarGraphModule = (function(){
         tickValues = [];
         graph_data = [];
         grouped_data = {};
+        mainKeys = [];
+        innerKeys = [];
         xAxisTitle = xTitle;
         measurementUnits = unitOfMeasurement;
 
@@ -64,6 +66,7 @@ var stackedBarGraphModule = (function(){
             //if( localGraphData1.length != localGraphData2.length )return;
         }
 
+        console.log(jsonData);
 
         for(var i = 0; i < localGraphData1.length; i++) {
 
@@ -112,6 +115,10 @@ var stackedBarGraphModule = (function(){
                     data2Key = "Unknown";
                 }
 
+            }
+            else {
+
+                data2Key = data2Obj.dataSet;
             }
 
             // keep track of inner keys
