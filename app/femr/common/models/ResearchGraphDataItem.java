@@ -11,7 +11,8 @@ public class ResearchGraphDataItem {
     private float median;
     private float rangeLow;
     private float rangeHigh;
-    private List<ResearchItem> graphData;
+    private List<List<ResearchItem>> graphData;
+    private List<ResearchItem> primaryGraphData;
     private List<ResearchItem> secondaryGraphData;
     private String xAxisTitle;
     private String unitOfMeasurement;
@@ -48,22 +49,6 @@ public class ResearchGraphDataItem {
         this.rangeHigh = rangeHigh;
     }
 
-    public List<ResearchItem> getGraphData() {
-        return graphData;
-    }
-
-    public void setGraphData(List<ResearchItem> graphData) {
-        this.graphData = graphData;
-    }
-
-    public List<ResearchItem> getSecondaryGraphData() {
-        return secondaryGraphData;
-    }
-
-    public void setSecondaryGraphData(List<ResearchItem> secondaryGraphData) {
-        this.secondaryGraphData = secondaryGraphData;
-    }
-
     public String getxAxisTitle() {
         return xAxisTitle;
     }
@@ -78,5 +63,31 @@ public class ResearchGraphDataItem {
 
     public void setUnitOfMeasurement(String unitOfMeasurement) {
         this.unitOfMeasurement = unitOfMeasurement;
+    }
+
+
+    public List<ResearchItem> getPrimaryGraphData() {
+        return primaryGraphData;
+    }
+
+    public void setPrimaryGraphData(List<ResearchItem> primaryGraphData) {
+        this.primaryGraphData = primaryGraphData;
+    }
+
+    public List<ResearchItem> getSecondaryGraphData() {
+        return secondaryGraphData;
+    }
+
+    public void setSecondaryGraphData(List<ResearchItem> secondaryGraphData) {
+        this.secondaryGraphData = secondaryGraphData;
+    }
+
+
+    public List<List<ResearchItem>> getGraphData() {
+        return graphData;
+    }
+
+    public void setGraphData(List<List<ResearchItem>> graphData) {
+        this.graphData = graphData;
     }
 }

@@ -125,9 +125,9 @@ public class ResearchService implements IResearchService {
     /**
      * {@inheritDoc}
      */
-    public ServiceResponse<List<ResearchItem>> getPatientVitals(String vitalName, String startDateString, String endDateString) {
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientVitals(String vitalName, String startDateString, String endDateString) {
 
-        ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
         try {
 
@@ -150,11 +150,11 @@ public class ResearchService implements IResearchService {
                     .findList();
 
             List<? extends IPatientEncounterVital> patientEncounterVitals = patientEncounterVitalRepository.find(q);
-            List<ResearchItem> researchItems = new ArrayList<>();
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
             for (IPatientEncounterVital eVital : patientEncounterVitals) {
 
-                researchItems.add(
-
+                researchItems.put(
+                        eVital.getPatientEncounterId(),
                         new ResearchItem(
                                 eVital.getPatientEncounterId(),
                                 vitalName,
@@ -174,10 +174,12 @@ public class ResearchService implements IResearchService {
         return response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString) {
 
-    public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString) {
-
-        ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
         try {
 
@@ -200,7 +202,7 @@ public class ResearchService implements IResearchService {
                     .findList();
 
             List<? extends IPatientEncounter> encounters = patientEncounterRepository.find(q);
-            List<ResearchItem> researchItems = new ArrayList<>();
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
             for (IPatientEncounter encounter : encounters) {
 
                 IPatient patient = encounter.getPatient();
@@ -211,9 +213,10 @@ public class ResearchService implements IResearchService {
 
                         Float age = (float)Math.floor(dateUtils.getAgeFloat(patient.getAge()));
 
-                        researchItems.add(
+                        researchItems.put(
+                                encounter.getId(),
                                 new ResearchItem(
-                                        patient.getId(),
+                                        encounter.getId(),
                                         "age",
                                         age,
                                         "years"
@@ -226,9 +229,10 @@ public class ResearchService implements IResearchService {
                         // Do case in-sensitve comparison to be safe
                         if ( patient.getSex().matches("(?i:Male)") ) {gender = 0;}
                         else if ( patient.getSex().matches("(?i:Female)") ) {gender = 1;}
-                        researchItems.add(
+                        researchItems.put(
+                                encounter.getId(),
                                 new ResearchItem(
-                                        patient.getId(),
+                                        encounter.getId(),
                                         "gender",
                                         gender,
                                         ""
@@ -249,9 +253,12 @@ public class ResearchService implements IResearchService {
 
     }
 
-    public ServiceResponse<List<ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString){
+    /**
+     * {@inheritDoc}
+     */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString){
 
-        ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
 
         return response;
