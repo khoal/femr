@@ -69,15 +69,24 @@ public class ResearchController extends Controller {
 
         FilterViewModel filterViewModel = FilterViewModelForm.bindFromRequest().get();
 
-        // height, blood pressure - two fields to get
-        String primaryDatasetName = filterViewModel.getPrimaryDataset();
-        Map<Integer, ResearchItem> primaryItems = getDatasetItems(primaryDatasetName, filterViewModel);
-
+        Map<Integer, ResearchItem> primaryItems = new HashMap<>();
         Map<Integer, ResearchItem> secondaryItems = new HashMap<>();
-        String secondaryDatasetName = filterViewModel.getSecondaryDataset();
-        if( !secondaryDatasetName.isEmpty() ){
+        if( filterViewModel.getPrimaryDataset().equals("bloodPressure") ){
 
-            secondaryItems = getDatasetItems(secondaryDatasetName, filterViewModel);
+            primaryItems = getDatasetItems("bloodPressureSystolic", filterViewModel);
+            secondaryItems = getDatasetItems("bloodPressureDiastolic", filterViewModel);
+        }
+        else {
+
+            // height, blood pressure - two fields to get
+            String primaryDatasetName = filterViewModel.getPrimaryDataset();
+            primaryItems = getDatasetItems(primaryDatasetName, filterViewModel);
+
+            String secondaryDatasetName = filterViewModel.getSecondaryDataset();
+            if (!secondaryDatasetName.isEmpty()) {
+
+                secondaryItems = getDatasetItems(secondaryDatasetName, filterViewModel);
+            }
         }
 
         String jsonString = DomainMapper.createResearchGraphItem(primaryItems, secondaryItems);
@@ -129,6 +138,8 @@ public class ResearchController extends Controller {
             case "respiratoryRate":
             case "oxygenSaturation":
             case "glucose":
+            case "bloodPressureSystolic":
+            case "bloodPressureDiastolic":
 
                 response = researchService.getPatientVitals(filterViewModel.getPrimaryDataset(), filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 break;
@@ -139,9 +150,12 @@ public class ResearchController extends Controller {
                 break;
 
             // Special Case Vital Item
+            /*
             case "bloodPressure":
 
+                response = researchService.getPatientVitals(filterViewModel.getPrimaryDataset(), filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 break;
+            */
 
             // Patient Specific Items
             case "age":

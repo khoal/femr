@@ -180,6 +180,35 @@
     padding: 5px 10px;
 }
 
+.nav-sidebar .submenu li #save{
+
+    background-color: #1f1f1f;
+    border-top: 1px solid #4f4f4f;
+    border-bottom: 1px solid #4f4f4f;
+    padding: 5px 10px;
+}
+
+.nav-sidebar .submenu li.group{
+
+    display: block;
+    white-space: nowrap;
+    padding: 6px 20px;
+    color: #cfcfcf;
+}
+
+.nav-sidebar .submenu li.group input[type="checkbox"]{
+
+    margin-right: 8px;
+}
+
+.nav-sidebar .submenu li.group input[type="text"]{
+
+    display: inline;
+    width: 30px;
+    text-align: center;
+    margin-left: 10px;
+}
+
 #gfilter-menu .submenu{
 
     padding-bottom: 10px;
