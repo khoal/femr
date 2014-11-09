@@ -254,16 +254,30 @@
 }
 
 /* Table Styles */
-table td{
 
-    background-color: #fff;
+#table-container{
+
+
 }
 
-table th{
+.table{
+
+    width: auto;
+}
+
+.table td{
+
+    background-color: #fff;
+    border-right: 1px solid #dddddd;
+}
+
+.table th{
 
     background-color: #ccc;
     color: #000;
 }
+
+
 
 
 .chart-container{

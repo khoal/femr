@@ -16,6 +16,7 @@
         <script type="text/javascript" src="@routes.Assets.at("js/research/scatter-plot.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/stacked-bar.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/grouped-bar.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/table-chart.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("js/research/research.js")"></script>
     }
 
@@ -46,7 +47,8 @@
                                 <li><a data-dname1="dispensedMeds" href="#">Dispensed Medications</a></li>
                                 <li class="title">Vitals</li>
                                 <li><a data-dname1="temperature" href="#">Temperature</a></li>
-                                <li><a data-dname1="bloodPressure" href="#">Blood Pressure</a></li>
+                                <li><a data-dname1="bloodPressureSystolic" href="#">Blood Pressure Systolic</a></li>
+                                <li><a data-dname1="bloodPressureDiastolic" href="#">Blood Pressure Diastolic</a></li>
                                 <li><a data-dname1="heartRate" href="#">Heart Rate</a></li>
                                 <li><a data-dname1="respiratoryRate" href="#">Respirations</a></li>
                                 <li><a data-dname1="oxygenSaturation" href="#">Oxygen Saturation</a></li>
@@ -72,7 +74,8 @@
                                 <li><a data-dname2="dispensed_meds" href="#">Dispensed Medications</a></li>
                                 <li class="title">Vitals</li>
                                 <li><a data-dname2="temp" href="#">Temperature</a></li>
-                                <li><a data-dname2="blood_pressure" href="#">Blood Pressure</a></li>
+                                <li><a data-dname1="bloodPressureSystolic" href="#">Blood Pressure Systolic</a></li>
+                                <li><a data-dname1="bloodPressureDiastolic" href="#">Blood Pressure Diastolic</a></li>
                                 <li><a data-dname2="heart_rate" href="#">Heart Rate</a></li>
                                 <li><a data-dname2="resp" href="#">Respirations</a></li>
                                 <li><a data-dname2="oxy_sat" href="#">Oxygen Saturation</a></li>
@@ -92,7 +95,7 @@
                                 <li><a data-gtype="scatter" href="#">Scatterplot</a></li>
                                 <li><a data-gtype="stacked-bar" href="#">Stacked Bar Graph</a></li>
                                 <li><a data-gtype="grouped-bar" href="#">Grouped Bar Graph</a></li>
-                                @* <li><a data-gtype="table" href="#">Table</a></li> *@
+                                <li><a data-gtype="table" href="#">Table</a></li>
                                 <li><a class="clear" data-dname2="clear" href="#">Clear <span class="glyphicon glyphicon-remove"></span></a></li>
                             </ul>
                         </li>
@@ -148,9 +151,15 @@
                     <img class="loading" src="@routes.Assets.at("img/graph-loader.gif")" alt="loading&hellip;" />
                 </div>
 
-                @*
-                <div class="table-responsive">
-                    <table class="table table-striped">
+
+                <div id="table-container" class="table-responsive">
+
+                </div>
+
+
+
+
+                    @*    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>#</th>

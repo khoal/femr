@@ -71,23 +71,17 @@ public class ResearchController extends Controller {
 
         Map<Integer, ResearchItem> primaryItems = new HashMap<>();
         Map<Integer, ResearchItem> secondaryItems = new HashMap<>();
-        if( filterViewModel.getPrimaryDataset().equals("bloodPressure") ){
 
-            primaryItems = getDatasetItems("bloodPressureSystolic", filterViewModel);
-            secondaryItems = getDatasetItems("bloodPressureDiastolic", filterViewModel);
+        // height, blood pressure - two fields to get
+        String primaryDatasetName = filterViewModel.getPrimaryDataset();
+        primaryItems = getDatasetItems(primaryDatasetName, filterViewModel);
+
+        String secondaryDatasetName = filterViewModel.getSecondaryDataset();
+        if (!secondaryDatasetName.isEmpty()) {
+
+            secondaryItems = getDatasetItems(secondaryDatasetName, filterViewModel);
         }
-        else {
 
-            // height, blood pressure - two fields to get
-            String primaryDatasetName = filterViewModel.getPrimaryDataset();
-            primaryItems = getDatasetItems(primaryDatasetName, filterViewModel);
-
-            String secondaryDatasetName = filterViewModel.getSecondaryDataset();
-            if (!secondaryDatasetName.isEmpty()) {
-
-                secondaryItems = getDatasetItems(secondaryDatasetName, filterViewModel);
-            }
-        }
 
         String jsonString = DomainMapper.createResearchGraphItem(primaryItems, secondaryItems);
         return ok(jsonString);
