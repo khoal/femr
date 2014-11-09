@@ -19,13 +19,17 @@
 package femr.business.helpers;
 
 import com.avaje.ebean.Ebean;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import javax.inject.Provider;
 import femr.common.models.*;
 import femr.data.models.*;
 import femr.util.calculations.dateUtils;
 import femr.util.stringhelpers.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
+import java.util.List;
+
 import java.util.List;
 
 /**
@@ -628,6 +632,81 @@ public class DomainMapper {
         photo.setFilePath(filePath);
         return photo;
     }
+
+
+    public static String createResearchGraphItem(List<ResearchItem> primaryItems, List<ResearchItem> secondaryItems) {
+
+        String axisTitle = "";
+        String unitOfMeasurement = "";
+
+        int sampleSize = primaryItems.size();
+        float total = 0;
+        float rangeHigh = 0;
+        float rangeLow = 10000;
+        float median = 0;
+
+        for (ResearchItem item : primaryItems) {
+
+            // Grab Datatype Title and Measurement from first item
+            // Probably a better way to do this
+            if( axisTitle.isEmpty() ){
+
+                axisTitle = WordUtils.capitalize(StringUtils.splitCamelCase(item.getDataType()));
+            }
+            if( unitOfMeasurement.isEmpty() ){
+
+                unitOfMeasurement = item.getUnitOfMeasurement();
+            }
+
+            // Calculate Stats while building data
+            float value = item.getDataSet();
+
+            // check range
+            if( value > rangeHigh ){
+                rangeHigh = value;
+            }
+            if( value < rangeLow){
+                rangeLow = value;
+            }
+
+            // sum total for average
+            total += value;
+
+        }
+
+        // calculate average, median, range
+        float average = total / sampleSize;
+
+        if (sampleSize % 2 == 0) {
+
+            int i = (sampleSize / 2) - 1;
+            int j = i + 1;
+
+            float val1 = primaryItems.get(i).getDataSet();
+            float val2 = primaryItems.get(j).getDataSet();
+
+            median = (val1 + val2) / 2;
+        } else {
+
+            int i = (int) Math.floor(sampleSize / 2);
+            median = primaryItems.get(i).getDataSet();
+        }
+
+        // build graph model item
+        ResearchGraphDataItem graphModel = new ResearchGraphDataItem();
+        graphModel.setAverage(average);
+        graphModel.setMedian(median);
+        graphModel.setRangeLow(rangeLow);
+        graphModel.setRangeHigh(rangeHigh);
+        graphModel.setGraphData(primaryItems);
+
+        graphModel.setxAxisTitle(axisTitle);
+        graphModel.setUnitOfMeasurement(unitOfMeasurement);
+
+        Gson gson = new Gson();
+        return gson.toJson(graphModel);
+    }
+
 
 
 }

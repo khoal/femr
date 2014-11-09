@@ -285,7 +285,7 @@ var filterMenuModule = (function(){
 
         }
 
-    }
+    };
 
     var chooseDataSet1 = function(){
 
@@ -546,7 +546,7 @@ var filterMenuModule = (function(){
             // Get Filter values from form hidden fields
             var graphType = $(filterValues.graphType).val();
             var postData = $("#graph-options").serialize();
-            console.log(postData);
+            //console.log(postData);
             graphLoaderModule.loadGraph(filterValues.graphType, postData);
         }
 
@@ -555,6 +555,7 @@ var filterMenuModule = (function(){
     };
 
     var publicObject = {};
+    publicObject.getPrimaryDataset = function(){ return filterValues.dataset1; }
     publicObject.init = function() {
 
         // Register Actions
@@ -611,23 +612,37 @@ var graphLoaderModule = (function(){
         // post graph
         $.post("/research/graph", postData, function (rawData) {
 
-            jsonData = jQuery.parseJSON(rawData);
-            //console.log(jsonData);
+            var jsonData = jQuery.parseJSON(rawData);
+            console.log(jsonData);
+
+            var xAxisTitle = "";
+            if( "xAxisTitle" in jsonData ) {
+                xAxisTitle = jsonData.xAxisTitle;
+            }
+
+            var unitOfMeasurement = "";
+            if( "unitOfMeasurement" in jsonData ) {
+
+                unitOfMeasurement = jsonData.unitOfMeasurement;
+                if( unitOfMeasurement.length > 0 ) {
+                    xAxisTitle += " (" + unitOfMeasurement + ")";
+                }
+            }
 
             switch(graphType){
 
                 case 'line':
-                    lineGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    lineGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     lineGraphModule.buildGraph();
                     break;
 
                 case 'scatter':
-                    scatterGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    scatterGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     scatterGraphModule.buildGraph();
                     break;
 
                 case 'pie':
-                    pieGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    pieGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     pieGraphModule.buildGraph();
                     break;
 
@@ -643,32 +658,46 @@ var graphLoaderModule = (function(){
 
                 case 'bar':
                 default:
-                    barGraphModule.setGraphData(jsonData.graphValues);
+                    barGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     //barGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
                     barGraphModule.buildGraph();
             }
 
-            // Grab Statistics
-            if( "median" in jsonData ) {
-                $("#median").find(".val").text(jsonData.median);
+            if( filterMenuModule.getPrimaryDataset() == "gender" ){
+
+                $("#median").hide();
+                $("#average").hide();
+                $("#range").hide();
             }
-            else{
-                $("#median").find(".val").text("n/a");
+            else {
+
+                $("#median").show();
+                $("#average").show();
+                $("#range").show();
+
+                // Grab Statistics
+                if ("median" in jsonData) {
+                    $("#median").find(".val").text(jsonData.median + " " + unitOfMeasurement);
+                }
+                else {
+                    $("#median").find(".val").text("n/a");
+                }
+
+                if ("average" in jsonData) {
+                    $("#average").find(".val").text(jsonData.average + " " + unitOfMeasurement);
+                }
+                else {
+                    $("#average").find(".val").text("n/a");
+                }
+
+                if (("rangeLow" in jsonData) && ("rangeHigh" in jsonData)) {
+                    $("#range").find(".val").text(jsonData.rangeLow + " - " + jsonData.rangeHigh + " " + unitOfMeasurement);
+                }
+                else {
+                    $("#range").find(".val").text("n/a");
+                }
             }
 
-            if( "average" in jsonData ) {
-                $("#average").find(".val").text(jsonData.average);
-            }
-            else{
-                $("#average").find(".val").text("n/a");
-            }
-
-            if( ("rangeLow" in jsonData) && ("rangeHigh" in jsonData) ) {
-                $("#range").find(".val").text(jsonData.rangeLow + " - " + jsonData.rangeHigh);
-            }
-            else{
-                $("#range").find(".val").text("n/a");
-            }
             hideGraphLoadingIcon();
         });
 
@@ -743,17 +772,18 @@ jQuery(document).ready(function(){
     filterMenuModule.init();
     graphLoaderModule.init();
 
-    //*
+    // Making debugging graphs easier by manually loading the first graph
+    /*
     var test_post = {
 
         startDate: '2014-10-07',
         endDate: '2014-11-06',
         primaryDataset: 'age',
         secondaryDataset: '',
-        graphType: 'line'
+        graphType: 'bar',
     };
-    graphLoaderModule.loadGraph('line', test_post);
-    //*/
+    graphLoaderModule.loadGraph('bar', test_post);
+    */
 
 
 

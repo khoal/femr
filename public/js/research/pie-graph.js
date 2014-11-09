@@ -7,19 +7,77 @@
 
 var pieGraphModule = (function(){
 
+    var xAxisTitle = "";
+    var measurementUnits = "";
     var graph_data = [];
+    var grouped_data = {};
     var label_ids = {};
     var arc_ids = {};
 
-    var publicObject = {};
-    publicObject.setGraphData = function(jsonData){
 
+    var publicObject = {};
+    publicObject.setGraphData = function(jsonData, xTitle, unitOfMeasurement){
+
+        // reset possible previous graphs
         graph_data = [];
+        grouped_data = {};
+        xAxisTitle = xTitle;
+        measurementUnits = unitOfMeasurement;
+
+        //console.log(jsonData);
+
+        // Group and count the individual patients
+        var maxVal = Number.MIN_VALUE;
+        var minVal = Number.MAX_VALUE;
+        $.each(jsonData.graphData, function (key, obj) {
+
+            var keyStr = "";
+            if( filterMenuModule.getPrimaryDataset() == "gender" ){
+
+                //console.log(obj.dataSet);
+                if( obj.dataSet == 0 ){
+                    keyStr = "Male";
+                }
+                else if(obj.dataSet == 1){
+                    keyStr = "Female";
+                }
+                else{
+                    keyStr = "Unknown";
+                }
+
+            }
+            else{
+
+                // Keep track of min/max to build scale values
+                if( obj.dataSet > maxVal){
+                    maxVal = obj.dataSet;
+                }
+                if( obj.dataSet < minVal){
+                    minVal = obj.dataSet;
+                }
+                keyStr = obj.dataSet;
+            }
+
+            if( !grouped_data[keyStr] ){
+
+                grouped_data[keyStr] = {
+
+                    name: keyStr,
+                    value: 0
+                };
+            }
+            grouped_data[keyStr].value += 1;
+        });
+
+        console.log(grouped_data);
 
         var i = 0;
-        $.each(jsonData, function (key, obj) {
+        $.each(grouped_data, function (key, obj) {
+
+            //console.log(key);
+            //console.log(obj);
             graph_data[i] = {
-                name: obj.key,
+                name: key,
                 value: obj.value
             };
             i++;
@@ -195,7 +253,7 @@ var pieGraphModule = (function(){
         }).text(function (d) {
 
             //console.log(d);
-            var label = d.data.name + ' years: ' + d.data.value+" patients";
+            var label = d.data.name+" "+measurementUnits+": "+d.data.value+" patients";
             return label;
         });
         //*/
@@ -306,7 +364,7 @@ var pieGraphModule = (function(){
             .attr("x", 24)
             .attr("y", 9)
             .attr("dy", ".35em")
-            .text(function(d) { return d.name; });
+            .text(function(d) { return d.name+" "+measurementUnits; });
     };
 
     var arcMouseover = function(){

@@ -1,7 +1,5 @@
 package femr.common.models;
 
-import java.util.Date;
-
 /*
      fEMR - fast Electronic Medical Records
      Copyright (C) 2014  Team fEMR
@@ -23,59 +21,67 @@ import java.util.Date;
 public class ResearchItem {
 
     private int patientId;
-    private float dataSet1;
-    private float dataSet2;
-    private String dataType1;
-    private String dataType2;
+    private float dataSet;
+    //private float dataSet2;
+    private String dataType;
+    //private String dataType2;
+    private String unitOfMeasurement;
 
 
     public ResearchItem( ){
         //default empty values
         this.patientId = 0;
-        this.dataSet1 = -1;
-        this.dataSet2 = -1;
-        this.dataType1 = "";
-        this.dataType2 = "";
+        this.dataSet = -1;
+        this.dataType = "";
+        this.unitOfMeasurement = "";
+
+        //this.dataSet2 = -1;
+        //this.dataType2 = "";
     }
 
 
 
-    public ResearchItem( int id, String type1, float set1){
+    public ResearchItem( int id, String type, float set, String unitOfMeasurement){
         this.patientId = id;
-        this.dataSet1 = set1;
-        this.dataSet2 = -1;
-        this.dataType1 = type1;
-        this.dataType2 = "";
+        this.dataSet = set;
+        this.dataType = type;
+        this.unitOfMeasurement = unitOfMeasurement;
+
+        //this.dataSet2 = -1;
+        //this.dataType2 = "";
     }
 
+    /*
     public ResearchItem( int id, String type1, float set1, String type2, float set2){
         this.patientId = id;
         this.dataSet1 = set1;
-        this.dataSet2 = set2;
         this.dataType1 = type1;
+
+        this.dataSet2 = set2;
         this.dataType2 = type2;
     }
+    */
 
 
 
 
-
-    public int getpatientId() {
+    public int getPatientId() {
         return patientId;
     }
 
-    public void setpatientId(int id) {
+    public void setPatientId(int id) {
         patientId = id;
     }
 
-    public float getDataSet1() {
-        return dataSet1;
+    public float getDataSet() {
+        return dataSet;
     }
 
-    public void setDataSet1(float dataSet) {
-        this.dataSet1 = dataSet;
+    public void setDataSet(float dataSet) {
+        this.dataSet = dataSet;
     }
 
+    /*
     public float getDataSet2() {
         return dataSet2;
     }
@@ -83,21 +89,32 @@ public class ResearchItem {
     public void setDataSet2(float dataSet) {
         this.dataSet2 = dataSet;
     }
+    */
 
-    public String getDataType1() {
-        return dataType1;
+    public String getDataType() {
+        return dataType;
     }
 
-    public void setDataType1(String dataType) {
-        this.dataType1 = dataType;
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 
+    /*
     public String getDataType2() {
         return dataType2;
     }
 
     public void setDataType2(String dataType) {
         this.dataType2 = dataType;
+    }
+    */
+
+    public String getUnitOfMeasurement() {
+        return unitOfMeasurement;
+    }
+
+    public void setUnitOfMeasurement(String unitOfMeasurement) {
+        this.unitOfMeasurement = unitOfMeasurement;
     }
 }
 

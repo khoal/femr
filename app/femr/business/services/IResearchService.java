@@ -48,6 +48,7 @@ public interface IResearchService {
      * @param endDate ending range of vital taken range
      * @return a map of unique readings of vitalType indexed by encounterID
      */
-    public ServiceResponse<Map<Integer,VitalItem>> getPatientVitals(String vitalType, String startDate, String endDate);
-    public ServiceResponse<String> getPatientAttribute(String attributeName, String startDateString, String endDateString);
+    public ServiceResponse<List<ResearchItem>> getPatientVitals(String vitalType, String startDate, String endDate);
+    public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString);
+    public ServiceResponse<List<ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString);
 }
