@@ -1,9 +1,7 @@
 package femr.ui.controllers;
 
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.inject.Inject;
+import femr.business.helpers.DomainMapper;
 import femr.common.dto.CurrentUser;
 import femr.business.services.IResearchService;
 import femr.business.services.ISessionService;
@@ -14,8 +12,6 @@ import femr.common.models.VitalItem;
 import femr.data.models.Roles;
 import femr.ui.helpers.security.AllowedRoles;
 import femr.ui.helpers.security.FEMRAuthenticated;
-import femr.ui.models.research.BarGraphViewModel;
-import femr.ui.models.research.PatientGraphItem;
 import femr.ui.views.html.research.index;
 import femr.ui.models.research.FilterViewModel;
 import play.data.Form;
@@ -65,8 +61,6 @@ public class ResearchController extends Controller {
         today.add(Calendar.DAY_OF_MONTH, -30);
         viewModel.setStartDate(dateFormat.format(today.getTime()));
 
-        ageGroupedBarGraphJSONGet();
-
         CurrentUser currentUserSession = sessionService.getCurrentUserSession();
         return ok(index.render(currentUserSession, viewModel));
     }
@@ -76,49 +70,22 @@ public class ResearchController extends Controller {
         FilterViewModel filterViewModel = FilterViewModelForm.bindFromRequest().get();
 
         // height, blood pressure - two fields to get
-        String datasetName = filterViewModel.getPrimaryDataset();
-        //researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());//this is just meant to call the getPatientAttribute method for testing. Can be removed.
+        String primaryDatasetName = filterViewModel.getPrimaryDataset();
+        List<ResearchItem> primaryItems = getDatasetItems(primaryDatasetName, filterViewModel);
 
-/*
-        if( datasetName.equals("respiratoryRate") ||
-                datasetName.equals("heartRate") ||
-                datasetName.equals("temperature")  ||
-                datasetName.equals("oxygenSaturation")  ||
-                datasetName.equals("weight") ||
-                datasetName.equals("glucose") ){
+        List<ResearchItem> secondaryItems = new ArrayList<>();
+        String secondaryDatasetName = filterViewModel.getSecondaryDataset();
+        if( !secondaryDatasetName.isEmpty() ){
 
-            ServiceResponse<Map<Integer,VitalItem>> response = researchService.getPatientVitals(filterViewModel.getPrimaryDataset(), filterViewModel.getStartDate(), filterViewModel.getEndDate());
-
-            Map<Integer,VitalItem> patientInfo = response.getResponseObject();
-
-            BarGraphViewModel barGraphViewModel = new BarGraphViewModel();
-            barGraphViewModel.buildGraphValues(patientInfo);
-
-            Gson gson = new Gson();
-            return ok(gson.toJson(barGraphViewModel));
-
-            //return ok(barGraphViewModel.toJson());
+            secondaryItems = getDatasetItems(secondaryDatasetName, filterViewModel);
         }
-        else */ if( datasetName.equals("age") )
-        {
 
-            ServiceResponse<String> response = researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
-            String jsonString = response.getResponseObject();
-            return ok(jsonString);
-/*
-
-            List<ResearchItem> patientInfo = response.getResponseObject();
-
-            BarGraphViewModel barGraphViewModel = new BarGraphViewModel();
-            barGraphViewModel.buildGraphValues(patientInfo);
-
-            Gson gson = new Gson();
-            return ok(gson.toJson(barGraphViewModel));
-*/
-        }
+        String jsonString = DomainMapper.createResearchGraphItem(primaryItems, secondaryItems);
+        return ok(jsonString);
 
 
         // Handle other requests as Random Age data until finished
+        /*
         String graphType = filterViewModel.getGraphType();
         switch( graphType ){
 
@@ -146,30 +113,67 @@ public class ResearchController extends Controller {
             default:
                 return ageBarGraphJSONGet();
         }
-
-
-
-        /*
-        JsonObject jsonObject = new JsonObject();
-
-        // Get Post Values
-
-        // Call Service with type values
-
-        // Build JSON Object for type
-
-        // output json object
-        return ok(jsonObject.toString());
         */
     }
 
+    private List<ResearchItem> getDatasetItems(String datasetName, FilterViewModel filterViewModel){
 
-    /**
-     * Used for creating Patient Age Bar Graph
-     * Called via ajax
-     *
-     * @return JSON object of patients and age ranges
-     */
+        ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
+
+        switch(datasetName){
+
+            // Single Value Vital Items
+            case "weight":
+            case "temperature":
+            case "heartRate":
+            case "respiratoryRate":
+            case "oxygenSaturation":
+            case "glucose":
+
+                response = researchService.getPatientVitals(filterViewModel.getPrimaryDataset(), filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                break;
+
+            // Special Case Vital Item
+            case "height":
+
+                break;
+
+            // Special Case Vital Item
+            case "bloodPressure":
+
+                break;
+
+            // Patient Specific Items
+            case "age":
+            case "gender":
+
+                response = researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                break;
+
+            // Special Case Patient Specific
+            case "pregnancyStatus":
+            case "pregnancyTime":
+
+                break;
+
+            // Medication Items
+            case "prescribedMeds":
+            case "dispensedMeds":
+
+                break;
+
+
+            default:
+
+                // send something to trigger error: invalid data type
+                break;
+
+        }
+
+        return response.getResponseObject();
+    }
+
+    /*
     public Result ageBarGraphJSONGet() {
 
         JsonObject jsonObject = new JsonObject();
@@ -342,7 +346,7 @@ public class ResearchController extends Controller {
         graphValues.add(8, new PatientGraphItem("81-90", ageRanges.get("81-90")));
         graphValues.add(9, new PatientGraphItem("91-100", ageRanges.get("91-100")));
         graphValues.add(10, new PatientGraphItem("100+", ageRanges.get("100+")));
-        //*/
+        // * /
 
         BarGraphViewModel barGraphViewModel = new BarGraphViewModel();
         barGraphViewModel.setMedian(median);
@@ -657,7 +661,7 @@ public class ResearchController extends Controller {
         graphValues.add(8, new PatientGraphItem("81-90", ageRanges.get("81-90")));
         graphValues.add(9, new PatientGraphItem("91-100", ageRanges.get("91-100")));
         graphValues.add(10, new PatientGraphItem("100+", ageRanges.get("100+")));
-        //*/
+        //* /
 
         Gson gson = new Gson();
 
@@ -1074,7 +1078,7 @@ public class ResearchController extends Controller {
         IL,894368,1558919,725973,1311479,3596343,3239173,1575308
         PA,737462,1345341,679201,1203944,3157759,3414001,1910571
 
-         */
+         * /
 
 
 
@@ -1112,5 +1116,5 @@ public class ResearchController extends Controller {
         return ok(jsonObject.toString());
 
     }
-
+    */
 }
