@@ -10,7 +10,11 @@ var lineGraphModule = (function(){
     var xAxisTitle = "";
     var measurementUnits = "";
     var graph_data = [];
+    var mainKeys = [];
+    var innerKeys = [];
+    var tickValues = [];
     var grouped_data = {};
+    var grouped_data2 = {};
 
     var publicObject = {};
     publicObject.setGraphData = function(jsonData, xTitle, unitOfMeasurement){
@@ -55,7 +59,7 @@ var lineGraphModule = (function(){
             grouped_data[keyStr].value += 1;
         });
 
-        console.log(grouped_data);
+        //console.log(grouped_data);
 
         //for( var i = 0; i < grouped_data.length; i++ ){
         var i = 0;
@@ -67,10 +71,13 @@ var lineGraphModule = (function(){
             i++;
         });
 
-        console.log(graph_data);
+        //console.log(graph_data);
     };
 
     publicObject.buildGraph = function(){
+
+        $("#graph").show();
+        $("#table-container").hide();
 
         // remove any previous graph
         d3.selectAll("svg > *").remove();

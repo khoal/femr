@@ -73,6 +73,9 @@ var scatterGraphModule = (function(){
 
     publicObject.buildGraph = function(){
 
+        $("#graph").show();
+        $("#table-container").hide();
+
         // remove any previous graph
         d3.selectAll("svg > *").remove();
 

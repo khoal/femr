@@ -4,13 +4,12 @@
  *
  */
 
-var barGraphModule = (function(){
+var tableChartModule = (function(){
 
     var xAxisTitle = "";
     var measurementUnits = "";
     var graph_data = [];
     var grouped_data = {};
-    var tickValues = [];
 
     var setupAgeGroups = function(){
 
@@ -210,97 +209,34 @@ var barGraphModule = (function(){
 
     publicObject.buildGraph = function(){
 
-        $("#graph").show();
-        $("#table-container").hide();
+        $("#graph").hide();
+        var table = $("#table-container");
+        $(table).html('');
+        $(table).show();
 
-        // remove any previous graph
-        d3.selectAll("svg > *").remove();
+        var table_html = '<table class="table table-striped">' +
+            '<thead>' +
+            '<tr>' +
+                '<th>'+xAxisTitle+'</th>' +
+                '<th>Number of Patients</th>' +
+            '</tr>' +
+            '</thead>';
 
-        var margin = {top: 20, right: 30, bottom: 50, left: 60};
+        table_html += '<tbody>';
 
-        // keep 3/2 width/height ratio
-        var aspectRatio = 5/2.5;
-        var containerWidth = $(".main").width();
-        var containerHeight = containerWidth / aspectRatio;
+        $.each(grouped_data, function (key, obj) {
 
-        // Calculate height/width taking margin into account
-        var graphWidth = containerWidth - margin.right - margin.left;
-        var graphHeight = containerHeight - margin.top - margin.bottom;
+            table_html += '<tr>' +
+                '<td>'+obj.name+'</td>' +
+                '<td>'+obj.value+'</td>' +
+                '</tr>';
 
-        var xScale = d3.scale.ordinal()
-            .domain(graph_data.map(function(d) { return d.name; }))
-            //.range([0, graphWidth], .25);
-            .rangeRoundBands([0, graphWidth], .25);
+        });
 
-        var yScale = d3.scale.linear()
-            .domain([0, d3.max(graph_data, function(d) { return d.value; })])
-            .range([graphHeight, 0]);
+        table_html += '</tbody>';
 
+        $(table).append(table_html);
 
-        var xAxis = d3.svg.axis()
-            .scale(xScale)
-            //.tickValues(xScale.domain().filter(function(d, i) { return !(i % 6); }))
-            .orient("bottom");
-        // Only use tickValues if they are set
-        if( tickValues.length > 0 ){
-
-            xAxis.tickValues(tickValues)
-        }
-
-        var yAxis = d3.svg.axis()
-            .scale(yScale)
-            .orient("left");
-
-        var tip = d3.tip()
-            .attr('class', 'd3-tip')
-            .offset([-10, 0])
-            .html(function(d) {
-                return '<span class="name">' + d.name + '</span> <span class="val"><strong>Patients: </strong>' + d.value + '</span>';
-            });
-
-        var chart = d3.select(".chart")
-            .attr("width", containerWidth)
-            .attr("height", containerHeight)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        chart.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + graphHeight + ")")
-            .call(xAxis)
-            .append("text")
-            .attr("class", "title")
-            .attr("x", graphWidth / 2 )
-            .attr("y",  0 + margin.bottom)
-            .style("text-anchor", "middle")
-            .attr("dy", "-5px")
-            .text(xAxisTitle);
-
-        chart.call(tip);
-
-        chart.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("class", "title")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 0 - margin.left)
-            .attr("x", 0 - (graphHeight / 2))
-            .attr("dy", "1.25em")
-            .style("text-anchor", "middle")
-            .text("Number of Patients");
-
-        chart.selectAll(".bar")
-            .data(graph_data)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", function(d) { return xScale(d.name); })
-            .attr("y", function(d) { return yScale(d.value); })
-            .attr("height", function(d) { return graphHeight - yScale(d.value); })
-            //.attr("width", function(d) { return xScale(d.name); })
-            .attr("width", xScale.rangeBand())
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
     };
 
     return publicObject;

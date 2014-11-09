@@ -327,6 +327,9 @@ var groupedBarGraphModule = (function(){
     };
     publicObject.buildGraph = function(){
 
+        $("#graph").show();
+        $("#table-container").hide();
+
         d3.selectAll("svg > *").remove();
 
         var margin = {top: 20, right: 30, bottom: 50, left: 60};
