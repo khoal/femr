@@ -115,6 +115,19 @@ var pieGraphModule = (function(){
                 }
 
             }
+            else if( filterMenuModule.getPrimaryDataset() == "pregnancyStatus" ){
+
+                if( obj.dataSet == 0 ){
+                    keyStr = "No";
+                }
+                else if(obj.dataSet == 1){
+                    keyStr = "Yes";
+                }
+                else{
+                    keyStr = "Unknown";
+                }
+
+            }
             else{
 
                 // Keep track of min/max to build scale values
