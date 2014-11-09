@@ -34,28 +34,32 @@ var allowedFilterValues = (function(){
             graphTypes: ['bar','pie','table'],
             secondaryData: []
         },
-        bloodPressure: {
-            graphTypes: ['line','scatter','chart'],
+        bloodPressureSystolic: {
+            graphTypes: ['line','scatter','table'],
+            secondaryData: []
+        },
+        bloodPressureDiastolic: {
+            graphTypes: ['line','scatter','table'],
             secondaryData: []
         },
         temperature: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: ['age','gender']
         },
         oxygenSaturation: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: []
         },
         heartRate: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: []
         },
         respiratoryRate: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: []
         },
         glucose: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: []
         }
     };
@@ -436,7 +440,7 @@ var filterMenuModule = (function(){
 
             filterValues.groupPrimary = false;
         }
-
+        return false;
     };
 
     var optionLinkClick = function(evt){
@@ -689,9 +693,14 @@ var graphLoaderModule = (function(){
                     break;
 
                 case 'bar':
-                default:
                     barGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     barGraphModule.buildGraph();
+                    break;
+
+                case 'table':
+                default:
+                    tableChartModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
+                    tableChartModule.buildGraph();
             }
 
             if( filterMenuModule.getPrimaryDataset() == "gender" ){
