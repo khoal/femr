@@ -40,15 +40,35 @@ public interface IResearchService {
     //ServiceResponse<List<PatientItem>> getData();
 
     /**
-     * Retrieve patient and update the patients sex. Used when a user submits a sex for
-     * a patient with a previously unidentified sex.
+     * Retrieves a map of Patient vitals identified by vitalType.
+     * Mapped by patientEncounterId to be matched up to secondary data sets
      *
      * @param vitalType the string name of the vital to lookup
-     * @param startDate starting range of vital taken range
-     * @param endDate ending range of vital taken range
+     * @param startDateString starting range of vital taken range
+     * @param endDateString ending range of vital taken range
      * @return a map of unique readings of vitalType indexed by encounterID
      */
-    public ServiceResponse<List<ResearchItem>> getPatientVitals(String vitalType, String startDate, String endDate);
-    public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString);
-    public ServiceResponse<List<ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString);
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientVitals(String vitalType, String startDateString, String endDateString);
+
+    /**
+     * Retrieves a map of Patient attributes identified by attributeName.
+     * Mapped by patientEncounterId to be matched up to secondary data sets
+     *
+     * @param attributeName the string name of the vital to lookup
+     * @param startDateString starting range of vital taken range
+     * @param endDateString ending range of vital taken range
+     * @return a map of unique readings of vitalType indexed by encounterID
+     */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString);
+
+    /**
+     * Retrieves a map of medications identified by medicationType.
+     * Mapped by patientEncounterId to be matched up to secondary data sets
+     *
+     * @param medicationType the string name of the vital to lookup
+     * @param startDateString starting range of vital taken range
+     * @param endDateString ending range of vital taken range
+     * @return a map of unique readings of vitalType indexed by encounterID
+     */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString);
 }

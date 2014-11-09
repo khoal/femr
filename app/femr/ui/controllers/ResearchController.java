@@ -71,9 +71,9 @@ public class ResearchController extends Controller {
 
         // height, blood pressure - two fields to get
         String primaryDatasetName = filterViewModel.getPrimaryDataset();
-        List<ResearchItem> primaryItems = getDatasetItems(primaryDatasetName, filterViewModel);
+        Map<Integer, ResearchItem> primaryItems = getDatasetItems(primaryDatasetName, filterViewModel);
 
-        List<ResearchItem> secondaryItems = new ArrayList<>();
+        Map<Integer, ResearchItem> secondaryItems = new HashMap<>();
         String secondaryDatasetName = filterViewModel.getSecondaryDataset();
         if( !secondaryDatasetName.isEmpty() ){
 
@@ -116,9 +116,9 @@ public class ResearchController extends Controller {
         */
     }
 
-    private List<ResearchItem> getDatasetItems(String datasetName, FilterViewModel filterViewModel){
+    private Map<Integer, ResearchItem> getDatasetItems(String datasetName, FilterViewModel filterViewModel){
 
-        ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
         switch(datasetName){
 
@@ -174,6 +174,23 @@ public class ResearchController extends Controller {
     }
 
     /*
+
+    public Result ageGroupedBarGraphCSVGet() {
+
+        return ok("Gender,Male,Female\n"+
+                "0-10,20,30\n" +
+                "11-20,43,12\n" +
+                "21-30,15,18\n" +
+                "31-40,55,50\n" +
+                "41-50,12,18\n" +
+                "51-60,32,28\n" +
+                "61-70,16,55\n" +
+                "71-80,12,48\n" +
+                "81-90,65,54\n" +
+                "91-100,43,23\n" +
+                "101+,2,1");
+    }
+
     public Result ageBarGraphJSONGet() {
 
         JsonObject jsonObject = new JsonObject();
@@ -676,11 +693,8 @@ public class ResearchController extends Controller {
 
     public Result ageStackedBarGraphJSONGet() {
 
-
-
         researchService.getAllPatientAges();
         JsonObject jsonObject = new JsonObject();
-
 
         Random rand = new Random();
 
@@ -870,23 +884,6 @@ public class ResearchController extends Controller {
 
         return ok(jsonObject.toString());
 
-    }
-
-
-    public Result ageGroupedBarGraphCSVGet() {
-
-        return ok("Gender,Male,Female\n"+
-                "0-10,20,30\n" +
-                "11-20,43,12\n" +
-                "21-30,15,18\n" +
-                "31-40,55,50\n" +
-                "41-50,12,18\n" +
-                "51-60,32,28\n" +
-                "61-70,16,55\n" +
-                "71-80,12,48\n" +
-                "81-90,65,54\n" +
-                "91-100,43,23\n" +
-                "101+,2,1");
     }
 
     public Result ageGroupedBarGraphJSONGet() {

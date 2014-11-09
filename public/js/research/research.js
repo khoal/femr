@@ -555,7 +555,8 @@ var filterMenuModule = (function(){
     };
 
     var publicObject = {};
-    publicObject.getPrimaryDataset = function(){ return filterValues.dataset1; }
+    publicObject.getPrimaryDataset = function(){ return filterValues.dataset1; };
+    publicObject.getSecondaryDataset = function(){ return filterValues.dataset2; };
     publicObject.init = function() {
 
         // Register Actions
@@ -613,7 +614,7 @@ var graphLoaderModule = (function(){
         $.post("/research/graph", postData, function (rawData) {
 
             var jsonData = jQuery.parseJSON(rawData);
-            console.log(jsonData);
+            //console.log(jsonData);
 
             var xAxisTitle = "";
             if( "xAxisTitle" in jsonData ) {
@@ -647,19 +648,18 @@ var graphLoaderModule = (function(){
                     break;
 
                 case 'stacked-bar':
-                    stackedBarGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    stackedBarGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     stackedBarGraphModule.buildGraph();
                     break;
 
                 case 'grouped-bar':
-                    groupedBarGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    groupedBarGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     groupedBarGraphModule.buildGraph();
                     break;
 
                 case 'bar':
                 default:
                     barGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
-                    //barGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
                     barGraphModule.buildGraph();
             }
 
@@ -779,10 +779,10 @@ jQuery(document).ready(function(){
         startDate: '2014-10-07',
         endDate: '2014-11-06',
         primaryDataset: 'age',
-        secondaryDataset: '',
-        graphType: 'bar',
+        secondaryDataset: 'gender',
+        graphType: 'stacked-bar'
     };
-    graphLoaderModule.loadGraph('bar', test_post);
+    graphLoaderModule.loadGraph('stacked-bar', test_post);
     */
 
 
@@ -860,11 +860,3 @@ function randomInt(min, max) {
     return Math.floor(Math.random() * (1 + max - min)) + min;
 };
 //*/
-
-
-function encodeID(s) {
-    if (s==='') return '_';
-    return s.replace(/[^a-zA-Z0-9.-]/g, function(match) {
-        return '_'+match[0].charCodeAt(0).toString(16)+'_';
-    });
-}

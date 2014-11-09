@@ -396,7 +396,13 @@ table th{
 
 .dot {
     fill: #4682B4;
-    stroke: #000;
+    stroke: #3f3f3f;
+    cursor: pointer;
+}
+
+.dot:hover{
+
+    fill: red;
 }
 
 /* Axis */
