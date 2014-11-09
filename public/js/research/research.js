@@ -126,7 +126,8 @@ var filterMenuModule = (function(){
         dataset2: null,
         graphType: null,
         startDate: null,
-        endDate: null
+        endDate: null,
+        groupPrimary: false
     };
 
     var filterFields = {
@@ -135,7 +136,8 @@ var filterMenuModule = (function(){
         dataset2: $("#secondaryDataset"),
         graphType: $("#graphType"),
         startDate: $("#startDate"),
-        endDate: $("#endDate")
+        endDate: $("#endDate"),
+        groupPrimary: $("#groupPrimaryData")
     };
 
     var filterMenus = {
@@ -306,6 +308,20 @@ var filterMenuModule = (function(){
                 $(filterMenus.dataset1).find(".val").text($(this).text());
                 $(filterFields.dataset1).val(filterValues.dataset1);
             }
+
+            // set group to true when selecting age for the first time
+            if( filterValues.dataset1 == "age" ){
+
+                filterValues.groupPrimary = true;
+                //$(filterFields.groupPrimary).attr("checked",true);
+                $(filterFields.groupPrimary).prop('checked', true);
+            }
+            else{
+
+                filterValues.groupPrimary = false;
+                //$(filterFields.groupPrimary).attr("checked",false);
+                $(filterFields.groupPrimary).prop('checked', false);
+            }
         }
 
         updateAvailableFilterChoices();
@@ -408,6 +424,19 @@ var filterMenuModule = (function(){
         updateAvailableFilterChoices();
         closeSubMenu();
         return false;
+    };
+
+    var chooseGroupPrimary = function(){
+
+        if( $(this).prop('checked') ){
+
+            filterValues.groupPrimary = true;
+        }
+        else{
+
+            filterValues.groupPrimary = false;
+        }
+
     };
 
     var optionLinkClick = function(evt){
@@ -557,6 +586,7 @@ var filterMenuModule = (function(){
     var publicObject = {};
     publicObject.getPrimaryDataset = function(){ return filterValues.dataset1; };
     publicObject.getSecondaryDataset = function(){ return filterValues.dataset2; };
+    publicObject.isPrimaryDataGrouped = function(){ return filterValues.groupPrimary; };
     publicObject.init = function() {
 
         // Register Actions
@@ -568,6 +598,7 @@ var filterMenuModule = (function(){
 
         $(filterFields.startDate).change(chooseStartDate);
         $(filterFields.endDate).change(chooseEndDate);
+        $(filterFields.groupPrimary).change(chooseGroupPrimary);
         $(filterFields.startDate).trigger("change");
         $(filterFields.endDate).trigger("change");
 
