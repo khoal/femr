@@ -14,7 +14,65 @@ var pieGraphModule = (function(){
     var label_ids = {};
     var arc_ids = {};
 
+    var setupAgeGroups = function(){
 
+        // Manually setup age groups, should do this programmatically eventually
+        grouped_data["0-10"] = {
+            name: "0-10",
+            value: 0
+        };
+
+        grouped_data["11-20"] = {
+            name: "11-20",
+            value: 0
+        };
+
+        grouped_data["21-30"] = {
+            name: "21-30",
+            value: 0
+        };
+
+        grouped_data["31-40"] = {
+            name: "31-40",
+            value: 0
+        };
+
+        grouped_data["41-50"] = {
+            name: "41-50",
+            value: 0
+        };
+
+        grouped_data["51-60"] = {
+            name: "51-60",
+            value: 0
+        };
+
+        grouped_data["61-70"] = {
+            name: "61-70",
+            value: 0
+        };
+
+        grouped_data["71-80"] = {
+            name: "71-80",
+            value: 0
+        };
+
+        grouped_data["81-90"] = {
+            name: "81-90",
+            value: 0
+        };
+
+        grouped_data["91-100"] = {
+            name: "91-100",
+            value: 0
+        };
+
+        grouped_data["100+"] = {
+            name: "100+",
+            value: 0
+        };
+
+    };
     var publicObject = {};
     publicObject.setGraphData = function(jsonData, xTitle, unitOfMeasurement){
 
@@ -29,6 +87,10 @@ var pieGraphModule = (function(){
         // Group and count the individual patients
         var maxVal = Number.MIN_VALUE;
         var minVal = Number.MAX_VALUE;
+
+        if( filterMenuModule.getPrimaryDataset() == 'age' ) {
+            setupAgeGroups();
+        }
 
         var localGraphData = [];
         if( jsonData.graphData.length > 0 ){
@@ -62,7 +124,49 @@ var pieGraphModule = (function(){
                 if( obj.dataSet < minVal){
                     minVal = obj.dataSet;
                 }
-                keyStr = obj.dataSet;
+
+                // Age only on Pie graph as grouped
+                if( filterMenuModule.getPrimaryDataset() == 'age' ) {
+
+                    if( obj.dataSet <= 10 ){
+                        keyStr = "0-10";
+                    }
+                    else if( obj.dataSet <= 20 ){
+                        keyStr = "11-20";
+                    }
+                    else if( obj.dataSet <= 30 ){
+                        keyStr = "21-30";
+                    }
+                    else if( obj.dataSet <= 40 ){
+                        keyStr = "31-40";
+                    }
+                    else if( obj.dataSet <= 50 ){
+                        keyStr = "41-50";
+                    }
+                    else if( obj.dataSet <= 60 ){
+                        keyStr = "51-60";
+                    }
+                    else if( obj.dataSet <= 70 ){
+                        keyStr = "61-70";
+                    }
+                    else if( obj.dataSet <= 80 ){
+                        keyStr = "71-80";
+                    }
+                    else if( obj.dataSet <= 90 ){
+                        keyStr = "81-90";
+                    }
+                    else if( obj.dataSet <= 100 ){
+                        keyStr = "91-100";
+                    }
+                    else{
+                        keyStr = "100+";
+                    }
+
+                }
+                else{
+
+                    keyStr = obj.dataSet;
+                }
             }
 
             if( !grouped_data[keyStr] ){
