@@ -4,20 +4,7 @@
  *
  */
 
-Array.prototype.inArray = function(comparer) {
-    for(var i=0; i < this.length; i++) {
-        if(comparer(this[i])) return true;
-    }
-    return false;
-};
 
-// adds an element to the array if it does not already exist using a comparer
-// function
-Array.prototype.pushIfNotExist = function(element, comparer) {
-    if (!this.inArray(comparer)) {
-        this.push(element);
-    }
-};
 
 
 var stackedBarGraphModule = (function(){
@@ -31,14 +18,6 @@ var stackedBarGraphModule = (function(){
     var tickValues = [];
 
     var publicObject = {};
-
-    var GroupedDataType = function(name, x, y) {
-        return {
-            name: name,
-            x: x,
-            y: y
-        };
-    };
 
     publicObject.setGraphData = function(jsonData, xTitle, unitOfMeasurement){
 
@@ -66,7 +45,7 @@ var stackedBarGraphModule = (function(){
             //if( localGraphData1.length != localGraphData2.length )return;
         }
 
-        console.log(jsonData);
+        //console.log(jsonData);
 
         for(var i = 0; i < localGraphData1.length; i++) {
 
@@ -139,7 +118,7 @@ var stackedBarGraphModule = (function(){
 
         }
 
-        console.log(grouped_data);
+        //console.log(grouped_data);
 
         // tickValues
         // max at 20 ticks
@@ -175,7 +154,7 @@ var stackedBarGraphModule = (function(){
             i++;
         });
 
-        console.log(graph_data);
+        //console.log(graph_data);
 
         /*
         var i = 0;
@@ -243,27 +222,19 @@ var stackedBarGraphModule = (function(){
         var graphWidth = containerWidth - margin.right - margin.left;
         var graphHeight = containerHeight - margin.top - margin.bottom;
 
-        /*
-         var xScale = d3.scale.ordinal()
-         .domain(graphData.map(function(d) { return d.name; }))
-         .rangeRoundBands([0, graphWidth], .15);
-         var yScale = d3.scale.linear()
-         .domain([0, d3.max(graphData, function(d) { return d.value; })])
-         .rangeRound([graphHeight, 0]);
-         */
-
         //Easy colors accessible via a 20-step ordinal scale
         var colors = d3.scale.category20();
 
         // get possible colors from keys in first element
-        colors.domain(d3.keys(graph_data[0]).filter(function(key) { return key !== "name"; }));
+        colors.domain(d3.keys(graph_data[0]).filter(function(key) {
+            return key !== "name" && key != "groups" && key != "total";
+        }));
 
         graph_data.forEach(function(d) {
             var y0 = 0;
             d.groups = colors.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
             d.total = d.groups[d.groups.length - 1].y1;
         });
-
 
         //Set up scales
         var xScale = d3.scale.ordinal()
@@ -291,7 +262,8 @@ var stackedBarGraphModule = (function(){
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function(d) {
-                return "<strong>Patients ("+ d.name+"):</strong> <span>" + d.y1 + "</span>";
+                var val = d.y1 - d.y0;
+                return "<strong>Patients ("+ d.name+"):</strong> <span>" + val + "</span>";
             });
 
 
