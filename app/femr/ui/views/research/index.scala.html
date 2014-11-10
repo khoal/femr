@@ -117,7 +117,13 @@
                             <span class="glyphicon glyphicon-chevron-right"></span>
                             <ul class="submenu">
                                 @* <li><a href="#">Show Legend</a></li> *@
-                                <li class="group"><input type="checkbox" id="groupPrimaryData" name="groupPrimaryData" value="1" />Group Primary Data <input type="text" readonly="readonly" value="10" /></li>
+                                <li class="title">Age Graph Options</li>
+                                <li class="group"><input type="checkbox" id="groupPrimaryData" name="groupPrimaryData" value="1" />Group Primary Data<input type="text" readonly="readonly" value="10" /></li>
+                                <li class="filter">
+                                    Filter Ages
+                                        <input type="text" id="rangeStart" name="rangeStart" placeholder="Start" value="" /> &ndash;
+                                        <input type="text" id="rangeEnd" name="rangeEnd" placeholder="End" value="" />
+                                </li>
                                 <li><a id="save" href="#">Save As Image</a></li>
                             </ul>
                         </li>
