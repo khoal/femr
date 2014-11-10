@@ -115,6 +115,24 @@ var tableChartModule = (function(){
                 }
 
             }
+            else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
+
+                if( obj.dataSet == 1 ){
+                    keyStr = "Aspirin";
+                }
+                else if(obj.dataSet == 2){
+                    keyStr = "Tylenol";
+                }
+                else if(obj.dataSet == 3){
+                    keyStr = "Amoxycilin";
+                }
+                else if(obj.dataSet == 3){
+                    keyStr = "Hydrocodone";
+                }
+                else{
+                    keyStr = "Claritin";
+                }
+            }
             else{
 
                 // Keep track of min/max to build scale values
