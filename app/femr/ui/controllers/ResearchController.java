@@ -126,6 +126,7 @@ public class ResearchController extends Controller {
             case "prescribedMeds":
             case "dispensedMeds":
 
+                response = researchService.getPatientMedications(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 break;
 
 
