@@ -128,6 +128,24 @@ var pieGraphModule = (function(){
                 }
 
             }
+            else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
+
+                if( obj.dataSet == 1 ){
+                    keyStr = "Aspirin";
+                }
+                else if(obj.dataSet == 2){
+                    keyStr = "Tylenol";
+                }
+                else if(obj.dataSet == 3){
+                    keyStr = "Amoxycilin";
+                }
+                else if(obj.dataSet == 4){
+                    keyStr = "Hydrocodone";
+                }
+                else{
+                    keyStr = "Claritin";
+                }
+            }
             else{
 
                 // Keep track of min/max to build scale values
@@ -384,70 +402,6 @@ var pieGraphModule = (function(){
             return label;
         });
         //*/
-
-        // Add a legendLabel to each arc slice...
-        //*
-
-        /*
-        arcs.append("line").attr({
-            x1: function (d, i) {
-                return arc.centroid(d)[0];
-            },
-            y1: function (d, i) {
-                return arc.centroid(d)[1];
-            },
-            x2: function (d, i) {
-                centroid = arc.centroid(d);
-                midAngle = Math.atan2(centroid[1], centroid[0]);
-                x = Math.cos(midAngle) * graphWidth/4;
-                return x;
-            },
-            y2: function (d, i) {
-                centroid = arc.centroid(d);
-                midAngle = Math.atan2(centroid[1], centroid[0]);
-                y = Math.sin(midAngle) * graphWidth/4;
-                return y;
-            },
-            'class': "label-line"
-        });
-        */
-
-        /*
-        arcs.append("text")
-            .attr({
-                x: function (d, i) {
-                    centroid = arc.centroid(d);
-                    midAngle = Math.atan2(centroid[1], centroid[0]);
-                    x = Math.cos(midAngle) * graphWidth/4;
-                    sign = (x > 0) ? 1 : -1
-                    labelX = x + (5 * sign)
-                    return labelX;
-                },
-                y: function (d, i) {
-                    centroid = arc.centroid(d);
-                    midAngle = Math.atan2(centroid[1], centroid[0]);
-                    y = Math.sin(midAngle) * graphWidth/4;
-                    return y;
-                },
-                'text-anchor': function (d, i) {
-                    centroid = arc.centroid(d);
-                    midAngle = Math.atan2(centroid[1], centroid[0]);
-                    x = Math.cos(midAngle) * graphWidth/4;
-                    return (x > 0) ? "start" : "end";
-                },
-                'class': 'label-text'
-            })
-            //.append("text")
-            //.attr("class", "label-text")
-            .text(function (d) {
-
-                //console.log(d);
-                var label = d.data.name + ': ' + d.data.value;
-                return label;
-            })
-            .attr("text-anchor", "middle") //center the text on it's origin
-            .style("font", "bold 18px Arial");
-        */
 
         var legend = d3.select(".chart")
             .append("g")

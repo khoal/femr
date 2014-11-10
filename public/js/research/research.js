@@ -12,7 +12,7 @@ var allowedFilterValues = (function(){
         },
         pregnancyStatus: {
             graphTypes: ['bar','pie','table'],
-                secondaryData: []
+            secondaryData: []
         },
         pregnancyTime: {
             graphTypes: ['bar','line','pie','scatter','table'],
@@ -597,6 +597,8 @@ var filterMenuModule = (function(){
     publicObject.getPrimaryDataset = function(){ return filterValues.dataset1; };
     publicObject.getSecondaryDataset = function(){ return filterValues.dataset2; };
     publicObject.isPrimaryDataGrouped = function(){ return filterValues.groupPrimary; };
+    publicObject.getRangeStart = function(){ return filterValues.rangeStart; };
+    publicObject.getRangeEnd = function(){ return filterValues.rangeEnd; };
     publicObject.init = function() {
 
         // Register Actions
@@ -718,7 +720,8 @@ var graphLoaderModule = (function(){
                     tableChartModule.buildGraph();
             }
 
-            if( filterMenuModule.getPrimaryDataset() == "gender" ){
+            if( filterMenuModule.getPrimaryDataset() == "gender" ||
+                filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
 
                 $("#median").hide();
                 $("#average").hide();
@@ -865,7 +868,7 @@ jQuery(document).ready(function(){
             lastName: (randomString()),
             address: (randomInt(100, 2000)) + ' address',
             city: 'anywhere',
-            age: (randomInt(1930, 2000)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
+            age: (randomInt(1911, 2013)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
             sex: (randomGender()),
             bloodPressureSystolic: (randomInt(110, 150)),
             bloodPressureDiastolic: (randomInt(60, 100)),
@@ -874,11 +877,12 @@ jQuery(document).ready(function(){
             respiratoryRate: (randomInt(10, 22)),
             oxygenSaturation: (randomInt(80, 100)),
             heightFeet: (randomInt(0, 7)),
-            heightInches: (randomInt(0, 12)),
-            weight: (randomInt(92, 101)),
+            heightInches: (randomInt(0, 11)),
+            weight: (randomInt(60, 180)),
             glucose: (randomInt(70, 140)),
             chiefComplaint: null,
-            weeksPregnant: null
+            weeksPregnant: (generateWeeksPregnant())
+
 
             // Add the rest of the form fields here
         };
@@ -894,6 +898,20 @@ jQuery(document).ready(function(){
 });
 
 ///*
+
+function generateWeeksPregnant(){
+
+    // 1 in 10 change a paient is pregnant
+    var chance = Math.floor(Math.random() * (10)) + 1;
+
+    if( chance == 1 ) {
+        return Math.floor(Math.random() * (1 + 42 - 4)) + 4;
+    }
+    else{
+        return null;
+    }
+}
+
 function randomString() {
     var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
     var string_length = 8;

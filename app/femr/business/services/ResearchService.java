@@ -299,6 +299,54 @@ public class ResearchService implements IResearchService {
         ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
 
+        try {
+
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            // Set Start Date to start of day
+            String startParseDate = startDateString + " 00:00:00";
+            Date startDateObj = sqlFormat.parse(startParseDate);
+            // Set End Date to end of day
+            String parseEndDate = endDateString + " 23:59:59";
+            Date endDateObj = sqlFormat.parse(parseEndDate);
+
+            // Get patients that had an encounter between startDate and endDate
+            // using dateOfTriageVisit for now -- might want to also check dateOfMedicalVisit & dateOfPharmacyVisit
+            Query q = QueryProvider.getPatientEncounterQuery();
+            q.fetch("patient")
+                    .where()
+                    .gt("dateOfTriageVisit", sqlFormat.format(startDateObj))
+                    .lt("dateOfTriageVisit", sqlFormat.format(endDateObj))
+                    .orderBy("id")
+                    .findList();
+
+            List<? extends IPatientEncounter> patientEncounters = patientEncounterRepository.find(q);
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
+            for (IPatientEncounter encounter : patientEncounters) {
+
+                Random random = new Random();
+
+                float medValue = random.nextInt(5) + 1;
+
+                researchItems.put(
+                        encounter.getId(),
+                        new ResearchItem(
+                                encounter.getId(),
+                                "prescribedMeds",
+                                medValue,
+                                ""
+                        )
+                );
+
+            }
+            response.setResponseObject(researchItems);
+
+        } catch (Exception ex) {
+
+            response.addError("exception", ex.getMessage());
+        }
+
+
         return response;
     }
 

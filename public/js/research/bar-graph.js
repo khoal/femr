@@ -82,7 +82,7 @@ var barGraphModule = (function(){
         xAxisTitle = xTitle;
         measurementUnits = unitOfMeasurement;
 
-        //console.log(jsonData);
+        console.log(jsonData);
 
         // Group and count the individual patients
         var maxVal = Number.MIN_VALUE;
@@ -128,6 +128,24 @@ var barGraphModule = (function(){
                     keyStr = "Unknown";
                 }
 
+            }
+            else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
+
+                if( obj.dataSet == 1 ){
+                    keyStr = "Aspirin";
+                }
+                else if(obj.dataSet == 2){
+                    keyStr = "Tylenol";
+                }
+                else if(obj.dataSet == 3){
+                    keyStr = "Amoxycilin";
+                }
+                else if(obj.dataSet == 3){
+                    keyStr = "Hydrocodone";
+                }
+                else{
+                    keyStr = "Claritin";
+                }
             }
             else{
 
@@ -206,6 +224,20 @@ var barGraphModule = (function(){
             }
         }
 
+        /*
+        if( !filterMenuModule.getPrimaryDataset() == 'age' &&
+            !filterMenuModule.isPrimaryDataGrouped() ) {
+
+            // initialize all possible values in range to fix out of bounds erros with graph
+            for (var i = minVal; i <= maxVal; i++) {
+
+                graph_data[i] = {
+                    name: i,
+                    value: 0
+                }
+            }
+        }
+        */
 
         var i = 0;
         $.each(grouped_data, function (key, obj) {
