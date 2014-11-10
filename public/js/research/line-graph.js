@@ -110,7 +110,8 @@ var lineGraphModule = (function(){
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
-            .orient("left");
+            .orient("left")
+            .tickFormat(d3.format("d"));
 
         var line = d3.svg.line()
             .x(function(d) { return xScale(d.name); })
