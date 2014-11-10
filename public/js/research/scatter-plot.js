@@ -6,26 +6,75 @@
 
 var scatterGraphModule = (function(){
 
+    var xAxisTitle = "";
+    var measurementUnits = "";
     var graph_data = [];
+    var grouped_data = {};
 
     var publicObject = {};
-    publicObject.setGraphData = function(jsonData){
+    publicObject.setGraphData = function(jsonData, xTitle, unitOfMeasurement){
 
+        // reset possible previous graphs
         graph_data = [];
+        grouped_data = {};
+        xAxisTitle = xTitle;
+        measurementUnits = unitOfMeasurement;
 
-        console.log(jsonData);
 
-        for( var i = 0; i < jsonData.length; i++ ){
+        //console.log(jsonData);
 
-            graph_data[i] = {
-                name: i,
-                value: jsonData[i]
-            };
+        // Group and count the individual patients
+        var maxVal = Number.MIN_VALUE;
+        var minVal = Number.MAX_VALUE;
+
+        var localGraphData = [];
+        if( jsonData.graphData.length > 0 ){
+
+            //only need primaryDataset
+            localGraphData = jsonData.graphData[0];
         }
+        $.each(localGraphData, function (key, obj) {
+
+            var keyStr = "";
+
+            // Keep track of min/max to build scale values
+            if( obj.dataSet > maxVal){
+                maxVal = obj.dataSet;
+            }
+            if( obj.dataSet < minVal){
+                minVal = obj.dataSet;
+            }
+            keyStr = obj.dataSet;
+
+            if( !grouped_data[keyStr] ){
+                grouped_data[keyStr] = {
+                    name: keyStr,
+                    value: 0
+                };
+            }
+            grouped_data[keyStr].value += 1;
+        });
+
+        console.log(grouped_data);
+
+        //for( var i = 0; i < grouped_data.length; i++ ){
+        var i = 0;
+        $.each(grouped_data, function (key, obj) {
+            graph_data[i] = {
+                name: key,
+                value: obj.value
+            };
+            i++;
+        });
+
+        console.log(graph_data);
 
     };
 
     publicObject.buildGraph = function(){
+
+        $("#graph").show();
+        $("#table-container").hide();
 
         // remove any previous graph
         d3.selectAll("svg > *").remove();
@@ -43,11 +92,11 @@ var scatterGraphModule = (function(){
 
 
         var xScale = d3.scale.linear()
-            .domain([d3.min(graph_data, function(d) { return d.name; })-1, d3.max(graph_data, function(d) { return d.name; })+1])
+            .domain([d3.min(graph_data, function(d) { return parseInt(d.name); })-1, d3.max(graph_data, function(d) { return parseInt(d.name); })+1])
             .range([0, graphWidth]);
 
         var yScale = d3.scale.linear()
-            .domain([d3.min(graph_data, function(d) { return d.value; }), d3.max(graph_data, function(d) { return d.value; })+1])
+            .domain([d3.min(graph_data, function(d) { return d.value; })-1, d3.max(graph_data, function(d) { return d.value; })+1])
             .range([graphHeight, 0]);
 
         var xAxis = d3.svg.axis()
@@ -56,13 +105,14 @@ var scatterGraphModule = (function(){
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
-            .orient("left");
+            .orient("left")
+            .tickFormat(d3.format("d"));
 
         var tip = d3.tip()
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function(d) {
-                return '<span class="name">' + d.name + ' years old</span> <span class="val"><strong>Patients: </strong>' + d.value + '</span>';
+                return '<span class="name">' + d.name + ' '+measurementUnits+'</span> <span class="val"><strong>Patients: </strong>' + d.value + '</span>';
             });
 
         var chart = d3.select(".chart")
@@ -81,7 +131,7 @@ var scatterGraphModule = (function(){
             .attr("y",  0 + margin.bottom)
             .style("text-anchor", "middle")
             .attr("dy", "-5px")
-            .text("Ages");
+            .text(xAxisTitle);
 
         chart.call(tip);
 

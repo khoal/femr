@@ -11,12 +11,12 @@ var allowedFilterValues = (function(){
             secondaryData: []
         },
         pregnancyStatus: {
-            graphTypes: ['bar','line','pie','scatter','table'],
-                secondaryData: ['gender']
+            graphTypes: ['bar','pie','table'],
+                secondaryData: []
         },
         pregnancyTime: {
             graphTypes: ['bar','line','pie','scatter','table'],
-            secondaryData: ['gender', 'pregnancyStatus']
+            secondaryData: ['age']
         },
         height: {
             graphTypes: ['bar','line','scatter','table'],
@@ -34,28 +34,32 @@ var allowedFilterValues = (function(){
             graphTypes: ['bar','pie','table'],
             secondaryData: []
         },
-        bloodPressure: {
-            graphTypes: ['line','scatter','chart'],
+        bloodPressureSystolic: {
+            graphTypes: ['line','scatter','table'],
+            secondaryData: []
+        },
+        bloodPressureDiastolic: {
+            graphTypes: ['line','scatter','table'],
             secondaryData: []
         },
         temperature: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: ['age','gender']
         },
         oxygenSaturation: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: []
         },
         heartRate: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: []
         },
         respiratoryRate: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: []
         },
         glucose: {
-            graphTypes: ['bar','line','scatter','chart'],
+            graphTypes: ['bar','line','scatter','table'],
             secondaryData: []
         }
     };
@@ -126,7 +130,8 @@ var filterMenuModule = (function(){
         dataset2: null,
         graphType: null,
         startDate: null,
-        endDate: null
+        endDate: null,
+        groupPrimary: false
     };
 
     var filterFields = {
@@ -135,7 +140,8 @@ var filterMenuModule = (function(){
         dataset2: $("#secondaryDataset"),
         graphType: $("#graphType"),
         startDate: $("#startDate"),
-        endDate: $("#endDate")
+        endDate: $("#endDate"),
+        groupPrimary: $("#groupPrimaryData")
     };
 
     var filterMenus = {
@@ -285,7 +291,7 @@ var filterMenuModule = (function(){
 
         }
 
-    }
+    };
 
     var chooseDataSet1 = function(){
 
@@ -305,6 +311,20 @@ var filterMenuModule = (function(){
                 filterValues.dataset1 = newVal;
                 $(filterMenus.dataset1).find(".val").text($(this).text());
                 $(filterFields.dataset1).val(filterValues.dataset1);
+            }
+
+            // set group to true when selecting age for the first time
+            if( filterValues.dataset1 == "age" ){
+
+                filterValues.groupPrimary = true;
+                //$(filterFields.groupPrimary).attr("checked",true);
+                $(filterFields.groupPrimary).prop('checked', true);
+            }
+            else{
+
+                filterValues.groupPrimary = false;
+                //$(filterFields.groupPrimary).attr("checked",false);
+                $(filterFields.groupPrimary).prop('checked', false);
             }
         }
 
@@ -407,6 +427,19 @@ var filterMenuModule = (function(){
 
         updateAvailableFilterChoices();
         closeSubMenu();
+        return false;
+    };
+
+    var chooseGroupPrimary = function(){
+
+        if( $(this).prop('checked') ){
+
+            filterValues.groupPrimary = true;
+        }
+        else{
+
+            filterValues.groupPrimary = false;
+        }
         return false;
     };
 
@@ -546,7 +579,7 @@ var filterMenuModule = (function(){
             // Get Filter values from form hidden fields
             var graphType = $(filterValues.graphType).val();
             var postData = $("#graph-options").serialize();
-            console.log(postData);
+            //console.log(postData);
             graphLoaderModule.loadGraph(filterValues.graphType, postData);
         }
 
@@ -555,6 +588,9 @@ var filterMenuModule = (function(){
     };
 
     var publicObject = {};
+    publicObject.getPrimaryDataset = function(){ return filterValues.dataset1; };
+    publicObject.getSecondaryDataset = function(){ return filterValues.dataset2; };
+    publicObject.isPrimaryDataGrouped = function(){ return filterValues.groupPrimary; };
     publicObject.init = function() {
 
         // Register Actions
@@ -566,6 +602,7 @@ var filterMenuModule = (function(){
 
         $(filterFields.startDate).change(chooseStartDate);
         $(filterFields.endDate).change(chooseEndDate);
+        $(filterFields.groupPrimary).change(chooseGroupPrimary);
         $(filterFields.startDate).trigger("change");
         $(filterFields.endDate).trigger("change");
 
@@ -611,64 +648,103 @@ var graphLoaderModule = (function(){
         // post graph
         $.post("/research/graph", postData, function (rawData) {
 
-            jsonData = jQuery.parseJSON(rawData);
+            if( rawData.length == 0 ){
+
+                // show error
+
+                return;
+            }
+
+            var jsonData = jQuery.parseJSON(rawData);
             //console.log(jsonData);
+
+            var xAxisTitle = "";
+            if( "xAxisTitle" in jsonData ) {
+                xAxisTitle = jsonData.xAxisTitle;
+            }
+
+            var unitOfMeasurement = "";
+            if( "unitOfMeasurement" in jsonData ) {
+
+                unitOfMeasurement = jsonData.unitOfMeasurement;
+                if( unitOfMeasurement.length > 0 ) {
+                    xAxisTitle += " (" + unitOfMeasurement + ")";
+                }
+            }
 
             switch(graphType){
 
                 case 'line':
-                    lineGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    lineGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     lineGraphModule.buildGraph();
                     break;
 
                 case 'scatter':
-                    scatterGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    scatterGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     scatterGraphModule.buildGraph();
                     break;
 
                 case 'pie':
-                    pieGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    pieGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     pieGraphModule.buildGraph();
                     break;
 
                 case 'stacked-bar':
-                    stackedBarGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    stackedBarGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     stackedBarGraphModule.buildGraph();
                     break;
 
                 case 'grouped-bar':
-                    groupedBarGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    groupedBarGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     groupedBarGraphModule.buildGraph();
                     break;
 
                 case 'bar':
-                default:
-                    barGraphModule.setGraphData(jsonData.graphValues);
-                    //barGraphModule.setGraphData(jQuery.parseJSON(jsonData.graphData));
+                    barGraphModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
                     barGraphModule.buildGraph();
+                    break;
+
+                case 'table':
+                default:
+                    tableChartModule.setGraphData(jsonData, xAxisTitle, unitOfMeasurement);
+                    tableChartModule.buildGraph();
             }
 
-            // Grab Statistics
-            if( "median" in jsonData ) {
-                $("#median").find(".val").text(jsonData.median);
+            if( filterMenuModule.getPrimaryDataset() == "gender" ){
+
+                $("#median").hide();
+                $("#average").hide();
+                $("#range").hide();
             }
-            else{
-                $("#median").find(".val").text("n/a");
+            else {
+
+                $("#median").show();
+                $("#average").show();
+                $("#range").show();
+
+                // Grab Statistics
+                if ("median" in jsonData) {
+                    $("#median").find(".val").text(jsonData.median + " " + unitOfMeasurement);
+                }
+                else {
+                    $("#median").find(".val").text("n/a");
+                }
+
+                if ("average" in jsonData) {
+                    $("#average").find(".val").text(jsonData.average + " " + unitOfMeasurement);
+                }
+                else {
+                    $("#average").find(".val").text("n/a");
+                }
+
+                if (("rangeLow" in jsonData) && ("rangeHigh" in jsonData)) {
+                    $("#range").find(".val").text(jsonData.rangeLow + " - " + jsonData.rangeHigh + " " + unitOfMeasurement);
+                }
+                else {
+                    $("#range").find(".val").text("n/a");
+                }
             }
 
-            if( "average" in jsonData ) {
-                $("#average").find(".val").text(jsonData.average);
-            }
-            else{
-                $("#average").find(".val").text("n/a");
-            }
-
-            if( ("rangeLow" in jsonData) && ("rangeHigh" in jsonData) ) {
-                $("#range").find(".val").text(jsonData.rangeLow + " - " + jsonData.rangeHigh);
-            }
-            else{
-                $("#range").find(".val").text("n/a");
-            }
             hideGraphLoadingIcon();
         });
 
@@ -743,17 +819,18 @@ jQuery(document).ready(function(){
     filterMenuModule.init();
     graphLoaderModule.init();
 
-    //*
+    // Making debugging graphs easier by manually loading the first graph
+    /*
     var test_post = {
 
         startDate: '2014-10-07',
         endDate: '2014-11-06',
         primaryDataset: 'age',
-        secondaryDataset: '',
-        graphType: 'line'
+        secondaryDataset: 'gender',
+        graphType: 'stacked-bar'
     };
-    graphLoaderModule.loadGraph('line', test_post);
-    //*/
+    graphLoaderModule.loadGraph('stacked-bar', test_post);
+    */
 
 
 
@@ -831,10 +908,17 @@ function randomInt(min, max) {
 };
 //*/
 
+Array.prototype.inArray = function(comparer) {
+    for(var i=0; i < this.length; i++) {
+        if(comparer(this[i])) return true;
+    }
+    return false;
+};
 
-function encodeID(s) {
-    if (s==='') return '_';
-    return s.replace(/[^a-zA-Z0-9.-]/g, function(match) {
-        return '_'+match[0].charCodeAt(0).toString(16)+'_';
-    });
-}
+// adds an element to the array if it does not already exist using a comparer
+// function
+Array.prototype.pushIfNotExist = function(element, comparer) {
+    if (!this.inArray(comparer)) {
+        this.push(element);
+    }
+};

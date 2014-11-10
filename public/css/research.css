@@ -180,6 +180,35 @@
     padding: 5px 10px;
 }
 
+.nav-sidebar .submenu li #save{
+
+    background-color: #1f1f1f;
+    border-top: 1px solid #4f4f4f;
+    border-bottom: 1px solid #4f4f4f;
+    padding: 5px 10px;
+}
+
+.nav-sidebar .submenu li.group{
+
+    display: block;
+    white-space: nowrap;
+    padding: 6px 20px;
+    color: #cfcfcf;
+}
+
+.nav-sidebar .submenu li.group input[type="checkbox"]{
+
+    margin-right: 8px;
+}
+
+.nav-sidebar .submenu li.group input[type="text"]{
+
+    display: inline;
+    width: 30px;
+    text-align: center;
+    margin-left: 10px;
+}
+
 #gfilter-menu .submenu{
 
     padding-bottom: 10px;
@@ -225,16 +254,30 @@
 }
 
 /* Table Styles */
-table td{
 
-    background-color: #fff;
+#table-container{
+
+
 }
 
-table th{
+.table{
+
+    width: auto;
+}
+
+.table td{
+
+    background-color: #fff;
+    border-right: 1px solid #dddddd;
+}
+
+.table th{
 
     background-color: #ccc;
     color: #000;
 }
+
+
 
 
 .chart-container{
@@ -269,6 +312,7 @@ table th{
 
     font-size: 1.1em;
     margin: 0 0 5px 0;
+    display: none;
 }
 
 .chart{
@@ -331,7 +375,7 @@ table th{
 }
 .label-text {
     alignment-baseline: middle;
-    font-size: 12px;
+    font-size: 14px;
     fill: #393939;
 }
 .label-line {
@@ -376,16 +420,32 @@ table th{
     pointer-events: all;
 }
 
+.focus {
+    fill: #ffffff;
+}
+
 .focus circle {
-    fill: none;
-    stroke: steelblue;
+    fill: red;
+    stroke: #3f3f3f;
+}
+
+.focus text{
+
+    font-size: 16px;
+    fill: #2f2f2f;
 }
 
 /*  Scatter Plot */
 
 .dot {
     fill: #4682B4;
-    stroke: #000;
+    stroke: #3f3f3f;
+    cursor: pointer;
+}
+
+.dot:hover{
+
+    fill: red;
 }
 
 /* Axis */

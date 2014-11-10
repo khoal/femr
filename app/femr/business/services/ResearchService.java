@@ -19,23 +19,19 @@
 package femr.business.services;
 
 
-import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import femr.business.helpers.DomainMapper;
-import femr.business.helpers.QueryHelper;
 import femr.business.helpers.QueryProvider;
 import femr.common.dto.ServiceResponse;
+import femr.common.models.*;
 import femr.data.daos.IRepository;
 import femr.data.models.*;
-import femr.common.models.PatientEncounterItem;
-import femr.common.models.PatientItem;
-import femr.common.models.VitalItem;
-import femr.common.models.ResearchItem;
 import femr.util.calculations.dateUtils;
-import femr.util.stringhelpers.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -130,17 +126,14 @@ public class ResearchService implements IResearchService {
     /**
      * {@inheritDoc}
      */
-    public ServiceResponse<Map<Integer, VitalItem>> getPatientVitals(String vitalName, String startDateString, String endDateString) {
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientVitals(String vitalName, String startDateString, String endDateString) {
 
-        ServiceResponse<Map<Integer, VitalItem>> response = new ServiceResponse<>();
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
         try {
 
-            ExpressionList<Vital> vitalQuery = QueryProvider.getVitalQuery().where().eq("name", vitalName);
-            IVital v = vitalRepository.findOne(vitalQuery);
-
             SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            //SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
             // Set Start Date to start of day
             String startParseDate = startDateString + " 00:00:00";
             Date startDateObj = sqlFormat.parse(startParseDate);
@@ -149,46 +142,43 @@ public class ResearchService implements IResearchService {
             Date endDateObj = sqlFormat.parse(parseEndDate);
 
             Query q = QueryProvider.getPatientEncounterVitalQuery();
-            q.where()
+            q.fetch("vital")
+                    .where()
                     .gt("dateTaken", sqlFormat.format(startDateObj))
                     .lt("dateTaken", sqlFormat.format(endDateObj))
-                    .eq("vital", v)
-                    .orderBy("dateTaken")
+                    .eq("vital.name", vitalName)
+                    .orderBy("patient_encounter_id")
                     .findList();
 
-            // Map indexed by patientEncounterId ensures only the last reading of the encounter will be counted
-            Map<Integer, VitalItem> vitals = new HashMap<>();
-            List<? extends IPatientEncounterVital> patientEncounters = patientEncounterVitalRepository.find(q);
-            for (IPatientEncounterVital eVital : patientEncounters) {
+            List<? extends IPatientEncounterVital> patientEncounterVitals = patientEncounterVitalRepository.find(q);
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
+            for (IPatientEncounterVital eVital : patientEncounterVitals) {
 
-                VitalItem vital = new VitalItem();
-                vital.setName(vitalName);
-                vital.setValue(eVital.getVitalValue());
-                System.out.println(eVital);
-                vitals.put(eVital.getPatientEncounterId(), vital);
+                researchItems.put(
+                        eVital.getPatientEncounterId(),
+                        new ResearchItem(
+                                eVital.getPatientEncounterId(),
+                                vitalName,
+                                eVital.getVitalValue(),
+                                eVital.getVital().getUnitOfMeasurement()
+                        )
+                );
+
             }
-            response.setResponseObject(vitals);
+            response.setResponseObject(researchItems);
 
         } catch (Exception ex) {
 
             response.addError("exception", ex.getMessage());
         }
 
-
-        Iterator it = response.getResponseObject().entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            VitalItem hello = (VitalItem) pairs.getValue();
-            System.out.println(pairs.getKey() + " = " + hello.getValue());
-            it.remove(); // avoids a ConcurrentModificationException
-        }
-
-
-
-
         return response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString) {
 
 
 
@@ -263,12 +253,10 @@ public class ResearchService implements IResearchService {
 /*
     public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString) {
 
-        ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
-
         try {
 
             SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            //SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
             // Set Start Date to start of day
             String startParseDate = startDateString + " 00:00:00";
             Date startDateObj = sqlFormat.parse(startParseDate);
@@ -276,42 +264,96 @@ public class ResearchService implements IResearchService {
             String parseEndDate = endDateString + " 23:59:59";
             Date endDateObj = sqlFormat.parse(parseEndDate);
 
-            Query q = QueryProvider.getPatientQuery();
-            q.where()
+            // Get patients that had an encounter between startDate and endDate
+            // using dateOfTriageVisit for now -- might want to also check dateOfMedicalVisit & dateOfPharmacyVisit
+            Query q = QueryProvider.getPatientEncounterQuery();
+            q.fetch("patient")
+                    .where()
+                    .gt("dateOfTriageVisit", sqlFormat.format(startDateObj))
+                    .lt("dateOfTriageVisit", sqlFormat.format(endDateObj))
                     .orderBy("id")
                     .findList();
 
+            List<? extends IPatientEncounter> encounters = patientEncounterRepository.find(q);
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
+            for (IPatientEncounter encounter : encounters) {
 
-            List<? extends IPatient> p = patientRepository.find(q);
-            List<ResearchItem> researchItems = new ArrayList<>();
-
-            for (IPatient patient : p) {
+                IPatient patient = encounter.getPatient();
 
                 switch (attributeName) {
+
                     case "age":
-                        researchItems.add(
+
+                        Float age = (float)Math.floor(dateUtils.getAgeFloat(patient.getAge()));
+
+                        researchItems.put(
+                                encounter.getId(),
                                 new ResearchItem(
-                                        patient.getId(),
+                                        encounter.getId(),
                                         "age",
-                                        dateUtils.getAgeFloat(patient.getAge())
+                                        age,
+                                        "years"
                                 )
                         );
                         break;
                     case "gender":
-                        int gender = -1;
-                        if (patient.getSex() == "male") {gender = 0;}
-                        else if (patient.getSex() == "female") {gender = 1;}
-                        researchItems.add(
+
+                        float gender = -1;
+                        // Do case in-sensitve comparison to be safe
+                        if ( patient.getSex().matches("(?i:Male)") ) {gender = 0;}
+                        else if ( patient.getSex().matches("(?i:Female)") ) {gender = 1;}
+                        researchItems.put(
+                                encounter.getId(),
                                 new ResearchItem(
-                                        patient.getId(),
+                                        encounter.getId(),
                                         "gender",
-                                        ((float) gender)
+                                        gender,
+                                        ""
+                                )
+                        );
+
+                        break;
+
+                    case "pregnancyStatus":
+
+                        Integer wksPregnant = encounter.getWeeksPregnant();
+                        if( wksPregnant == null ) wksPregnant = 0;
+                        float pregnancyStatus = 0;
+                        if( wksPregnant > 0 ){
+                            pregnancyStatus = 1;
+                        }
+                        researchItems.put(
+                                encounter.getId(),
+                                new ResearchItem(
+                                        encounter.getId(),
+                                        "pregnancyStatus",
+                                        pregnancyStatus,
+                                        ""
+                                )
+                        );
+
+                        break;
+
+                    case "pregnancyTime":
+
+
+                        Integer weeksPregnant = encounter.getWeeksPregnant();
+                        if( weeksPregnant == null ) weeksPregnant = 0;
+                        researchItems.put(
+                                encounter.getId(),
+                                new ResearchItem(
+                                        encounter.getId(),
+                                        "pregnancyTime",
+                                        weeksPregnant,
+                                        "weeks"
                                 )
                         );
                         break;
                 }
             }
+
             response.setResponseObject(researchItems);
+
         } catch (Exception ex) {
             response.addError("exception", ex.getMessage());
         }
@@ -320,40 +362,92 @@ public class ResearchService implements IResearchService {
 
     }
 */
-    /*
-
-
-
-
-    ReturnData
-    - patient ID
-    -
-
-    Demographics
-    ** data from patients table
-    ** date from patient_encouters
-    - Age
-    - Gender
-
-    ** data and date from patient_encounters table
-    - Pregnancy Status (Weeks > 0 || weeks != null => yes)
-    - Weeks Pregnant
-
-    Vitals
-    ** id from vitals table
-    ** data from patient_encounter_vitals table
-    ** date from patient_encounters table
-    - Temperature
-    - Blood Pressure (Systolic, Diastolic)
-    - Heart Rate
-    - Respirations
-    - Pregnancy Status
-    - Oxygen Saturation
-    - Glucose
-    - Height (feet, inches)
-    - Weight
-
+    /**
+     * {@inheritDoc}
      */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString){
+
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
+
+
+        return response;
+    }
+
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientHeights(String startDateString, String endDateString){
+
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
+
+
+        try {
+
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            // Set Start Date to start of day
+            String startParseDate = startDateString + " 00:00:00";
+            Date startDateObj = sqlFormat.parse(startParseDate);
+            // Set End Date to end of day
+            String parseEndDate = endDateString + " 23:59:59";
+            Date endDateObj = sqlFormat.parse(parseEndDate);
+
+            Query q = QueryProvider.getPatientEncounterVitalQuery();
+            q.fetch("vital")
+                    .where()
+                    .gt("dateTaken", sqlFormat.format(startDateObj))
+                    .lt("dateTaken", sqlFormat.format(endDateObj))
+                    .eq("vital.name", "heightFeet")
+                    .orderBy("patient_encounter_id")
+                    .findList();
+            List<? extends IPatientEncounterVital> patientFeet = patientEncounterVitalRepository.find(q);
+
+            q = QueryProvider.getPatientEncounterVitalQuery();
+            q.fetch("vital")
+                    .where()
+                    .gt("dateTaken", sqlFormat.format(startDateObj))
+                    .lt("dateTaken", sqlFormat.format(endDateObj))
+                    .eq("vital.name", "heightInches")
+                    .orderBy("patient_encounter_id")
+                    .findList();
+            List<? extends IPatientEncounterVital> patientInches = patientEncounterVitalRepository.find(q);
+
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
+            // Convert feet to inches
+            for (IPatientEncounterVital eVital : patientFeet) {
+
+                float heightInches = 12 * eVital.getVitalValue();
+                researchItems.put(
+                        eVital.getPatientEncounterId(),
+                        new ResearchItem(
+                                eVital.getPatientEncounterId(),
+                                "height",
+                                heightInches,
+                                "feet/inches"
+                        )
+                );
+
+            }
+
+            for(IPatientEncounterVital eVital : patientInches){
+
+                if( researchItems.containsKey(eVital.getPatientEncounterId()) ){
+
+                    ResearchItem item = researchItems.get(eVital.getPatientEncounterId());
+
+                    float heightInches = item.getDataSet();
+                    heightInches = heightInches + eVital.getVitalValue();
+                    item.setDataSet(heightInches);
+                    researchItems.put(eVital.getPatientEncounterId(), item);
+                }
+            }
+
+            response.setResponseObject(researchItems);
+
+        } catch (Exception ex) {
+            response.addError("exception", ex.getMessage());
+        }
+
+        return response;
+
+    }
 
 
 }

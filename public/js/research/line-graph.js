@@ -7,26 +7,77 @@
 
 var lineGraphModule = (function(){
 
+    var xAxisTitle = "";
+    var measurementUnits = "";
     var graph_data = [];
+    var mainKeys = [];
+    var innerKeys = [];
+    var tickValues = [];
+    var grouped_data = {};
+    var grouped_data2 = {};
 
     var publicObject = {};
-    publicObject.setGraphData = function(jsonData){
+    publicObject.setGraphData = function(jsonData, xTitle, unitOfMeasurement){
 
+        // reset possible previous graphs
         graph_data = [];
+        grouped_data = {};
+        xAxisTitle = xTitle;
+        measurementUnits = unitOfMeasurement;
 
         //console.log(jsonData);
 
-        for( var i = 0; i < jsonData.length; i++ ){
+        // Group and count the individual patients
+        var maxVal = Number.MIN_VALUE;
+        var minVal = Number.MAX_VALUE;
 
-            graph_data[i] = {
-                name: i,
-                value: jsonData[i]
-            }
+        var localGraphData = [];
+        if( jsonData.graphData.length > 0 ){
+
+            //only need primaryDataset (for non-blood pressure)
+            localGraphData = jsonData.graphData[0];
         }
+        $.each(localGraphData, function (key, obj) {
 
+            var keyStr = "";
+
+            // Keep track of min/max to build scale values
+            if( obj.dataSet > maxVal){
+                maxVal = obj.dataSet;
+            }
+            if( obj.dataSet < minVal){
+                minVal = obj.dataSet;
+            }
+            keyStr = obj.dataSet;
+
+            if( !grouped_data[keyStr] ){
+                grouped_data[keyStr] = {
+                    name: keyStr,
+                    value: 0
+                };
+            }
+            grouped_data[keyStr].value += 1;
+        });
+
+        //console.log(grouped_data);
+
+        //for( var i = 0; i < grouped_data.length; i++ ){
+        var i = 0;
+        $.each(grouped_data, function (key, obj) {
+            graph_data[i] = {
+                name: key,
+                value: obj.value
+            };
+            i++;
+        });
+
+        //console.log(graph_data);
     };
 
     publicObject.buildGraph = function(){
+
+        $("#graph").show();
+        $("#table-container").hide();
 
         // remove any previous graph
         d3.selectAll("svg > *").remove();
@@ -44,11 +95,13 @@ var lineGraphModule = (function(){
 
 
         var xScale = d3.scale.linear()
-            .domain(d3.extent(graph_data, function(d) { return d.name; }))
+            .domain(d3.extent(graph_data, function(d) { return parseInt(d.name); }))
+            //.nice()
             .range([0, graphWidth]);
 
         var yScale = d3.scale.linear()
-            .domain(d3.extent(graph_data, function(d) { return d.value; }))
+            //.domain(d3.extent(graph_data, function(d) { return d.value; }))
+            .domain([0, d3.max(graph_data, function(d) { return d.value; })])
             .range([graphHeight, 0]);
 
         var xAxis = d3.svg.axis()
@@ -57,7 +110,8 @@ var lineGraphModule = (function(){
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
-            .orient("left");
+            .orient("left")
+            .tickFormat(d3.format("d"));
 
         var line = d3.svg.line()
             .x(function(d) { return xScale(d.name); })
@@ -69,10 +123,6 @@ var lineGraphModule = (function(){
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        var focus = chart.append("g")
-            .attr("class", "focus")
-            .style("display", "none");
-
         chart.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + graphHeight + ")")
@@ -83,7 +133,7 @@ var lineGraphModule = (function(){
             .attr("y",  0 + margin.bottom)
             .style("text-anchor", "middle")
             .attr("dy", "-5px")
-            .text("Ages");
+            .text(xAxisTitle);
 
         chart.append("g")
             .attr("class", "y axis")
@@ -101,6 +151,10 @@ var lineGraphModule = (function(){
             .datum(graph_data)
             .attr("class", "line")
             .attr("d", line);
+
+        var focus = chart.append("g")
+            .attr("class", "focus")
+            .style("display", "none");
 
         focus.append("circle")
             .attr("r", 4.5);
@@ -128,7 +182,7 @@ var lineGraphModule = (function(){
                 d = x0 - d0.value > d1.value - x0 ? d1 : d0;
 
             focus.attr("transform", "translate(" + xScale(d.name) + "," + yScale(d.value) + ")");
-            focus.select("text").text(d.name+"years: "+ d.value+" patients");
+            focus.select("text").text(d.name+" "+measurementUnits+": "+ d.value+" patients");
         }
     };
 
