@@ -7,7 +7,11 @@ public class PatientGraphItem {
     private Integer value;
 
     public PatientGraphItem(String key, Integer value){
-
+        this.key = key;
+        this.value = value;
+    }
+    public PatientGraphItem(int id, String key, Integer value){
+        this.Id = id;
         this.key = key;
         this.value = value;
     }

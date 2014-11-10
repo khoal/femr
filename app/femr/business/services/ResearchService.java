@@ -190,6 +190,77 @@ public class ResearchService implements IResearchService {
     }
 
 
+
+
+
+    public ServiceResponse<Map<Integer,ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString)
+
+    {
+
+        ServiceResponse<Map<Integer,ResearchItem>> response = new ServiceResponse<>();
+
+        try {
+
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            //SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            // Set Start Date to start of day
+            String startParseDate = startDateString + " 00:00:00";
+            Date startDateObj = sqlFormat.parse(startParseDate);
+            // Set End Date to end of day
+            String parseEndDate = endDateString + " 23:59:59";
+            Date endDateObj = sqlFormat.parse(parseEndDate);
+
+            Query q = QueryProvider.getPatientQuery();
+            q.where()
+                    .orderBy("id")
+                    .findList();
+
+
+            List<? extends IPatient> p = patientRepository.find(q);
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
+
+            for (IPatient patient : p) {
+
+                switch (attributeName) {
+                    case "age":
+                        researchItems.put(
+                                patient.getId(),
+                                new ResearchItem(
+                                        patient.getId(),
+                                        "age",
+                                        dateUtils.getAgeFloat(patient.getAge())
+                                )
+                        );
+                        break;
+                    case "gender":
+                        int gender = -1;
+                        if (patient.getSex() == "male") {gender = 0;}
+                        else if (patient.getSex() == "female") {gender = 1;}
+                        researchItems.put(
+                                patient.getId(),
+                                new ResearchItem(
+                                        patient.getId(),
+                                        "gender",
+                                        ((float) gender)
+                                )
+                        );
+                        break;
+                }
+            }
+            response.setResponseObject(researchItems);
+        } catch (Exception ex) {
+            response.addError("exception", ex.getMessage());
+        }
+
+        System.
+
+        return response;
+
+
+    }
+
+
+/*
     public ServiceResponse<List<ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString) {
 
         ServiceResponse<List<ResearchItem>> response = new ServiceResponse<>();
@@ -248,7 +319,7 @@ public class ResearchService implements IResearchService {
         return response;
 
     }
-
+*/
     /*
 
 
