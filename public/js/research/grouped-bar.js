@@ -331,23 +331,6 @@ var groupedBarGraphModule = (function(){
             i++;
         });
 
-        /*
-        for( var i = 0; i < jsonData.length; i++ )
-        {
-            var j = 0;
-            graph_data[i] = [];
-            var secondaryData = jsonData[i];
-            $.each(secondaryData, function (key, obj) {
-                graph_data[i][j] = {
-                    name: obj.key,
-                    x: j,
-                    y: obj.value
-                };
-                j++;
-            });
-        }
-        */
-
     };
     publicObject.buildGraph = function(){
 
@@ -410,7 +393,8 @@ var groupedBarGraphModule = (function(){
 
         var yAxis = d3.svg.axis()
             .scale(y)
-            .orient("left");
+            .orient("left")
+            .tickFormat(d3.format("d"));
 
         var tip = d3.tip()
             .attr('class', 'd3-tip')
@@ -437,7 +421,7 @@ var groupedBarGraphModule = (function(){
             .attr("y",  0 + margin.bottom)
             .style("text-anchor", "middle")
             .attr("dy", "-5px")
-            .text(xAxisTitle);;
+            .text(xAxisTitle);
 
         svg.append("g")
             .attr("class", "y axis")

@@ -648,6 +648,13 @@ var graphLoaderModule = (function(){
         // post graph
         $.post("/research/graph", postData, function (rawData) {
 
+            if( rawData.length == 0 ){
+
+                // show error
+
+                return;
+            }
+
             var jsonData = jQuery.parseJSON(rawData);
             //console.log(jsonData);
 

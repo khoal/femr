@@ -71,4 +71,7 @@ public interface IResearchService {
      * @return a map of unique readings of vitalType indexed by encounterID
      */
     public ServiceResponse<Map<Integer, ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString);
+
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientHeights(String startDateString, String endDateString);
+
 }

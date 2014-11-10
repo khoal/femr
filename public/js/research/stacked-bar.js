@@ -338,54 +338,6 @@ var stackedBarGraphModule = (function(){
 
         //console.log(graph_data);
 
-        /*
-        var i = 0;
-        //$(grouped_data).each(function(key, obj){
-        $.each(innerKeys, function (key2, innerKey) {
-
-            var j = 0;
-            graph_data[i] = [];
-            //$(innerKeys).each(function(key2, innerKey){
-            $.each(grouped_data, function (key, obj) {
-
-                var obj2 = 0;
-                if(obj[innerKey]){
-
-                    obj2 = obj[innerKey];
-                }
-
-                graph_data[i][j] = {
-                    name: key,
-                    x: j,
-                    y: obj2
-                };
-                j++;
-            });
-            i++;
-        });
-        */
-
-        //console.log(graph_data);
-
-        //console.log(grouped_data);
-
-
-        /*
-        for( var i = 0; i < jsonData.length; i++ )
-        {
-            var j = 0;
-            graph_data[i] = [];
-            var secondaryData = jsonData[i];
-            $.each(secondaryData, function (key, obj) {
-                graph_data[i][j] = {
-                    name: key,
-                    x: j,
-                    y: obj.value
-                };
-                j++;
-            });
-        }
-        /*/
     };
 
     publicObject.buildGraph = function(){
@@ -441,7 +393,8 @@ var stackedBarGraphModule = (function(){
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
-            .orient("left");
+            .orient("left")
+            .tickFormat(d3.format("d"));
 
         var tip = d3.tip()
             .attr('class', 'd3-tip')
@@ -461,22 +414,6 @@ var stackedBarGraphModule = (function(){
 
         chart.call(tip);
 
-        /*
-        chart.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + graphHeight + ")")
-            .call(xAxis);
-
-        chart.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
-            .text("Population");
-        */
         chart.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + graphHeight + ")")
@@ -536,62 +473,6 @@ var stackedBarGraphModule = (function(){
             .style("text-anchor", "end")
             .text(function(d) { return d; });
 
-
-
-
-        // Add a group for each row of data
-        /*
-        var groups = chart.selectAll("g")
-            .data(graph_data)
-            .enter()
-            .append("g")
-            .style("fill", function(d, i) {
-                return colors(i);
-            });
-
-        // Add a rect for each data value
-        var rects = groups.selectAll("rect")
-            .data(function(d) { return d; })
-            .enter()
-            .append("rect")
-            .attr("x", function(d, i) {
-                return xScale(i);
-            })
-            .attr("y", function(d) {
-                //return  (yScale(d.y0) + yScale(d.y) );
-                return -1 * (graphHeight - yScale(d.y0) - yScale(d.y));
-            })
-            .attr("height", function(d) {
-                //return graphHeight - yScale(d.y);
-                return graphHeight - yScale(d.y);
-            })
-            .attr("width", xScale.rangeBand())
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
-
-
-
-        */
-        /*
-        var legend = svg.selectAll(".legend")
-            .data(ageNames.slice().reverse())
-            .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-        legend.append("rect")
-            .attr("x", graphWidth - 18)
-            .attr("width", 18)
-            .attr("height", 18)
-            .style("fill", color);
-
-        legend.append("text")
-            .attr("x", graphWidth - 24)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
-            .text(function(d) { return d; });
-        */
     };
 
     return publicObject;

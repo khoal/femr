@@ -19,6 +19,7 @@
 package femr.business.services;
 
 
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.google.gson.Gson;
@@ -146,7 +147,7 @@ public class ResearchService implements IResearchService {
                     .gt("dateTaken", sqlFormat.format(startDateObj))
                     .lt("dateTaken", sqlFormat.format(endDateObj))
                     .eq("vital.name", vitalName)
-                    .orderBy("vitalValue")
+                    .orderBy("patient_encounter_id")
                     .findList();
 
             List<? extends IPatientEncounterVital> patientEncounterVitals = patientEncounterVitalRepository.find(q);
@@ -199,6 +200,7 @@ public class ResearchService implements IResearchService {
                     .where()
                     .gt("dateOfTriageVisit", sqlFormat.format(startDateObj))
                     .lt("dateOfTriageVisit", sqlFormat.format(endDateObj))
+                    .orderBy("id")
                     .findList();
 
             List<? extends IPatientEncounter> encounters = patientEncounterRepository.find(q);
@@ -300,38 +302,81 @@ public class ResearchService implements IResearchService {
         return response;
     }
 
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientHeights(String startDateString, String endDateString){
 
-    /*
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
-    ReturnData
-    - patient ID
-    -
 
-    Demographics
-    ** data from patients table
-    ** date from patient_encouters
-    - Age
-    - Gender
+        try {
 
-    ** data and date from patient_encounters table
-    - Pregnancy Status (Weeks > 0 || weeks != null => yes)
-    - Weeks Pregnant
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    Vitals
-    ** id from vitals table
-    ** data from patient_encounter_vitals table
-    ** date from patient_encounters table
-    - Temperature
-    - Blood Pressure (Systolic, Diastolic)
-    - Heart Rate
-    - Respirations
-    - Pregnancy Status
-    - Oxygen Saturation
-    - Glucose
-    - Height (feet, inches)
-    - Weight
+            // Set Start Date to start of day
+            String startParseDate = startDateString + " 00:00:00";
+            Date startDateObj = sqlFormat.parse(startParseDate);
+            // Set End Date to end of day
+            String parseEndDate = endDateString + " 23:59:59";
+            Date endDateObj = sqlFormat.parse(parseEndDate);
 
-     */
+            Query q = QueryProvider.getPatientEncounterVitalQuery();
+            q.fetch("vital")
+                    .where()
+                    .gt("dateTaken", sqlFormat.format(startDateObj))
+                    .lt("dateTaken", sqlFormat.format(endDateObj))
+                    .eq("vital.name", "heightFeet")
+                    .orderBy("patient_encounter_id")
+                    .findList();
+            List<? extends IPatientEncounterVital> patientFeet = patientEncounterVitalRepository.find(q);
+
+            q = QueryProvider.getPatientEncounterVitalQuery();
+            q.fetch("vital")
+                    .where()
+                    .gt("dateTaken", sqlFormat.format(startDateObj))
+                    .lt("dateTaken", sqlFormat.format(endDateObj))
+                    .eq("vital.name", "heightInches")
+                    .orderBy("patient_encounter_id")
+                    .findList();
+            List<? extends IPatientEncounterVital> patientInches = patientEncounterVitalRepository.find(q);
+
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
+            // Convert feet to inches
+            for (IPatientEncounterVital eVital : patientFeet) {
+
+                float heightInches = 12 * eVital.getVitalValue();
+                researchItems.put(
+                        eVital.getPatientEncounterId(),
+                        new ResearchItem(
+                                eVital.getPatientEncounterId(),
+                                "height",
+                                heightInches,
+                                "feet/inches"
+                        )
+                );
+
+            }
+
+            for(IPatientEncounterVital eVital : patientInches){
+
+                if( researchItems.containsKey(eVital.getPatientEncounterId()) ){
+
+                    ResearchItem item = researchItems.get(eVital.getPatientEncounterId());
+
+                    float heightInches = item.getDataSet();
+                    heightInches = heightInches + eVital.getVitalValue();
+                    item.setDataSet(heightInches);
+                    researchItems.put(eVital.getPatientEncounterId(), item);
+                }
+            }
+
+            response.setResponseObject(researchItems);
+
+        } catch (Exception ex) {
+            response.addError("exception", ex.getMessage());
+        }
+
+        return response;
+
+    }
 
 
 }
