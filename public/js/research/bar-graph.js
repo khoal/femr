@@ -262,7 +262,8 @@ var barGraphModule = (function(){
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
-            .orient("left");
+            .orient("left")
+            .tickFormat(d3.format("d"));
 
         var tip = d3.tip()
             .attr('class', 'd3-tip')

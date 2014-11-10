@@ -530,6 +530,10 @@ public class DomainMapper {
 
     public static String createResearchGraphItem(Map<Integer, ResearchItem> primaryItems, Map<Integer, ResearchItem> secondaryItems) {
 
+        if( primaryItems == null ){
+            return "";
+        }
+
         // Two dimensional for double data sets
         List<List<ResearchItem>> graphData = new ArrayList<List<ResearchItem>>();
         List<ResearchItem> primaryDataset = new ArrayList<ResearchItem>();
