@@ -181,7 +181,10 @@ var lineGraphModule = (function(){
                 d1 = graph_data[i],
                 d = x0 - d0.value > d1.value - x0 ? d1 : d0;
 
-            focus.attr("transform", "translate(" + xScale(d.name) + "," + yScale(d.value) + ")");
+            var xTranslate = xScale(d.name);
+            var yTranslate = yScale(d.value);
+
+            focus.attr("transform", "translate(" + xTranslate + "," + yTranslate + ")");
             focus.select("text").text(d.name+" "+measurementUnits+": "+ d.value+" patients");
         }
     };

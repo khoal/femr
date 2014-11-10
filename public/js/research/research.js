@@ -131,7 +131,9 @@ var filterMenuModule = (function(){
         graphType: null,
         startDate: null,
         endDate: null,
-        groupPrimary: false
+        groupPrimary: false,
+        rangeStart: null,
+        rangeEnd: null
     };
 
     var filterFields = {
@@ -141,7 +143,9 @@ var filterMenuModule = (function(){
         graphType: $("#graphType"),
         startDate: $("#startDate"),
         endDate: $("#endDate"),
-        groupPrimary: $("#groupPrimaryData")
+        groupPrimary: $("#groupPrimaryData"),
+        rangeStart: $("#rangeStart"),
+        rangeEnd: $("#rangeEnd")
     };
 
     var filterMenus = {
@@ -432,14 +436,16 @@ var filterMenuModule = (function(){
 
     var chooseGroupPrimary = function(){
 
-        if( $(this).prop('checked') ){
+        filterValues.groupPrimary = $(this).prop('checked');
 
-            filterValues.groupPrimary = true;
-        }
-        else{
+        return false;
+    };
 
-            filterValues.groupPrimary = false;
-        }
+    var changeRangeValues = function(){
+
+        filterValues.rangeStart = $(filterFields.rangeStart).val();
+        filterValues.rangeEnd = $(filterFields.rangeEnd).val();
+
         return false;
     };
 
@@ -603,6 +609,8 @@ var filterMenuModule = (function(){
         $(filterFields.startDate).change(chooseStartDate);
         $(filterFields.endDate).change(chooseEndDate);
         $(filterFields.groupPrimary).change(chooseGroupPrimary);
+        $(filterFields.rangeStart).change(changeRangeValues());
+        $(filterFields.rangeEnd).change(changeRangeValues());
         $(filterFields.startDate).trigger("change");
         $(filterFields.endDate).trigger("change");
 
