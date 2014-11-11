@@ -20,14 +20,13 @@ package femr.business.helpers;
 
 import com.avaje.ebean.Ebean;
 import com.google.inject.Inject;
-
 import javax.inject.Provider;
-
 import femr.common.models.*;
 import femr.data.models.*;
 import femr.util.calculations.dateUtils;
 import femr.util.stringhelpers.StringUtils;
 import org.joda.time.DateTime;
+import java.util.List;
 
 /**
  * Responsible for mapping Domain objects.
@@ -36,6 +35,10 @@ public class DomainMapper {
 
     private final Provider<IChiefComplaint> chiefComplaintProvider;
     private final Provider<IMedication> medicationProvider;
+    private final Provider<IMedicationActiveDrugName> medicationActiveDrugNameProvider;
+    private final Provider<IMedicationActiveDrug> medicationActiveDrugProvider;
+    private final Provider<IMedicationMeasurementUnit> medicationMeasurementUnitProvider;
+    private final Provider<IMedicationForm> medicationFormProvider;
     private final Provider<IPatientEncounterPhoto> patientEncounterPhotoProvider;
     private final Provider<IPatientEncounter> patientEncounterProvider;
     private final Provider<IPatientEncounterTabField> patientEncounterTabFieldProvider;
@@ -43,6 +46,7 @@ public class DomainMapper {
     private final Provider<IPatientPrescription> patientPrescriptionProvider;
     private final Provider<IPatient> patientProvider;
     private final Provider<IPhoto> photoProvider;
+    private final Provider<IRole> roleProvider;
     private final Provider<ITabField> tabFieldProvider;
     private final Provider<ITabFieldSize> tabFieldSizeProvider;
     private final Provider<ITabFieldType> tabFieldTypeProvider;
@@ -53,6 +57,10 @@ public class DomainMapper {
     @Inject
     public DomainMapper(Provider<IChiefComplaint> chiefComplaintProvider,
                         Provider<IMedication> medicationProvider,
+                        Provider<IMedicationActiveDrugName> medicationActiveDrugNameProvider,
+                        Provider<IMedicationForm> medicationFormProvider,
+                        Provider<IMedicationActiveDrug> medicationActiveDrugProvider,
+                        Provider<IMedicationMeasurementUnit> medicationMeasurementUnitProvider,
                         Provider<IPatientEncounterPhoto> patientEncounterPhotoProvider,
                         Provider<IPatientEncounter> patientEncounterProvider,
                         Provider<IPatientEncounterTabField> patientEncounterTabFieldProvider,
@@ -60,6 +68,7 @@ public class DomainMapper {
                         Provider<IPatientPrescription> patientPrescriptionProvider,
                         Provider<IPatient> patientProvider,
                         Provider<IPhoto> photoProvider,
+                        Provider<IRole> roleProvider,
                         Provider<ITabField> tabFieldProvider,
                         Provider<ITabFieldSize> tabFieldSizeProvider,
                         Provider<ITabFieldType> tabFieldTypeProvider,
@@ -69,12 +78,17 @@ public class DomainMapper {
         this.chiefComplaintProvider = chiefComplaintProvider;
         this.patientEncounterProvider = patientEncounterProvider;
         this.medicationProvider = medicationProvider;
+        this.medicationActiveDrugNameProvider = medicationActiveDrugNameProvider;
+        this.medicationFormProvider = medicationFormProvider;
+        this.medicationActiveDrugProvider = medicationActiveDrugProvider;
+        this.medicationMeasurementUnitProvider  = medicationMeasurementUnitProvider;
         this.patientEncounterPhotoProvider = patientEncounterPhotoProvider;
         this.patientEncounterTabFieldProvider = patientEncounterTabFieldProvider;
         this.patientEncounterVitalProvider = patientEncounterVitalProvider;
         this.patientPrescriptionProvider = patientPrescriptionProvider;
         this.patientProvider = patientProvider;
         this.photoProvider = photoProvider;
+        this.roleProvider = roleProvider;
         this.tabFieldProvider = tabFieldProvider;
         this.tabFieldSizeProvider = tabFieldSizeProvider;
         this.tabFieldTypeProvider = tabFieldTypeProvider;
@@ -97,12 +111,15 @@ public class DomainMapper {
         tabFieldItem.setName(patientEncounterTabField.getTabField().getName());
         tabFieldItem.setOrder(patientEncounterTabField.getTabField().getOrder());
         tabFieldItem.setPlaceholder(patientEncounterTabField.getTabField().getPlaceholder());
-        if (patientEncounterTabField.getTabField().getTabFieldSize() != null) tabFieldItem.setSize(patientEncounterTabField.getTabField().getTabFieldSize().getName());
-        if (patientEncounterTabField.getTabField().getTabFieldType() != null) tabFieldItem.setType(patientEncounterTabField.getTabField().getTabFieldType().getName());
+        if (patientEncounterTabField.getTabField().getTabFieldSize() != null)
+            tabFieldItem.setSize(patientEncounterTabField.getTabField().getTabFieldSize().getName());
+        if (patientEncounterTabField.getTabField().getTabFieldType() != null)
+            tabFieldItem.setType(patientEncounterTabField.getTabField().getTabFieldType().getName());
         tabFieldItem.setValue(patientEncounterTabField.getTabFieldValue());
         if (patientEncounterTabField.getTabField().getTab() == null) tabFieldItem.setIsCustom(false);
         else tabFieldItem.setIsCustom(true);
-        if (patientEncounterTabField.getChiefComplaint() != null) tabFieldItem.setChiefComplaint(patientEncounterTabField.getChiefComplaint().getValue());
+        if (patientEncounterTabField.getChiefComplaint() != null)
+            tabFieldItem.setChiefComplaint(patientEncounterTabField.getChiefComplaint().getValue());
 
         return tabFieldItem;
     }
@@ -171,19 +188,59 @@ public class DomainMapper {
         return tabItem;
     }
 
+    public IRole createRole(String name) {
+        IRole role = roleProvider.get();
+        role.setName(name);
+        return role;
+    }
+
+    /**
+     * Create a new user - MAKE SURE YOU ENCRYPT THE PASSWORD
+     *
+     * @param userItem        useritem from the UI
+     * @param password        unencrypted password
+     * @param isDeleted       is the user deleted
+     * @param isPasswordReset does the user need to do a password reset
+     * @return
+     */
+    public IUser createUser(UserItem userItem, String password, boolean isDeleted, boolean isPasswordReset, List<? extends IRole> roles) {
+        IUser user = userProvider.get();
+        user.setFirstName(userItem.getFirstName());
+        user.setLastName(userItem.getLastName());
+        user.setEmail(userItem.getEmail());
+        user.setPassword(password);
+        user.setLastLogin(dateUtils.getCurrentDateTime());
+        user.setDeleted(isDeleted);
+        user.setPasswordReset(isPasswordReset);
+        user.setNotes(userItem.getNotes());
+        user.setRoles(roles);
+        return user;
+    }
+
     /**
      * Create a new UserItem (DTO)
      *
      * @param user DAO user
      * @return new userItem
      */
-    public static UserItem createUserItem(IUser user){
-        if (user == null){
+    public static UserItem createUserItem(IUser user) {
+        if (user == null) {
             return null;
         }
         UserItem userItem = new UserItem();
+        userItem.setId(user.getId());
+        userItem.setEmail(user.getEmail());
         userItem.setFirstName(user.getFirstName());
         userItem.setLastName(user.getLastName());
+        userItem.setLastLoginDate(dateUtils.getFriendlyDate(user.getLastLogin()));
+        for (IRole role : user.getRoles()) {
+            if (role != null && StringUtils.isNotNullOrWhiteSpace(role.getName())) {
+                userItem.addRole(role.getName());
+            }
+        }
+        userItem.setNotes(user.getNotes());
+        userItem.setDeleted(user.getDeleted());
+        userItem.setPasswordReset(user.getPasswordReset());
         return userItem;
     }
 
@@ -220,35 +277,89 @@ public class DomainMapper {
         medicationItem.setName(medication.getName());
         medicationItem.setQuantity_current(medication.getQuantity_current());
         medicationItem.setQuantity_total(medication.getQuantity_total());
+        if (medication.getMedicationForm() != null) {
+            medicationItem.setForm(medication.getMedicationForm().getName());
+        }
+
+        String fullActiveDrugName = "";
+        for(IMedicationActiveDrug medicationActiveDrug : medication.getMedicationActiveDrugs()){
+            medicationItem.addActiveIngredient(medicationActiveDrug.getMedicationActiveDrugName().getName(),
+                    medicationActiveDrug.getMedicationMeasurementUnit().getName(),
+                    medicationActiveDrug.getValue(),
+                    medicationActiveDrug.isDenominator()
+            );
+            fullActiveDrugName = fullActiveDrugName.concat(medicationActiveDrug.getValue() + medicationActiveDrug.getMedicationMeasurementUnit().getName() + " " + medicationActiveDrug.getMedicationActiveDrugName().getName());
+        }
+
+        medicationItem.setFullName(medicationItem.getName().concat(" " + fullActiveDrugName));
+
+
         return medicationItem;
     }
 
     /**
-     * Creates the initial medication for inventory
-     * TODO: properly save new medication in the inventory
+     * Creates a brand new medication that is being added to the inventory
      *
-     * @param medicationItem the medication item from the UI
+     * @param medicationItem medication item without active ingredients, separate active ingredients in the service
      * @return a new MedicationItem
      */
-    public IMedication createMedication(MedicationItem medicationItem) {
+    public IMedication createMedication(MedicationItem medicationItem, List<IMedicationActiveDrug> medicationActiveDrugs, IMedicationForm medicationForm) {
         if (medicationItem == null) {
             return null;
         }
+
         IMedication medication = medicationProvider.get();
         medication.setName(medicationItem.getName());
         medication.setQuantity_total(medicationItem.getQuantity_total());
         medication.setQuantity_current(medicationItem.getQuantity_current());
         medication.setIsDeleted(false);
+
+        medication.setMedicationActiveDrugs(medicationActiveDrugs);
+
+        medication.setMedicationForm(medicationForm);
+
         return medication;
+    }
+
+    public IMedicationForm createMedicationForm(String name){
+        IMedicationForm medicationForm = medicationFormProvider.get();
+        medicationForm.setName(name);
+        medicationForm.setIsDeleted(false);
+        return medicationForm;
+    }
+
+    /**
+     * Creates a new active drug
+     *
+     * @param value strength of the drug
+     * @param isDenominator is the drug a denominator
+     * @param activeDrugUnitId id of the unit for measurement of the drug
+     * @param medicationActiveDrugName the drug name
+     * @return new active drug
+     */
+    public IMedicationActiveDrug createMedicationActiveDrug(int value, boolean isDenominator, int activeDrugUnitId, IMedicationActiveDrugName medicationActiveDrugName){
+        IMedicationActiveDrug medicationActiveDrug = medicationActiveDrugProvider.get();
+        medicationActiveDrug.setValue(value);
+        medicationActiveDrug.setDenominator(isDenominator);
+        medicationActiveDrug.setMedicationMeasurementUnit(Ebean.getReference(medicationMeasurementUnitProvider.get().getClass(), activeDrugUnitId));
+        medicationActiveDrug.setMedicationActiveDrugName(medicationActiveDrugName);
+        return medicationActiveDrug;
+    }
+
+    public IMedicationActiveDrugName createMedicationActiveDrugName(String name){
+        IMedicationActiveDrugName medicationActiveDrugName = medicationActiveDrugNameProvider.get();
+        medicationActiveDrugName.setName(name);
+        return medicationActiveDrugName;
     }
 
     /**
      * Creates an IMedication
+     * TODO: this should be a prescription, not a medication
      *
      * @param name name of the medication
      * @return a new IMedication
      */
-    public IMedication createMedication(String name){
+    public IMedication createMedication(String name) {
         IMedication medication = medicationProvider.get();
         medication.setName(name);
         medication.setIsDeleted(false);
@@ -307,8 +418,8 @@ public class DomainMapper {
         return patientEncounter;
     }
 
-    public IChiefComplaint createChiefComplaint(String value, int patientEncounterId){
-        if (StringUtils.isNullOrWhiteSpace(value)){
+    public IChiefComplaint createChiefComplaint(String value, int patientEncounterId) {
+        if (StringUtils.isNullOrWhiteSpace(value)) {
             return null;
         }
         IChiefComplaint chiefComplaint = chiefComplaintProvider.get();
@@ -340,11 +451,12 @@ public class DomainMapper {
         patient.setSex(patientItem.getSex());
         patient.setAddress(patientItem.getAddress());
         patient.setCity(patientItem.getCity());
-        if (patientItem.getPhotoId() != null) patient.setPhoto(Ebean.getReference(photoProvider.get().getClass(), patientItem.getPhotoId()));
+        if (patientItem.getPhotoId() != null)
+            patient.setPhoto(Ebean.getReference(photoProvider.get().getClass(), patientItem.getPhotoId()));
         return patient;
     }
 
-    public static PatientItem createPatientItem(IPatient patient, Integer weeksPregnant, Integer heightFeet, Integer heightInches, Float weight){
+    public static PatientItem createPatientItem(IPatient patient, Integer weeksPregnant, Integer heightFeet, Integer heightInches, Float weight) {
         if (patient == null) {
             return null;
         }
@@ -359,7 +471,7 @@ public class DomainMapper {
         patientItem.setLastName(patient.getLastName());
         patientItem.setSex(patient.getSex());
         patientItem.setUserId(patient.getUserId());
-        if (patient.getPhoto() != null){
+        if (patient.getPhoto() != null) {
             patientItem.setPathToPhoto(patient.getPhoto().getFilePath());
             patientItem.setPhotoId(patient.getPhoto().getId());
         }
@@ -450,11 +562,11 @@ public class DomainMapper {
     /**
      * Creates a new IPatientPrescription
      *
-     * @param amount           amount of medication dispensed
-     * @param medication       the medication
-     * @param userId           id of the user creating the prescription
-     * @param encounterId      encounter id of the prescription
-     * @param replacementId    id of the prescription being replaced OR null
+     * @param amount        amount of medication dispensed
+     * @param medication    the medication
+     * @param userId        id of the user creating the prescription
+     * @param encounterId   encounter id of the prescription
+     * @param replacementId id of the prescription being replaced OR null
      * @return a new IPatientPrescription
      */
     public IPatientPrescription createPatientPrescription(int amount, IMedication medication, int userId, int encounterId, Integer replacementId) {
@@ -507,7 +619,7 @@ public class DomainMapper {
      * @param filePath
      * @return
      */
-    public IPhoto createPhoto(String description, String filePath){
+    public IPhoto createPhoto(String description, String filePath) {
         if (StringUtils.isNullOrWhiteSpace(filePath))
             return null;
         IPhoto photo = photoProvider.get();
