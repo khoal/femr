@@ -46,6 +46,7 @@ public class ResearchService implements IResearchService {
     private final IRepository<IPatientEncounterVital> patientEncounterVitalRepository;
     private final IRepository<IUser> userRepository;
     private final IRepository<IVital> vitalRepository;
+    private final IRepository<IPatientPrescription> medicationRepository;
     private final Provider<IPatientEncounterVital> patientEncounterVitalProvider;
 
     private final DomainMapper domainMapper;
@@ -60,6 +61,7 @@ public class ResearchService implements IResearchService {
                            IRepository<IPatientEncounterVital> patientEncounterVitaRepository,
                            IRepository<IUser> userRepository,
                            IRepository<IVital> vitalRepository,
+                           IRepository<IPatientPrescription> medicationRepository,
                            Provider<IPatientEncounterVital> patientEncounterVitalProvider,
 
                            DomainMapper domainMapper) {
@@ -69,6 +71,7 @@ public class ResearchService implements IResearchService {
         this.patientEncounterVitalRepository = patientEncounterVitaRepository;
         this.userRepository = userRepository;
         this.vitalRepository = vitalRepository;
+        this.medicationRepository = medicationRepository;
         this.patientEncounterVitalProvider = patientEncounterVitalProvider;
         this.domainMapper = domainMapper;
     }
@@ -377,6 +380,64 @@ public class ResearchService implements IResearchService {
         return response;
 
     }
+
+
+
+
+
+    public ServiceResponse<Map<Integer, ResearchItem>> getMedication(String startDateString, String endDateString){
+
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
+
+        try {
+
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            // Set Start Date to start of day
+            String startParseDate = startDateString + " 00:00:00";
+            Date startDateObj = sqlFormat.parse(startParseDate);
+            // Set End Date to end of day
+            String parseEndDate = endDateString + " 23:59:59";
+            Date endDateObj = sqlFormat.parse(parseEndDate);
+
+            Query q = QueryProvider.getPatientPrescriptionQuery();
+            q.fetch("medication")
+                    .where()
+                    .gt("dateTaken", sqlFormat.format(startDateObj))
+                    .lt("dateTaken", sqlFormat.format(endDateObj))
+                    .findList();
+
+            List<? extends IPatientPrescription> patientMedication = medicationRepository.find(q);
+
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
+
+            for (IPatientPrescription eVital : patientMedication) {
+
+
+                researchItems.put(
+                        eVital.getId(),
+                        new ResearchItem(
+                                eVital.getId(),
+                                "medication",
+                                eVital.getAmount(),
+                                ""
+                        )
+                );
+
+            }
+            response.setResponseObject(researchItems);
+
+        } catch (Exception ex) {
+            response.addError("exception", ex.getMessage());
+        }
+
+        return response;
+
+    }
+
+
+
+
 
 
 }
