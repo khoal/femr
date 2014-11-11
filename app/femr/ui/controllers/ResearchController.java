@@ -125,8 +125,8 @@ public class ResearchController extends Controller {
             // Medication Items
             case "prescribedMeds":
             case "dispensedMeds":
-
-                response = researchService.getPatientMedications(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                response = researchService.getMedication(filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                //response = researchService.getPatientMedications(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 break;
 
 
