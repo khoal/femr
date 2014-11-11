@@ -126,7 +126,7 @@ var tableChartModule = (function(){
                 else if(obj.dataSet == 3){
                     keyStr = "Amoxycilin";
                 }
-                else if(obj.dataSet == 3){
+                else if(obj.dataSet == 4){
                     keyStr = "Hydrocodone";
                 }
                 else{
@@ -214,6 +214,13 @@ var tableChartModule = (function(){
         var i = 0;
         $.each(grouped_data, function (key, obj) {
 
+            /*
+            if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+                key = inchesToFeetInches(key);
+            }
+            */
+
             //console.log(key);
             //console.log(obj);
             graph_data[i] = {
@@ -244,8 +251,18 @@ var tableChartModule = (function(){
 
         $.each(grouped_data, function (key, obj) {
 
+            var name;
+            if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+                name = inchesToFeetInches(key);
+            }
+            else{
+
+                name = obj.name;
+            }
+
             table_html += '<tr>' +
-                '<td>'+obj.name+'</td>' +
+                '<td>'+name+'</td>' +
                 '<td>'+obj.value+'</td>' +
                 '</tr>';
 

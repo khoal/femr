@@ -530,7 +530,7 @@ public class DomainMapper {
 
     public static String createResearchGraphItem(Map<Integer, ResearchItem> primaryItems, Map<Integer, ResearchItem> secondaryItems) {
 
-        if( primaryItems == null ){
+        if( primaryItems == null || primaryItems.isEmpty() ){
             return "";
         }
 
@@ -598,14 +598,14 @@ public class DomainMapper {
             int i = (sampleSize / 2) - 1;
             int j = i + 1;
 
-            float val1 = primaryItems.get(i).getDataSet();
-            float val2 = primaryItems.get(j).getDataSet();
+            float val1 = primaryDataset.get(i).getDataSet();
+            float val2 = primaryDataset.get(j).getDataSet();
 
             median = (val1 + val2) / 2;
         } else {
 
             int i = (int) Math.floor(sampleSize / 2);
-            median = primaryItems.get(i).getDataSet();
+            median = primaryDataset.get(i).getDataSet();
         }
 
         // build graph model item

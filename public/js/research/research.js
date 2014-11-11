@@ -8,7 +8,7 @@ var allowedFilterValues = (function(){
         },
         gender: {
             graphTypes: ['bar','pie', 'table'],
-            secondaryData: []
+            secondaryData: ['age']
         },
         pregnancyStatus: {
             graphTypes: ['bar','pie','table'],
@@ -653,7 +653,14 @@ var graphLoaderModule = (function(){
         $(".graph-header").show();
         graphType = newGraphType;
 
-        //console.log(postData);
+        console.log(postData);
+
+
+        // remove any previous graph
+        d3.selectAll("svg > *").remove();
+        $("#range").find(".val").text("");
+        $("#average").find(".val").text("");
+        $("#median").find(".val").text("");
 
         // post graph
         $.post("/research/graph", postData, function (rawData) {
@@ -661,7 +668,8 @@ var graphLoaderModule = (function(){
             if( rawData.length == 0 ){
 
                 // show error
-
+                hideGraphLoadingIcon();
+                alert("No patients match the chosen filters");
                 return;
             }
 
@@ -735,21 +743,68 @@ var graphLoaderModule = (function(){
 
                 // Grab Statistics
                 if ("median" in jsonData) {
-                    $("#median").find(".val").text(jsonData.median + " " + unitOfMeasurement);
+
+                    var median = jsonData.median;
+                    //console.log(median);
+                    if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+                        var median = inchesToFeetInches(median);
+                    }
+                    else {
+
+                        median = parseFloat(median).toFixed(2);
+                    }
+
+                    $("#median").find(".val").text(median + " " + unitOfMeasurement);
                 }
                 else {
                     $("#median").find(".val").text("n/a");
                 }
 
                 if ("average" in jsonData) {
-                    $("#average").find(".val").text(jsonData.average + " " + unitOfMeasurement);
+
+                    var average = jsonData.average;
+                    //console.log(average);
+                    if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+                        var average = inchesToFeetInches(average);
+                    }
+                    else {
+
+                        average = parseFloat(average).toFixed(2);
+                    }
+
+                    $("#average").find(".val").text(average + " " + unitOfMeasurement);
                 }
                 else {
                     $("#average").find(".val").text("n/a");
                 }
 
                 if (("rangeLow" in jsonData) && ("rangeHigh" in jsonData)) {
-                    $("#range").find(".val").text(jsonData.rangeLow + " - " + jsonData.rangeHigh + " " + unitOfMeasurement);
+
+                    var rangeLow = jsonData.rangeLow;
+                    //console.log(rangeLow);
+                    if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+                        var rangeLow = inchesToFeetInches(rangeLow);
+                    }
+                    else {
+
+                        rangeLow = parseFloat(rangeLow).toFixed(2);
+                    }
+
+                    var rangeHigh = jsonData.rangeHigh;
+                    //console.log(rangeHigh);
+                    if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+                        var rangeHigh = inchesToFeetInches(rangeHigh);
+                    }
+                    else {
+
+                        rangeHigh = parseFloat(rangeHigh).toFixed(2);
+                    }
+
+                    $("#range").find(".val").text(rangeLow + " - " + rangeHigh + " " + unitOfMeasurement);
                 }
                 else {
                     $("#range").find(".val").text("n/a");
@@ -948,3 +1003,20 @@ Array.prototype.pushIfNotExist = function(element, comparer) {
         this.push(element);
     }
 };
+
+
+function inchesToFeetInches(inches){
+
+    if( inches == 0 ) return '0"';
+
+    var feet = parseInt(inches / 12);
+    var inch = parseInt(inches % 12);
+    var str = "";
+
+    if( feet > 0 ) {
+        str = feet + "'";
+    }
+    str += inch + '"';
+
+    return str;
+}

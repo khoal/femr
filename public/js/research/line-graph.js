@@ -25,7 +25,7 @@ var lineGraphModule = (function(){
         xAxisTitle = xTitle;
         measurementUnits = unitOfMeasurement;
 
-        //console.log(jsonData);
+        console.log(jsonData);
 
         // Group and count the individual patients
         var maxVal = Number.MIN_VALUE;
@@ -64,6 +64,14 @@ var lineGraphModule = (function(){
         //for( var i = 0; i < grouped_data.length; i++ ){
         var i = 0;
         $.each(grouped_data, function (key, obj) {
+
+            /*
+            if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+                key = inchesToFeetInches(key);
+            }
+            */
+
             graph_data[i] = {
                 name: key,
                 value: obj.value
@@ -71,7 +79,7 @@ var lineGraphModule = (function(){
             i++;
         });
 
-        //console.log(graph_data);
+        console.log(graph_data);
     };
 
     publicObject.buildGraph = function(){
@@ -93,15 +101,31 @@ var lineGraphModule = (function(){
         var graphWidth = containerWidth - margin.right - margin.left;
         var graphHeight = containerHeight - margin.top - margin.bottom;
 
-
         var xScale = d3.scale.linear()
             .domain(d3.extent(graph_data, function(d) { return parseInt(d.name); }))
-            //.nice()
+            .nice()
             .range([0, graphWidth]);
 
+        /*
+        var xScale;
+        if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+            xScale = d3.scale.ordinal()
+                .rangePoints([0, graphWidth], 2.5)
+                .domain(graph_data.map(function(d){ return inchesToFeetInches(d.name); }));
+        }
+        else{
+
+            xScale = d3.scale.linear()
+                .domain(d3.extent(graph_data, function(d) { return d.name; }))
+                //.nice()
+                .range([0, graphWidth]);
+        }
+        */
+
         var yScale = d3.scale.linear()
-            //.domain(d3.extent(graph_data, function(d) { return d.value; }))
-            .domain([0, d3.max(graph_data, function(d) { return d.value; })])
+            .domain(d3.extent(graph_data, function(d) { return d.value; }))
+            //.domain([0, d3.max(graph_data, function(d) { return d.value; })])
             .range([graphHeight, 0]);
 
         var xAxis = d3.svg.axis()

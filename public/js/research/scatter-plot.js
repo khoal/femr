@@ -60,6 +60,7 @@ var scatterGraphModule = (function(){
         //for( var i = 0; i < grouped_data.length; i++ ){
         var i = 0;
         $.each(grouped_data, function (key, obj) {
+
             graph_data[i] = {
                 name: key,
                 value: obj.value

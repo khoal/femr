@@ -140,7 +140,7 @@ var barGraphModule = (function(){
                 else if(obj.dataSet == 3){
                     keyStr = "Amoxycilin";
                 }
-                else if(obj.dataSet == 3){
+                else if(obj.dataSet == 4){
                     keyStr = "Hydrocodone";
                 }
                 else{
@@ -216,6 +216,7 @@ var barGraphModule = (function(){
 
         // tickValues
         // max at 20 ticks
+        /*
         if( Object.keys(grouped_data).length > 20 ){
             for( var i = minVal; i <= maxVal; i++ ){
                 if( i % 5 == 0 ){
@@ -223,7 +224,7 @@ var barGraphModule = (function(){
                 }
             }
         }
-
+        */
         /*
         if( !filterMenuModule.getPrimaryDataset() == 'age' &&
             !filterMenuModule.isPrimaryDataGrouped() ) {
@@ -244,6 +245,12 @@ var barGraphModule = (function(){
 
             //console.log(key);
             //console.log(obj);
+
+            if( filterMenuModule.getPrimaryDataset() == "height" ){
+
+                key = inchesToFeetInches(key);
+            }
+
             graph_data[i] = {
                 name: key,
                 value: obj.value
@@ -284,13 +291,18 @@ var barGraphModule = (function(){
 
         var xAxis = d3.svg.axis()
             .scale(xScale)
-            //.tickValues(xScale.domain().filter(function(d, i) { return !(i % 6); }))
             .orient("bottom");
         // Only use tickValues if they are set
+        if( Object.keys(grouped_data).length > 20 ){
+
+            xAxis.tickValues(xScale.domain().filter(function(d, i) { return !(i % 6); }))
+        }
+        /*
         if( tickValues.length > 0 ){
 
             xAxis.tickValues(tickValues)
         }
+        */
 
         var yAxis = d3.svg.axis()
             .scale(yScale)
