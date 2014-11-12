@@ -128,6 +128,15 @@ var pieGraphModule = (function(){
                 }
 
             }
+            else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
+                if( medications[obj.dataSet]){
+                    keyStr = medications[obj.dataSet];
+                }
+                else{
+                    keyStr = "Unknown";
+                }
+
+            }
             else{
 
                 // Keep track of min/max to build scale values

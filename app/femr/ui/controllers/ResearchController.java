@@ -1,5 +1,6 @@
 package femr.ui.controllers;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import femr.business.helpers.DomainMapper;
 import femr.common.dto.CurrentUser;
@@ -88,6 +89,21 @@ public class ResearchController extends Controller {
 
     }
 
+    public Result getMedicationPost(){
+
+        FilterViewModel filterViewModel = FilterViewModelForm.bindFromRequest().get();
+
+        Map<Integer, String> medication = researchService.getMedication().getResponseObject();
+
+        Gson gson = new Gson();
+
+        String jsonString = gson.toJson(medication);
+        return ok(jsonString);
+
+    }
+
+
+
     private Map<Integer, ResearchItem> getDatasetItems(String datasetName, FilterViewModel filterViewModel){
 
         ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
@@ -125,7 +141,8 @@ public class ResearchController extends Controller {
             // Medication Items
             case "prescribedMeds":
             case "dispensedMeds":
-                response = researchService.getMedication(filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                //response = researchService.getMedication();
+                response = researchService.getPatientPrescriptions(filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 //response = researchService.getPatientMedications(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 break;
 

@@ -19,10 +19,7 @@
 package femr.business.services;
 
 
-import com.avaje.ebean.Expr;
-import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
-import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import femr.business.helpers.DomainMapper;
@@ -46,7 +43,8 @@ public class ResearchService implements IResearchService {
     private final IRepository<IPatientEncounterVital> patientEncounterVitalRepository;
     private final IRepository<IUser> userRepository;
     private final IRepository<IVital> vitalRepository;
-    private final IRepository<IPatientPrescription> medicationRepository;
+    private final IRepository<IPatientPrescription> prescriptionRepository;
+    private final IRepository<IMedication> medicationRepository;
     private final Provider<IPatientEncounterVital> patientEncounterVitalProvider;
 
     private final DomainMapper domainMapper;
@@ -61,7 +59,8 @@ public class ResearchService implements IResearchService {
                            IRepository<IPatientEncounterVital> patientEncounterVitaRepository,
                            IRepository<IUser> userRepository,
                            IRepository<IVital> vitalRepository,
-                           IRepository<IPatientPrescription> medicationRepository,
+                           IRepository<IPatientPrescription> prescriptionRepository,
+                           IRepository<IMedication> medicationRepository,
                            Provider<IPatientEncounterVital> patientEncounterVitalProvider,
 
                            DomainMapper domainMapper) {
@@ -71,6 +70,7 @@ public class ResearchService implements IResearchService {
         this.patientEncounterVitalRepository = patientEncounterVitaRepository;
         this.userRepository = userRepository;
         this.vitalRepository = vitalRepository;
+        this.prescriptionRepository = prescriptionRepository;
         this.medicationRepository = medicationRepository;
         this.patientEncounterVitalProvider = patientEncounterVitalProvider;
         this.domainMapper = domainMapper;
@@ -385,7 +385,34 @@ public class ResearchService implements IResearchService {
 
 
 
-    public ServiceResponse<Map<Integer, ResearchItem>> getMedication(String startDateString, String endDateString){
+    public ServiceResponse<Map<Integer, String>> getMedication(){
+
+        ServiceResponse<Map<Integer, String>> response = new ServiceResponse<>();
+
+        try {
+            List<? extends IMedication> medications = medicationRepository.findAll(Medication.class);
+
+            Map<Integer, String> medicationItems = new HashMap<>();
+
+            for (IMedication medication : medications) {
+
+                medicationItems.put(
+                        medication.getId(),
+                        medication.getName()
+                );
+            }
+            response.setResponseObject(medicationItems);
+
+        } catch (Exception ex) {
+            response.addError("exception", ex.getMessage());
+        }
+
+        return response;
+
+    }
+
+
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientPrescriptions(String startDateString, String endDateString){
 
         ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
@@ -407,19 +434,19 @@ public class ResearchService implements IResearchService {
                     .lt("dateTaken", sqlFormat.format(endDateObj))
                     .findList();
 
-            List<? extends IPatientPrescription> patientMedication = medicationRepository.find(q);
+            List<? extends IPatientPrescription> patientMedication = prescriptionRepository.find(q);
 
             Map<Integer, ResearchItem> researchItems = new HashMap<>();
 
-            for (IPatientPrescription eVital : patientMedication) {
+            for (IPatientPrescription prescription : patientMedication) {
 
 
                 researchItems.put(
-                        eVital.getId(),
+                        prescription.getId(),
                         new ResearchItem(
-                                eVital.getId(),
+                                prescription.getPatientEncounter().getPatient().getId(),
                                 "medication",
-                                eVital.getAmount(),
+                                prescription.getId(),
                                 ""
                         )
                 );

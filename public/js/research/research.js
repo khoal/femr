@@ -1,3 +1,4 @@
+var medications = {};
 var allowedFilterValues = (function(){
 
     var allowedValues = {
@@ -644,6 +645,22 @@ var graphLoaderModule = (function(){
         graphType = newGraphType;
 
         //console.log(postData);
+        $.post("/research/medication", null, function (rawData) {
+
+            if( rawData.length == 0 ){
+
+                // show error
+
+                return;
+            }
+
+            var jsonData = jQuery.parseJSON(rawData);
+            console.log(jsonData);
+            medications = jsonData;
+            //jsonData.
+        });
+
+
 
         // post graph
         $.post("/research/graph", postData, function (rawData) {
@@ -656,7 +673,7 @@ var graphLoaderModule = (function(){
             }
 
             var jsonData = jQuery.parseJSON(rawData);
-            //console.log(jsonData);
+            console.log(jsonData);
 
             var xAxisTitle = "";
             if( "xAxisTitle" in jsonData ) {

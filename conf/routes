@@ -50,6 +50,7 @@ POST        /medical                         @femr.ui.controllers.MedicalControl
 #Research
 GET         /research                        @femr.ui.controllers.ResearchController.indexGet()
 POST        /research/graph                  @femr.ui.controllers.ResearchController.getGraphPost()
+POST        /research/medication            @femr.ui.controllers.ResearchController.getMedicationPost()
 #Sessions
 GET         /logout                          @femr.ui.controllers.SessionsController.delete()
 POST        /login/reset                     @femr.ui.controllers.SessionsController.editPasswordPost()

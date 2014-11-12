@@ -73,5 +73,6 @@ public interface IResearchService {
     public ServiceResponse<Map<Integer, ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString);
 
     public ServiceResponse<Map<Integer, ResearchItem>> getPatientHeights(String startDateString, String endDateString);
-    public ServiceResponse<Map<Integer, ResearchItem>> getMedication(String startDateString, String endDateString);
+    public ServiceResponse<Map<Integer, String>> getMedication();
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientPrescriptions(String startDateString, String endDateString);
 }
