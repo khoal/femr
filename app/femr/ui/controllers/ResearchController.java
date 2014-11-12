@@ -1,5 +1,6 @@
 package femr.ui.controllers;
 
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import femr.business.helpers.DomainMapper;
 import femr.common.dto.CurrentUser;
@@ -88,6 +89,7 @@ public class ResearchController extends Controller {
 
     }
 
+    /*
     private Map<Integer, ResearchItem> getDatasetItems(String datasetName, FilterViewModel filterViewModel){
 
         ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
@@ -127,6 +129,75 @@ public class ResearchController extends Controller {
             case "dispensedMeds":
 
                 response = researchService.getPatientMedications(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                break;
+
+
+            default:
+
+                // send something to trigger error: invalid data type
+                break;
+
+        }
+
+        return response.getResponseObject();
+    }
+*/
+
+    public Result getMedicationPost(){
+
+        FilterViewModel filterViewModel = FilterViewModelForm.bindFromRequest().get();
+
+        Map<Integer, String> medication = researchService.getMedication().getResponseObject();
+
+        Gson gson = new Gson();
+
+        String jsonString = gson.toJson(medication);
+        return ok(jsonString);
+
+    }
+
+
+
+    private Map<Integer, ResearchItem> getDatasetItems(String datasetName, FilterViewModel filterViewModel){
+
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
+
+        switch(datasetName){
+
+            // Single Value Vital Items
+            case "weight":
+            case "temperature":
+            case "heartRate":
+            case "respiratoryRate":
+            case "oxygenSaturation":
+            case "glucose":
+            case "bloodPressureSystolic":
+            case "bloodPressureDiastolic":
+
+                response = researchService.getPatientVitals(filterViewModel.getPrimaryDataset(), filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                break;
+
+            // Special Case Vital Item
+            case "height":
+
+                response = researchService.getPatientHeights(filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                break;
+
+            // Patient Specific Items
+            case "age":
+            case "gender":
+            case "pregnancyStatus":
+            case "pregnancyTime":
+
+                response = researchService.getPatientAttribute(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                break;
+
+            // Medication Items
+            case "prescribedMeds":
+            case "dispensedMeds":
+                //response = researchService.getMedication();
+                response = researchService.getPatientPrescriptions(filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                //response = researchService.getPatientMedications(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 break;
 
 

@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for mapping Domain objects.
@@ -639,6 +642,7 @@ public class DomainMapper {
     public static String createResearchGraphItem(Map<Integer, ResearchItem> primaryItems, Map<Integer, ResearchItem> secondaryItems) {
 
         if( primaryItems == null || primaryItems.isEmpty() ){
+
             return "";
         }
 
@@ -706,14 +710,15 @@ public class DomainMapper {
             int i = (sampleSize / 2) - 1;
             int j = i + 1;
 
-            float val1 = primaryDataset.get(i).getDataSet();
-            float val2 = primaryDataset.get(j).getDataSet();
+            float val1 = primaryItems.get(i).getDataSet();
+            float val2 = primaryItems.get(j).getDataSet();
 
             median = (val1 + val2) / 2;
         } else {
 
             int i = (int) Math.floor(sampleSize / 2);
-            median = primaryDataset.get(i).getDataSet();
+            median = primaryItems.get(i).getDataSet();
+
         }
 
         // build graph model item

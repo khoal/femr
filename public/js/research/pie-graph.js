@@ -130,21 +130,14 @@ var pieGraphModule = (function(){
             }
             else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
 
-                if( obj.dataSet == 1 ){
-                    keyStr = "Aspirin";
-                }
-                else if(obj.dataSet == 2){
-                    keyStr = "Tylenol";
-                }
-                else if(obj.dataSet == 3){
-                    keyStr = "Amoxycilin";
-                }
-                else if(obj.dataSet == 4){
-                    keyStr = "Hydrocodone";
+                if( medications[obj.dataSet]){
+                    keyStr = medications[obj.dataSet];
                 }
                 else{
-                    keyStr = "Claritin";
+                    keyStr = "Unknown";
                 }
+
+
             }
             else{
 
@@ -402,6 +395,7 @@ var pieGraphModule = (function(){
             return label;
         });
         //*/
+
 
         var legend = d3.select(".chart")
             .append("g")

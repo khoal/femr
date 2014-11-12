@@ -83,6 +83,8 @@ var barGraphModule = (function(){
         measurementUnits = unitOfMeasurement;
 
         console.log(jsonData);
+        //console.log(jsonData);
+
 
         // Group and count the individual patients
         var maxVal = Number.MIN_VALUE;
@@ -131,20 +133,11 @@ var barGraphModule = (function(){
             }
             else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
 
-                if( obj.dataSet == 1 ){
-                    keyStr = "Aspirin";
-                }
-                else if(obj.dataSet == 2){
-                    keyStr = "Tylenol";
-                }
-                else if(obj.dataSet == 3){
-                    keyStr = "Amoxycilin";
-                }
-                else if(obj.dataSet == 4){
-                    keyStr = "Hydrocodone";
+                if( medications[obj.dataSet]){
+                    keyStr = medications[obj.dataSet];
                 }
                 else{
-                    keyStr = "Claritin";
+                    keyStr = "Unknown";
                 }
             }
             else{
@@ -216,7 +209,9 @@ var barGraphModule = (function(){
 
         // tickValues
         // max at 20 ticks
+
         /*
+
         if( Object.keys(grouped_data).length > 20 ){
             for( var i = minVal; i <= maxVal; i++ ){
                 if( i % 5 == 0 ){
@@ -224,6 +219,7 @@ var barGraphModule = (function(){
                 }
             }
         }
+
         */
         /*
         if( !filterMenuModule.getPrimaryDataset() == 'age' &&
@@ -239,12 +235,12 @@ var barGraphModule = (function(){
             }
         }
         */
-
         var i = 0;
         $.each(grouped_data, function (key, obj) {
 
             //console.log(key);
             //console.log(obj);
+
 
             if( filterMenuModule.getPrimaryDataset() == "height" ){
 
@@ -298,11 +294,18 @@ var barGraphModule = (function(){
             xAxis.tickValues(xScale.domain().filter(function(d, i) { return !(i % 6); }))
         }
         /*
+
+            //.tickValues(xScale.domain().filter(function(d, i) { return !(i % 6); }))
+            .orient("bottom");
+        // Only use tickValues if they are set
+
         if( tickValues.length > 0 ){
 
             xAxis.tickValues(tickValues)
         }
+<<<<<<< HEAD
         */
+
 
         var yAxis = d3.svg.axis()
             .scale(yScale)

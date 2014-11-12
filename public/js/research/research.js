@@ -1,3 +1,6 @@
+
+
+var medications = {};
 var allowedFilterValues = (function(){
 
     var allowedValues = {
@@ -20,11 +23,11 @@ var allowedFilterValues = (function(){
         },
         height: {
             graphTypes: ['bar','line','scatter','table'],
-            secondaryData: ['age']
+            secondaryData: []
         },
         weight: {
             graphTypes: ['bar','line','pie', 'scatter','table'],
-            secondaryData: ['gender','age']
+            secondaryData: ['gender']
         },
         dispensedMeds: {
             graphTypes: ['bar','pie','table'],
@@ -146,6 +149,7 @@ var filterMenuModule = (function(){
         groupPrimary: $("#groupPrimaryData"),
         rangeStart: $("#rangeStart"),
         rangeEnd: $("#rangeEnd")
+
     };
 
     var filterMenus = {
@@ -436,7 +440,15 @@ var filterMenuModule = (function(){
 
     var chooseGroupPrimary = function(){
 
-        filterValues.groupPrimary = $(this).prop('checked');
+
+        if( $(this).prop('checked') ){
+
+            filterValues.groupPrimary = true;
+        }
+        else{
+
+            filterValues.groupPrimary = false;
+        }
 
         return false;
     };
@@ -653,14 +665,28 @@ var graphLoaderModule = (function(){
         $(".graph-header").show();
         graphType = newGraphType;
 
-        console.log(postData);
-
+        //console.log(postData);
 
         // remove any previous graph
         d3.selectAll("svg > *").remove();
         $("#range").find(".val").text("");
         $("#average").find(".val").text("");
         $("#median").find(".val").text("");
+        //console.log(postData);
+        $.post("/research/medication", null, function (rawData) {
+
+            if( rawData.length == 0 ){
+
+                // show error
+
+                return;
+            }
+
+            var jsonData = jQuery.parseJSON(rawData);
+            console.log(jsonData);
+            medications = jsonData;
+            //jsonData.
+        });
 
         // post graph
         $.post("/research/graph", postData, function (rawData) {
@@ -668,12 +694,15 @@ var graphLoaderModule = (function(){
             if( rawData.length == 0 ){
 
                 // show error
+
                 hideGraphLoadingIcon();
                 alert("No patients match the chosen filters");
+
                 return;
             }
 
             var jsonData = jQuery.parseJSON(rawData);
+
             //console.log(jsonData);
 
             var xAxisTitle = "";
@@ -731,6 +760,7 @@ var graphLoaderModule = (function(){
             if( filterMenuModule.getPrimaryDataset() == "gender" ||
                 filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
 
+
                 $("#median").hide();
                 $("#average").hide();
                 $("#range").hide();
@@ -756,6 +786,7 @@ var graphLoaderModule = (function(){
                     }
 
                     $("#median").find(".val").text(median + " " + unitOfMeasurement);
+
                 }
                 else {
                     $("#median").find(".val").text("n/a");
@@ -775,6 +806,7 @@ var graphLoaderModule = (function(){
                     }
 
                     $("#average").find(".val").text(average + " " + unitOfMeasurement);
+
                 }
                 else {
                     $("#average").find(".val").text("n/a");
@@ -805,6 +837,7 @@ var graphLoaderModule = (function(){
                     }
 
                     $("#range").find(".val").text(rangeLow + " - " + rangeHigh + " " + unitOfMeasurement);
+
                 }
                 else {
                     $("#range").find(".val").text("n/a");
@@ -923,7 +956,11 @@ jQuery(document).ready(function(){
             lastName: (randomString()),
             address: (randomInt(100, 2000)) + ' address',
             city: 'anywhere',
+<<<<<<< HEAD
             age: (randomInt(1911, 2013)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
+=======
+            age: (randomInt(1930, 2000)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
+>>>>>>> research-service
             sex: (randomGender()),
             bloodPressureSystolic: (randomInt(110, 150)),
             bloodPressureDiastolic: (randomInt(60, 100)),
@@ -932,12 +969,20 @@ jQuery(document).ready(function(){
             respiratoryRate: (randomInt(10, 22)),
             oxygenSaturation: (randomInt(80, 100)),
             heightFeet: (randomInt(0, 7)),
+<<<<<<< HEAD
             heightInches: (randomInt(0, 11)),
             weight: (randomInt(60, 180)),
             glucose: (randomInt(70, 140)),
             chiefComplaint: null,
             weeksPregnant: (generateWeeksPregnant())
 
+=======
+            heightInches: (randomInt(0, 12)),
+            weight: (randomInt(92, 101)),
+            glucose: (randomInt(70, 140)),
+            chiefComplaint: null,
+            weeksPregnant: null
+>>>>>>> research-service
 
             // Add the rest of the form fields here
         };
@@ -953,6 +998,7 @@ jQuery(document).ready(function(){
 });
 
 ///*
+
 
 function generateWeeksPregnant(){
 
@@ -1020,3 +1066,4 @@ function inchesToFeetInches(inches){
 
     return str;
 }
+

@@ -36,6 +36,7 @@ public interface IResearchService {
 
     ServiceResponse<List<PatientItem>> getAllPatientItems();
 
+
     ServiceResponse<List<Date>> getAllPatientAges();
     //ServiceResponse<List<PatientItem>> getData();
 
@@ -62,7 +63,7 @@ public interface IResearchService {
     public ServiceResponse<Map<Integer, ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString);
 
     /**
-     * Retrieves a map of medications identified by medicationType.
+     * Retrieves a map of Patient attributes identified by attributeName.
      * Mapped by patientEncounterId to be matched up to secondary data sets
      *
      * @param medicationType the string name of the vital to lookup
@@ -71,7 +72,7 @@ public interface IResearchService {
      * @return a map of unique readings of vitalType indexed by encounterID
      */
     public ServiceResponse<Map<Integer, ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString);
-
     public ServiceResponse<Map<Integer, ResearchItem>> getPatientHeights(String startDateString, String endDateString);
-
+    public ServiceResponse<Map<Integer, String>> getMedication();
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientPrescriptions(String startDateString, String endDateString);
 }
