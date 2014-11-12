@@ -128,7 +128,7 @@ var pieGraphModule = (function(){
                 }
 
             }
-            else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
+            else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" || filterMenuModule.getPrimaryDataset() == "dispensedMeds" ){
                 if( medications[obj.dataSet]){
                     keyStr = medications[obj.dataSet];
                 }

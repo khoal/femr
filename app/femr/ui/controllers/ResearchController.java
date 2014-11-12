@@ -9,7 +9,6 @@ import femr.business.services.ISessionService;
 
 import femr.common.dto.ServiceResponse;
 import femr.common.models.ResearchItem;
-import femr.common.models.VitalItem;
 import femr.data.models.Roles;
 import femr.ui.helpers.security.AllowedRoles;
 import femr.ui.helpers.security.FEMRAuthenticated;
@@ -140,9 +139,10 @@ public class ResearchController extends Controller {
 
             // Medication Items
             case "prescribedMeds":
+                response = researchService.getPrescribedMedications(filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                break;
             case "dispensedMeds":
-                //response = researchService.getMedication();
-                response = researchService.getPatientPrescriptions(filterViewModel.getStartDate(), filterViewModel.getEndDate());
+                response = researchService.getDispensedMedications(filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 //response = researchService.getPatientMedications(datasetName, filterViewModel.getStartDate(), filterViewModel.getEndDate());
                 break;
 
