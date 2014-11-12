@@ -35,7 +35,7 @@ public class Medication implements IMedication {
     private Integer quantity_initial;
     @Column(name = "isDeleted", nullable = false)
     private Boolean isDeleted;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "medication_forms_id")
     private MedicationForm medicationForm;
     @ManyToMany(fetch = FetchType.EAGER,
@@ -45,6 +45,11 @@ public class Medication implements IMedication {
             joinColumns = {@JoinColumn(name = "medications_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "medication_active_drugs_id", referencedColumnName = "id")})
     private List<IMedicationActiveDrug> medicationActiveDrugs;
+
+    /*@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "patient_encounters")
+    private PatientEncounter patientEncounter;
+*/
 
     @Override
     public int getId() {
