@@ -758,7 +758,8 @@ var graphLoaderModule = (function(){
             }
 
             if( filterMenuModule.getPrimaryDataset() == "gender" ||
-                filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
+                filterMenuModule.getPrimaryDataset() == "prescribedMeds" ||
+                filterMenuModule.getPrimaryDataset() == "dispensedMeds" ){
 
 
                 $("#median").hide();
