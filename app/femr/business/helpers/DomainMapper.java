@@ -705,20 +705,26 @@ public class DomainMapper {
         // calculate average, median, range
         float average = total / sampleSize;
 
-        if (sampleSize % 2 == 0) {
+        if( sampleSize > 1 ) {
+            if (sampleSize % 2 == 0) {
 
-            int i = (sampleSize / 2) - 1;
-            int j = i + 1;
+                int i = (sampleSize / 2) - 1;
+                int j = i + 1;
 
-            float val1 = primaryItems.get(i).getDataSet();
-            float val2 = primaryItems.get(j).getDataSet();
+                float val1 = primaryDataset.get(i).getDataSet();
+                float val2 = primaryDataset.get(j).getDataSet();
 
-            median = (val1 + val2) / 2;
-        } else {
+                median = (val1 + val2) / 2;
+            } else {
 
-            int i = (int) Math.floor(sampleSize / 2);
-            median = primaryItems.get(i).getDataSet();
+                int i = (int) Math.floor(sampleSize / 2);
+                median = primaryDataset.get(i).getDataSet();
 
+            }
+        }
+        else{
+
+            median = primaryDataset.get(0).getDataSet();
         }
 
         // build graph model item
@@ -728,7 +734,6 @@ public class DomainMapper {
         graphModel.setRangeLow(rangeLow);
         graphModel.setRangeHigh(rangeHigh);
         graphModel.setGraphData(graphData);
-        //graphModel.setPrimaryGraphData(primaryItems);
 
         graphModel.setxAxisTitle(axisTitle);
         graphModel.setUnitOfMeasurement(unitOfMeasurement);
