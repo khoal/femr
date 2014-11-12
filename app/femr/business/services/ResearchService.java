@@ -460,7 +460,7 @@ public class ResearchService implements IResearchService {
     }
 
 
-    public ServiceResponse<Map<Integer, ResearchItem>> getPatientPrescriptions(String startDateString, String endDateString){
+    public ServiceResponse<Map<Integer, ResearchItem>> getPrescribedMedications(String startDateString, String endDateString){
 
         ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
 
@@ -493,7 +493,7 @@ public class ResearchService implements IResearchService {
                         prescription.getId(),
                         new ResearchItem(
                                 prescription.getPatientEncounter().getPatient().getId(),
-                                "medication",
+                                "Prescribed Medication",
                                 prescription.getId(),
                                 ""
                         )
@@ -511,6 +511,55 @@ public class ResearchService implements IResearchService {
     }
 
 
+    public ServiceResponse<Map<Integer, ResearchItem>> getDispensedMedications(String startDateString, String endDateString){
+
+        ServiceResponse<Map<Integer, ResearchItem>> response = new ServiceResponse<>();
+
+        try {
+
+            SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            // Set Start Date to start of day
+            String startParseDate = startDateString + " 00:00:00";
+            Date startDateObj = sqlFormat.parse(startParseDate);
+            // Set End Date to end of day
+            String parseEndDate = endDateString + " 23:59:59";
+            Date endDateObj = sqlFormat.parse(parseEndDate);
+
+            Query q = QueryProvider.getPatientPrescriptionQuery();
+            q.fetch("medication")
+                    .where()
+                    .gt("dateTaken", sqlFormat.format(startDateObj))
+                    .lt("dateTaken", sqlFormat.format(endDateObj))
+                    .findList();
+
+            List<? extends IPatientPrescription> patientMedication = prescriptionRepository.find(q);
+
+            Map<Integer, ResearchItem> researchItems = new HashMap<>();
+
+            for (IPatientPrescription prescription : patientMedication) {
+
+
+                researchItems.put(
+                        prescription.getId(),
+                        new ResearchItem(
+                                prescription.getPatientEncounter().getPatient().getId(),
+                                "Dispensed Medication",
+                                prescription.getId(),
+                                ""
+                        )
+                );
+
+            }
+            response.setResponseObject(researchItems);
+
+        } catch (Exception ex) {
+            response.addError("exception", ex.getMessage());
+        }
+
+        return response;
+
+    }
 
 
 }
