@@ -20,11 +20,11 @@ var allowedFilterValues = (function(){
         },
         height: {
             graphTypes: ['bar','line','scatter','table'],
-            secondaryData: ['gender']
+            secondaryData: ['age']
         },
         weight: {
             graphTypes: ['bar','line','pie', 'scatter','table'],
-            secondaryData: ['gender']
+            secondaryData: ['gender','age']
         },
         dispensedMeds: {
             graphTypes: ['bar','pie','table'],
