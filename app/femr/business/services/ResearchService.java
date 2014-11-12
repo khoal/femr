@@ -496,7 +496,7 @@ public class ResearchService implements IResearchService {
                         prescription.getId(),
                         new ResearchItem(
                                 prescription.getPatientEncounter().getPatient().getId(),
-                                "Prescribed Medication",
+                                "Dispensed Medication",
                                 prescription.getId(),
                                 ""
                         )
