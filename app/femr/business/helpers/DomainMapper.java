@@ -642,7 +642,6 @@ public class DomainMapper {
     public static String createResearchGraphItem(Map<Integer, ResearchItem> primaryItems, Map<Integer, ResearchItem> secondaryItems) {
 
         if( primaryItems == null || primaryItems.isEmpty() ){
-
             return "";
         }
 
@@ -719,6 +718,7 @@ public class DomainMapper {
 
                 int i = (int) Math.floor(sampleSize / 2);
                 median = primaryDataset.get(i).getDataSet();
+
 
             }
         }

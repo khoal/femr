@@ -128,7 +128,6 @@ var pieGraphModule = (function(){
                 }
 
             }
-
             else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" || filterMenuModule.getPrimaryDataset() == "dispensedMeds" ){
 
                 if( medications[obj.dataSet]){
@@ -137,7 +136,6 @@ var pieGraphModule = (function(){
                 else{
                     keyStr = "Unknown";
                 }
-
 
             }
             else{
@@ -396,7 +394,6 @@ var pieGraphModule = (function(){
             return label;
         });
         //*/
-
 
         var legend = d3.select(".chart")
             .append("g")

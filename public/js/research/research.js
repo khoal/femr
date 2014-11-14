@@ -149,7 +149,6 @@ var filterMenuModule = (function(){
         groupPrimary: $("#groupPrimaryData"),
         rangeStart: $("#rangeStart"),
         rangeEnd: $("#rangeEnd")
-
     };
 
     var filterMenus = {
@@ -440,16 +439,7 @@ var filterMenuModule = (function(){
 
     var chooseGroupPrimary = function(){
 
-
-        if( $(this).prop('checked') ){
-
-            filterValues.groupPrimary = true;
-        }
-        else{
-
-            filterValues.groupPrimary = false;
-        }
-
+        filterValues.groupPrimary = $(this).prop('checked');
         return false;
     };
 
@@ -457,7 +447,6 @@ var filterMenuModule = (function(){
 
         filterValues.rangeStart = $(filterFields.rangeStart).val();
         filterValues.rangeEnd = $(filterFields.rangeEnd).val();
-
         return false;
     };
 
@@ -665,7 +654,14 @@ var graphLoaderModule = (function(){
         $(".graph-header").show();
         graphType = newGraphType;
 
-        //console.log(postData);
+        console.log(postData);
+
+
+        // remove any previous graph
+        d3.selectAll("svg > *").remove();
+        $("#range").find(".val").text("");
+        $("#average").find(".val").text("");
+        $("#median").find(".val").text("");
 
         // remove any previous graph
         d3.selectAll("svg > *").remove();
@@ -694,7 +690,6 @@ var graphLoaderModule = (function(){
             if( rawData.length == 0 ){
 
                 // show error
-
                 hideGraphLoadingIcon();
                 alert("No patients match the chosen filters");
 
@@ -761,7 +756,6 @@ var graphLoaderModule = (function(){
                 filterMenuModule.getPrimaryDataset() == "prescribedMeds" ||
                 filterMenuModule.getPrimaryDataset() == "dispensedMeds" ){
 
-
                 $("#median").hide();
                 $("#average").hide();
                 $("#range").hide();
@@ -787,7 +781,6 @@ var graphLoaderModule = (function(){
                     }
 
                     $("#median").find(".val").text(median + " " + unitOfMeasurement);
-
                 }
                 else {
                     $("#median").find(".val").text("n/a");
@@ -807,7 +800,6 @@ var graphLoaderModule = (function(){
                     }
 
                     $("#average").find(".val").text(average + " " + unitOfMeasurement);
-
                 }
                 else {
                     $("#average").find(".val").text("n/a");
@@ -838,7 +830,6 @@ var graphLoaderModule = (function(){
                     }
 
                     $("#range").find(".val").text(rangeLow + " - " + rangeHigh + " " + unitOfMeasurement);
-
                 }
                 else {
                     $("#range").find(".val").text("n/a");
@@ -958,10 +949,14 @@ jQuery(document).ready(function(){
             address: (randomInt(100, 2000)) + ' address',
             city: 'anywhere',
 <<<<<<< HEAD
+<<<<<<< HEAD
             age: (randomInt(1911, 2013)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
 =======
             age: (randomInt(1930, 2000)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
 >>>>>>> research-service
+=======
+            age: (randomInt(1911, 2013)) + '-' + (randomInt(1, 12)) + '-' + (randomInt(1, 12)),
+>>>>>>> dbfd3928d550c2649b281c6f701f60bab3005736
             sex: (randomGender()),
             bloodPressureSystolic: (randomInt(110, 150)),
             bloodPressureDiastolic: (randomInt(60, 100)),
@@ -970,6 +965,7 @@ jQuery(document).ready(function(){
             respiratoryRate: (randomInt(10, 22)),
             oxygenSaturation: (randomInt(80, 100)),
             heightFeet: (randomInt(0, 7)),
+<<<<<<< HEAD
 <<<<<<< HEAD
             heightInches: (randomInt(0, 11)),
             weight: (randomInt(60, 180)),
@@ -984,6 +980,14 @@ jQuery(document).ready(function(){
             chiefComplaint: null,
             weeksPregnant: null
 >>>>>>> research-service
+=======
+            heightInches: (randomInt(0, 11)),
+            weight: (randomInt(60, 180)),
+            glucose: (randomInt(70, 140)),
+            chiefComplaint: null,
+            weeksPregnant: (generateWeeksPregnant())
+
+>>>>>>> dbfd3928d550c2649b281c6f701f60bab3005736
 
             // Add the rest of the form fields here
         };
@@ -999,7 +1003,6 @@ jQuery(document).ready(function(){
 });
 
 ///*
-
 
 function generateWeeksPregnant(){
 

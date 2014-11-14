@@ -116,6 +116,7 @@ var tableChartModule = (function(){
 
             }
 
+
             else if( filterMenuModule.getPrimaryDataset() == "prescribedMeds" ){
 
                 if( medications[obj.dataSet]){
@@ -125,25 +126,7 @@ var tableChartModule = (function(){
                     keyStr = "Unknown";
                 }
 
-                /*
-                if( obj.dataSet == 1 ){
-                    keyStr = "Aspirin";
-                }
-                else if(obj.dataSet == 2){
-                    keyStr = "Tylenol";
-                }
-                else if(obj.dataSet == 3){
-                    keyStr = "Amoxycilin";
-                }
-                else if(obj.dataSet == 4){
-                    keyStr = "Hydrocodone";
-                }
-                else{
-                    keyStr = "Claritin";
-                }
-                */
             }
-
             else{
 
                 // Keep track of min/max to build scale values
@@ -225,15 +208,12 @@ var tableChartModule = (function(){
         var i = 0;
         $.each(grouped_data, function (key, obj) {
 
-
             /*
             if( filterMenuModule.getPrimaryDataset() == "height" ){
 
                 key = inchesToFeetInches(key);
             }
             */
-
-
             //console.log(key);
             //console.log(obj);
             graph_data[i] = {

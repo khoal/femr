@@ -25,7 +25,7 @@ var lineGraphModule = (function(){
         xAxisTitle = xTitle;
         measurementUnits = unitOfMeasurement;
 
-        //console.log(jsonData);
+        console.log(jsonData);
 
         // Group and count the individual patients
         var maxVal = Number.MIN_VALUE;
@@ -65,7 +65,6 @@ var lineGraphModule = (function(){
         var i = 0;
         $.each(grouped_data, function (key, obj) {
 
-
             /*
             if( filterMenuModule.getPrimaryDataset() == "height" ){
 
@@ -80,7 +79,7 @@ var lineGraphModule = (function(){
             i++;
         });
 
-        //console.log(graph_data);
+        console.log(graph_data);
     };
 
     publicObject.buildGraph = function(){
@@ -127,7 +126,6 @@ var lineGraphModule = (function(){
         var yScale = d3.scale.linear()
             .domain(d3.extent(graph_data, function(d) { return d.value; }))
             //.domain([0, d3.max(graph_data, function(d) { return d.value; })])
-
             .range([graphHeight, 0]);
 
         var xAxis = d3.svg.axis()

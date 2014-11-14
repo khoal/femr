@@ -82,9 +82,7 @@ var barGraphModule = (function(){
         xAxisTitle = xTitle;
         measurementUnits = unitOfMeasurement;
 
-        console.log(jsonData);
         //console.log(jsonData);
-
 
         // Group and count the individual patients
         var maxVal = Number.MIN_VALUE;
@@ -209,9 +207,7 @@ var barGraphModule = (function(){
 
         // tickValues
         // max at 20 ticks
-
         /*
-
         if( Object.keys(grouped_data).length > 20 ){
             for( var i = minVal; i <= maxVal; i++ ){
                 if( i % 5 == 0 ){
@@ -219,12 +215,10 @@ var barGraphModule = (function(){
                 }
             }
         }
-
         */
         /*
         if( !filterMenuModule.getPrimaryDataset() == 'age' &&
             !filterMenuModule.isPrimaryDataGrouped() ) {
-
             // initialize all possible values in range to fix out of bounds erros with graph
             for (var i = minVal; i <= maxVal; i++) {
 
@@ -235,12 +229,12 @@ var barGraphModule = (function(){
             }
         }
         */
+
         var i = 0;
         $.each(grouped_data, function (key, obj) {
 
             //console.log(key);
             //console.log(obj);
-
 
             if( filterMenuModule.getPrimaryDataset() == "height" ){
 
@@ -298,12 +292,10 @@ var barGraphModule = (function(){
             //.tickValues(xScale.domain().filter(function(d, i) { return !(i % 6); }))
             .orient("bottom");
         // Only use tickValues if they are set
-
         if( tickValues.length > 0 ){
 
             xAxis.tickValues(tickValues)
         }
-<<<<<<< HEAD
         */
 
 
