@@ -19,14 +19,23 @@
 package femr.business.helpers;
 
 import com.avaje.ebean.Ebean;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import javax.inject.Provider;
 import femr.common.models.*;
 import femr.data.models.*;
 import femr.util.calculations.dateUtils;
 import femr.util.stringhelpers.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.joda.time.DateTime;
 import java.util.List;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for mapping Domain objects.
@@ -637,6 +646,111 @@ public class DomainMapper {
         photo.setFilePath(filePath);
         return photo;
     }
+
+
+    public static String createResearchGraphItem(Map<Integer, ResearchItem> primaryItems, Map<Integer, ResearchItem> secondaryItems) {
+
+        if( primaryItems == null || primaryItems.isEmpty() ){
+            return "";
+        }
+
+        // Two dimensional for double data sets
+        List<List<ResearchItem>> graphData = new ArrayList<List<ResearchItem>>();
+        List<ResearchItem> primaryDataset = new ArrayList<ResearchItem>();
+        List<ResearchItem> secondaryDataset = new ArrayList<ResearchItem>();
+
+        String axisTitle = "";
+        String unitOfMeasurement = "";
+
+        int sampleSize = primaryItems.size();
+        float total = 0;
+        float rangeHigh = 0;
+        float rangeLow = 10000;
+        float median = 0;
+
+        //for (ResearchItem item : primaryItems) {
+        for( Integer key : primaryItems.keySet() ){
+
+            ResearchItem primaryItem = primaryItems.get(key);
+            primaryDataset.add(primaryItem);
+
+            if( secondaryItems.containsKey(key) ){
+
+                ResearchItem secondaryItem = secondaryItems.get(key);
+                secondaryDataset.add(secondaryItem);
+            }
+
+            // Grab Datatype Title and Measurement from first item
+            // Probably a better way to do this
+            if( axisTitle.isEmpty() ){
+
+                axisTitle = WordUtils.capitalize(StringUtils.splitCamelCase(primaryItem.getDataType()));
+            }
+            if( unitOfMeasurement.isEmpty() ){
+
+                unitOfMeasurement = primaryItem.getUnitOfMeasurement();
+            }
+
+            // Calculate Stats while building data
+            float value = primaryItem.getDataSet();
+
+            // check range
+            if( value > rangeHigh ){
+                rangeHigh = value;
+            }
+            if( value < rangeLow){
+                rangeLow = value;
+            }
+
+            // sum total for average
+            total += value;
+
+        }
+
+        graphData.add(primaryDataset);
+        graphData.add(secondaryDataset);
+
+        // calculate average, median, range
+        float average = total / sampleSize;
+
+        if( sampleSize > 1 ) {
+            if (sampleSize % 2 == 0) {
+
+                int i = (sampleSize / 2) - 1;
+                int j = i + 1;
+
+                float val1 = primaryDataset.get(i).getDataSet();
+                float val2 = primaryDataset.get(j).getDataSet();
+
+                median = (val1 + val2) / 2;
+            } else {
+
+                int i = (int) Math.floor(sampleSize / 2);
+                median = primaryDataset.get(i).getDataSet();
+
+
+            }
+        }
+        else{
+
+            median = primaryDataset.get(0).getDataSet();
+        }
+
+        // build graph model item
+        ResearchGraphDataItem graphModel = new ResearchGraphDataItem();
+        graphModel.setAverage(average);
+        graphModel.setMedian(median);
+        graphModel.setRangeLow(rangeLow);
+        graphModel.setRangeHigh(rangeHigh);
+        graphModel.setGraphData(graphData);
+
+        graphModel.setxAxisTitle(axisTitle);
+        graphModel.setUnitOfMeasurement(unitOfMeasurement);
+
+        Gson gson = new Gson();
+        return gson.toJson(graphModel);
+    }
+
 
 
 }

@@ -18,15 +18,62 @@
 */
 package femr.business.services;
 
+import com.google.gson.JsonObject;
+import femr.common.dto.ServiceResponse;
+import femr.common.models.PatientEncounterItem;
+import femr.common.models.PatientItem;
+import femr.common.models.VitalItem;
+import femr.common.models.ResearchItem;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Interface for the Research Service
  */
 public interface IResearchService {
 
+    ServiceResponse<List<PatientItem>> getAllPatientItems();
 
 
+    ServiceResponse<List<Date>> getAllPatientAges();
+    //ServiceResponse<List<PatientItem>> getData();
 
+    /**
+     * Retrieves a map of Patient vitals identified by vitalType.
+     * Mapped by patientEncounterId to be matched up to secondary data sets
+     *
+     * @param vitalType the string name of the vital to lookup
+     * @param startDateString starting range of vital taken range
+     * @param endDateString ending range of vital taken range
+     * @return a map of unique readings of vitalType indexed by encounterID
+     */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientVitals(String vitalType, String startDateString, String endDateString);
 
+    /**
+     * Retrieves a map of Patient attributes identified by attributeName.
+     * Mapped by patientEncounterId to be matched up to secondary data sets
+     *
+     * @param attributeName the string name of the vital to lookup
+     * @param startDateString starting range of vital taken range
+     * @param endDateString ending range of vital taken range
+     * @return a map of unique readings of vitalType indexed by encounterID
+     */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientAttribute(String attributeName, String startDateString, String endDateString);
 
+    /**
+     * Retrieves a map of Patient attributes identified by attributeName.
+     * Mapped by patientEncounterId to be matched up to secondary data sets
+     *
+     * @param medicationType the string name of the vital to lookup
+     * @param startDateString starting range of vital taken range
+     * @param endDateString ending range of vital taken range
+     * @return a map of unique readings of vitalType indexed by encounterID
+     */
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientMedications(String medicationType, String startDateString, String endDateString);
+    public ServiceResponse<Map<Integer, ResearchItem>> getPatientHeights(String startDateString, String endDateString);
+    public ServiceResponse<Map<Integer, String>> getMedication();
+    public ServiceResponse<Map<Integer, ResearchItem>> getPrescribedMedications(String startDateString, String endDateString);
+    public ServiceResponse<Map<Integer, ResearchItem>> getDispensedMedications(String startDateString, String endDateString);
 }
