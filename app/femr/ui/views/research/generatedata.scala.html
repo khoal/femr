@@ -7,12 +7,14 @@
         <link rel="stylesheet" href="@routes.Assets.at("css/research.css")">
     }
     @additionalScripts = {
-        <script type="text/javascript" src="@routes.Assets.at("js/research/d3.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("js/research/generateData.js")"></script>
 
     }
 
 @main("Research", currentUser, styles = additionalStyles, scripts = additionalScripts) {
 
-        <h1>generate data test</h1>
-
+        <h1>Generate Test Data</h1>
+    How many did you want to generate: <input type="text" id="field1" value="1"><br>
+    <input id="generateData" type="button" value="Generate" onclick="generate();" />
+    
 }

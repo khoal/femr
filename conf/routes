@@ -50,7 +50,8 @@ POST        /medical                         @femr.ui.controllers.MedicalControl
 #Research
 GET         /research                        @femr.ui.controllers.ResearchController.indexGet()
 POST        /research/graph                  @femr.ui.controllers.ResearchController.getGraphPost()
-POST        /research/medication            @femr.ui.controllers.ResearchController.getMedicationPost()
+POST        /research/medication             @femr.ui.controllers.ResearchController.getMedicationPost()
+GET         /research/generateData           @femr.ui.controllers.ResearchController.generateData()
 
 #Sessions
 GET         /logout                          @femr.ui.controllers.SessionsController.delete()

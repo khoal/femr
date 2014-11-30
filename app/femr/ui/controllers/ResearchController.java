@@ -13,6 +13,7 @@ import femr.data.models.Roles;
 import femr.ui.helpers.security.AllowedRoles;
 import femr.ui.helpers.security.FEMRAuthenticated;
 import femr.ui.views.html.research.index;
+import femr.ui.views.html.research.generatedata;
 import femr.ui.models.research.FilterViewModel;
 import play.data.Form;
 import play.mvc.Controller;
@@ -63,6 +64,12 @@ public class ResearchController extends Controller {
 
         CurrentUser currentUserSession = sessionService.getCurrentUserSession();
         return ok(index.render(currentUserSession, viewModel));
+    }
+
+    public Result generateData() {
+        FilterViewModel viewModel = FilterViewModelForm.bindFromRequest().get();
+        CurrentUser currentUserSession = sessionService.getCurrentUserSession();
+        return ok(generatedata.render(currentUserSession, viewModel));
     }
 
     public Result getGraphPost(){
